@@ -249,9 +249,10 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 100%;
-        height: 100%;
-        padding: 0 10px;
+        width: max-content;
+        height: 40px;
+        padding: 0 12px;
+        gap: 12px;
         background: rgba(44, 44, 44, 0.87);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
@@ -261,7 +262,6 @@
           0px 8px 32px 0px rgba(0, 0, 0, 0.35), 
           0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
         box-sizing: border-box;
-        overflow: hidden;
       }
 
       .capsule-left-group {
@@ -270,9 +270,6 @@
         gap: 8px;
         height: 100%;
         box-sizing: border-box;
-        overflow: hidden;
-        flex-shrink: 1;
-        min-width: 0;
       }
 
       .capsule-label {
@@ -283,10 +280,6 @@
         color: rgba(255, 255, 255, 0.9);
         letter-spacing: 0.06px;
         white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        flex-shrink: 1;
-        min-width: 0;
       }
 
 
@@ -448,9 +441,6 @@
   function showMainPanel(isInitial = false) {
     const { shadowRoot, wrapper } = getOrCreateHost();
     
-    wrapper.style.width = "274px";
-    wrapper.style.height = "242px";
-    
     wrapper.innerHTML = `
       <div class="popup-container">
         <!-- Header -->
@@ -549,15 +539,13 @@
       removeExisting();
     });
 
+    adjustWrapperSize();
     showIndicator(isInitial);
   }
 
   function showSelectionIndicator() {
     const { shadowRoot, wrapper } = getOrCreateHost();
     injectHighlightStyle();
-    
-    wrapper.style.width = "274px";
-    wrapper.style.height = "40px";
     
     wrapper.innerHTML = `
       <div class="capsule-container selection-capsule">
@@ -575,6 +563,8 @@
         </button>
       </div>
     `;
+    
+    adjustWrapperSize();
 
     shadowRoot.querySelector("#figmaCancelBtn").addEventListener("click", () => {
       deactivateElementSelection();
@@ -587,15 +577,13 @@
   function showCapturingIndicator() {
     const { wrapper } = getOrCreateHost();
     
-    wrapper.style.width = "274px";
-    wrapper.style.height = "40px";
-    
     wrapper.innerHTML = `
       <div class="capsule-container capturing-capsule">
         <div class="spinner"></div>
         <span class="capsule-label">Capturing Figma design...</span>
       </div>
     `;
+    adjustWrapperSize();
     showIndicator();
   }
 
@@ -609,9 +597,6 @@
     if (label === "Copied to clipboard") {
       displayLabel = `Copied! Press ${keyName} to paste in Figma`;
     }
-    
-    wrapper.style.width = "274px";
-    wrapper.style.height = "40px";
     
     wrapper.innerHTML = `
       <div class="capsule-container success-capsule">
@@ -629,6 +614,8 @@
         </button>
       </div>
     `;
+    
+    adjustWrapperSize();
 
     shadowRoot.querySelector("#figmaSuccessClose").addEventListener("click", () => {
       removeExisting();
@@ -647,9 +634,6 @@
   function showErrorIndicator() {
     const { shadowRoot, wrapper } = getOrCreateHost();
     
-    wrapper.style.width = "274px";
-    wrapper.style.height = "40px";
-    
     wrapper.innerHTML = `
       <div class="capsule-container error-capsule">
         <div class="capsule-left-group">
@@ -667,6 +651,8 @@
           </button>
       </div>
     `;
+    
+    adjustWrapperSize();
 
     shadowRoot.querySelector("#figmaErrorClose").addEventListener("click", () => {
       showMainPanel();
@@ -680,6 +666,31 @@
         showMainPanel();
       }
     }, 20000);
+  }
+
+  function adjustWrapperSize() {
+    const { wrapper } = getOrCreateHost();
+    const child = wrapper.firstElementChild;
+    if (!child) return;
+    
+    const currentWidth = wrapper.style.width || "274px";
+    const currentHeight = wrapper.style.height || "242px";
+    
+    wrapper.style.transition = "none";
+    wrapper.style.width = "auto";
+    wrapper.style.height = "auto";
+    
+    const rect = child.getBoundingClientRect();
+    const targetWidth = Math.ceil(rect.width);
+    const targetHeight = Math.ceil(rect.height);
+    
+    wrapper.style.width = currentWidth;
+    wrapper.style.height = currentHeight;
+    wrapper.offsetHeight; // force reflow
+    
+    wrapper.style.transition = "";
+    wrapper.style.width = `${targetWidth}px`;
+    wrapper.style.height = `${targetHeight}px`;
   }
 
   function showIndicator(isInitial = false) {
