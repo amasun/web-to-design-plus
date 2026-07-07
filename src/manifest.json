@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "Web to Design Plus (Dev)",
+  "version": "1.0.1",
+  "description": "Web to Design Plus 一键抓取网页并转换为可编辑设计稿及功能增强",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "clipboardWrite",
+    "clipboardRead",
+    "offscreen"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "logo/icon16.png",
+    "48": "logo/icon48.png",
+    "128": "logo/icon128.png"
+  },
+  "action": {
+    "default_title": "Capture page for Figma",
+    "default_icon": {
+      "16": "logo/icon16.png",
+      "48": "logo/icon48.png",
+      "128": "logo/icon128.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "capture.js",
+        "runner.js",
+        "logo/icon16.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}

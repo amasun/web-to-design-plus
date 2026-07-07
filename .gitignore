@@ -1,0 +1,8 @@
+temp_clone/
+.DS_Store
+Thumbs.db
+node_modules/
+package-lock.json
+web-to-figma-extension.zip
+dist/
+chrome-profile/

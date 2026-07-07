@@ -1,0 +1,13 @@
+{
+  "name": "web-to-design-plus",
+  "version": "1.0.1",
+  "description": "Chrome extension to capture web pages for Figma",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {
+    "terser": "^5.31.1"
+  },
+  "private": true
+}
