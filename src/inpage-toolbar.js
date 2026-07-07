@@ -597,7 +597,18 @@
   function showSuccessIndicator(label = "Copied to clipboard") {
     const { shadowRoot, wrapper } = getOrCreateHost();
     
-    wrapper.style.width = "200px";
+    const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+    const keyName = isMac ? "⌘V" : "Ctrl+V";
+    const isZh = navigator.language.toLowerCase().startsWith("zh");
+    
+    let displayLabel = label;
+    if (label === "Copied to clipboard") {
+      displayLabel = isZh 
+        ? `已复制！按 ${keyName} 粘贴至 Figma` 
+        : `Copied! Press ${keyName} in Figma`;
+    }
+    
+    wrapper.style.width = isZh ? "245px" : "255px";
     wrapper.style.height = "40px";
     
     wrapper.innerHTML = `
@@ -607,7 +618,7 @@
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:block; flex-shrink:0;">
             <path d="M16 5.07193C17.2067 5.76862 18.2104 6.76837 18.9119 7.9722C19.6134 9.17604 19.9884 10.5422 19.9996 11.9355C20.0109 13.3288 19.658 14.7008 18.9761 15.9158C18.2941 17.1308 17.3066 18.1467 16.1114 18.8628C14.9162 19.5788 13.5547 19.9704 12.1617 19.9986C10.7686 20.0268 9.39238 19.6906 8.16917 19.0235C6.94596 18.3563 5.9182 17.3813 5.18763 16.1949C4.45705 15.0085 4.04901 13.6518 4.00388 12.2592L3.99988 12L4.00388 11.7408C4.04868 10.3592 4.45072 9.01274 5.1708 7.83276C5.89089 6.65277 6.90444 5.6795 8.11264 5.00783C9.32085 4.33617 10.6825 3.98903 12.0648 4.00026C13.4471 4.0115 14.8029 4.38072 16 5.07193ZM14.9656 9.83439C14.8279 9.69664 14.6446 9.6139 14.4502 9.60167C14.2557 9.58945 14.0635 9.64858 13.9096 9.76799L13.8344 9.83439L11.2 12.468L10.1656 11.4344L10.0904 11.368C9.93642 11.2487 9.74425 11.1896 9.54987 11.2019C9.35549 11.2141 9.17227 11.2969 9.03455 11.4346C8.89683 11.5723 8.81408 11.7556 8.80182 11.9499C8.78956 12.1443 8.84862 12.3365 8.96794 12.4904L9.03434 12.5656L10.6344 14.1656L10.7096 14.232C10.8499 14.3409 11.0224 14.4 11.2 14.4C11.3775 14.4 11.5501 14.3409 11.6904 14.232L11.7656 14.1656L14.9656 10.9656L15.032 10.8904C15.1514 10.7365 15.2106 10.5443 15.1983 10.3498C15.1861 10.1554 15.1034 9.97214 14.9656 9.83439Z" fill="#D4FC5D"/>
           </svg>
-          <span class="capsule-label">${label}</span>
+          <span class="capsule-label">${displayLabel}</span>
         </div>
         <button class="close-btn" id="figmaSuccessClose" type="button" title="Close">
             <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
