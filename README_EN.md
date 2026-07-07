@@ -31,13 +31,7 @@
 ## Usage
 
 ### 1. Installation
-*   **Ready-to-use (Recommended)**: Download the latest `web-to-design-plus.zip` from [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases), extract it, open `chrome://extensions/` in Chrome, enable "Developer mode", click "Load unpacked", and select the unzipped folder.
-*   **From Source**: Clone the repository and run the following commands in the root folder:
-    ```bash
-    npm install
-    npm run build
-    ```
-    Then load the compiled `dist/` directory using the "Load unpacked" method.
+Download the latest `web-to-design-plus.zip` from [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases) and extract it. Open Google Chrome, go to `chrome://extensions/`, enable **"Developer mode"** in the top-right corner, click **"Load unpacked"** in the top-left, and select the extracted folder.
 
 ### 2. Capture & Restore
 1. Open any webpage and click the **Web to Design Plus** extension icon to reveal the toolbar.

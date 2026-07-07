@@ -30,13 +30,7 @@
 ## 使用方法
 
 ### 1. 安装插件
-*   **开箱即用（推荐）**：直接在 [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases) 中下载最新版本的 `web-to-design-plus.zip` 并解压，打开 Chrome 进入 `chrome://extensions/`，开启“开发者模式”，点击“加载已解压的扩展程序”选择解压后的文件夹即可。
-*   **源码编译**：拉取源码后，在根目录依次执行以下命令：
-    ```bash
-    npm install
-    npm run build
-    ```
-    然后将编译生成的 `dist/` 文件夹通过上述方式导入 Chrome 中。
+直接在 [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases) 中下载最新版本的 `web-to-design-plus.zip` 并解压，打开 Chrome 浏览器进入 `chrome://extensions/`，开启右上角的 **“开发者模式”**，点击左上角的 **“加载已解压的扩展程序”**，选择解压出的文件夹即可。
 
 ### 2. 抓取与还原
 1. 访问任意网页，点击 Chrome 插件栏中的 **Web to Design Plus** 唤出悬浮工具栏。
