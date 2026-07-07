@@ -523,4 +523,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   return true;
 });
 
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.set({
+    enableAssetProxyFetch: true,
+    proxyFetchConcurrency: "8"
+  });
+});
+
 loadConcurrencyConfig();
