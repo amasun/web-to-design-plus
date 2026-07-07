@@ -30,8 +30,8 @@
         position: fixed;
         top: 16px;
         right: 16px;
-        width: 274px;
-        height: 242px;
+        width: 276px;
+        height: 240px;
         opacity: 0;
         transform: translateY(-20px) scale(0.95);
         z-index: 2147483647;
@@ -42,12 +42,10 @@
           transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
           width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
           height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      
-      /* Glassmorphism Container */
-      .popup-container {
-        width: max-content;
-        height: max-content;
+        overflow: hidden;
+        box-sizing: border-box;
+
+        /* Shared background card styling */
         background: rgba(44, 44, 44, 0.87);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
@@ -56,6 +54,12 @@
         box-shadow: 
           0px 8px 32px 0px rgba(0, 0, 0, 0.35), 
           0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
+      }
+      
+      /* Glassmorphism Container */
+      .popup-container {
+        width: max-content;
+        height: max-content;
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
@@ -253,14 +257,6 @@
         height: 40px;
         padding: 0 12px;
         gap: 12px;
-        background: rgba(44, 44, 44, 0.87);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 
-          0px 8px 32px 0px rgba(0, 0, 0, 0.35), 
-          0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
         box-sizing: border-box;
       }
 
@@ -673,16 +669,17 @@
     const child = wrapper.firstElementChild;
     if (!child) return;
     
-    const currentWidth = wrapper.style.width || "274px";
-    const currentHeight = wrapper.style.height || "242px";
+    const currentWidth = wrapper.style.width || "276px";
+    const currentHeight = wrapper.style.height || "240px";
     
     wrapper.style.transition = "none";
     wrapper.style.width = "auto";
     wrapper.style.height = "auto";
     
     const rect = child.getBoundingClientRect();
-    const targetWidth = Math.ceil(rect.width);
-    const targetHeight = Math.ceil(rect.height);
+    // Add 2px to account for the wrapper's 1px border on each side (box-sizing: border-box)
+    const targetWidth = Math.ceil(rect.width) + 2;
+    const targetHeight = Math.ceil(rect.height) + 2;
     
     wrapper.style.width = currentWidth;
     wrapper.style.height = currentHeight;
