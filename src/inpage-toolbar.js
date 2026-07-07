@@ -46,8 +46,8 @@
       
       /* Glassmorphism Container */
       .popup-container {
-        width: 274px;
-        height: 242px;
+        width: max-content;
+        height: max-content;
         background: rgba(44, 44, 44, 0.87);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
