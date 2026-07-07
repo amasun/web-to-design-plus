@@ -35,7 +35,10 @@
         z-index: 2147483647;
         pointer-events: auto;
         user-select: none;
-        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                    width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                    height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
         box-sizing: border-box;
 
@@ -242,6 +245,19 @@
         flex-shrink: 0;
       }
 
+      .info-link {
+        display: flex;
+        flex-shrink: 0;
+        line-height: 0;
+        cursor: pointer;
+        opacity: 0.85;
+        transition: opacity 0.2s ease;
+      }
+
+      .info-link:hover {
+        opacity: 1;
+      }
+
       /* Capsule Styles (Overlay/Toasts/Selection) */
       .capsule-container {
         display: flex;
@@ -418,6 +434,46 @@
     return { host, shadowRoot, wrapper };
   }
 
+  function setWrapperContent(wrapper, html) {
+    const hasContent = wrapper.childElementCount > 0;
+    const firstRect = wrapper.getBoundingClientRect();
+
+    wrapper.innerHTML = html;
+
+    if (!hasContent) return;
+
+    // Measure the natural size of the new content, unconstrained.
+    wrapper.style.width = "";
+    wrapper.style.height = "";
+    const lastRect = wrapper.getBoundingClientRect();
+
+    if (Math.abs(firstRect.width - lastRect.width) < 1 && Math.abs(firstRect.height - lastRect.height) < 1) {
+      return;
+    }
+
+    // Pin to the old size, then force a reflow so the transition has a "from" state to animate from.
+    wrapper.style.width = `${firstRect.width}px`;
+    wrapper.style.height = `${firstRect.height}px`;
+    wrapper.offsetHeight;
+
+    const clearInline = () => {
+      wrapper.style.width = "";
+      wrapper.style.height = "";
+      wrapper.removeEventListener("transitionend", onEnd);
+    };
+    function onEnd(e) {
+      if (e.target === wrapper && (e.propertyName === "width" || e.propertyName === "height")) {
+        clearInline();
+      }
+    }
+    wrapper.addEventListener("transitionend", onEnd);
+
+    requestAnimationFrame(() => {
+      wrapper.style.width = `${lastRect.width}px`;
+      wrapper.style.height = `${lastRect.height}px`;
+    });
+  }
+
   function injectHighlightStyle() {
     let style = document.getElementById(HIGHLIGHT_ID + "_style");
     if (!style) {
@@ -430,8 +486,8 @@
 
   function showMainPanel(isInitial = false) {
     const { shadowRoot, wrapper } = getOrCreateHost();
-    
-    wrapper.innerHTML = `
+
+    setWrapperContent(wrapper, `
       <div class="popup-container">
         <!-- Header -->
         <header class="logo-section">
@@ -495,21 +551,23 @@
         <footer class="footer-section">
           <span class="footer-credit">By Artgineer</span>
           <!-- Xiaohongshu logo brand icon (20:102) -->
-          <svg class="info-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#clip0_20_102)">
-              <path d="M4 0H12C14.6667 0 16 1.33333 16 4V12C16 14.6667 14.6667 16 12 16H4C1.33333 16 0 14.6667 0 12V4C0 1.33333 1.33333 0 4 0Z" fill="#F24E1E"/>
-              <path d="M6.966 11.9733C7.03134 11.8307 7.086 11.7067 7.14534 11.586C7.28001 11.3362 7.40129 11.0794 7.50867 10.8167C7.53628 10.7 7.60884 10.5988 7.71057 10.5353C7.81231 10.4718 7.935 10.4509 8.052 10.4773C8.39534 10.502 8.74 10.484 9.09867 10.484V6.01334C8.85734 6.01334 8.61934 6.00468 8.38334 6.01334C8.21867 6.02201 8.16067 5.96801 8.166 5.79201C8.17734 5.36868 8.166 4.94401 8.166 4.50134H11.5133V5.52801C11.5133 6.01068 11.5133 6.01068 11.0453 6.01068H10.5747V10.4787H11.5907C12 10.4787 12 10.4787 12 10.9087V11.8093C12 11.934 11.9693 11.9973 11.834 11.9973C10.2453 11.9947 8.656 11.9927 7.06734 11.994C7.033 11.9899 6.99909 11.9827 6.966 11.9727" fill="white"/>
-              <path d="M7.59933 8.73667C7.39 9.168 7.206 9.55333 7.01267 9.932C6.99611 9.95351 6.97493 9.97102 6.9507 9.98325C6.92647 9.99548 6.8998 10.0021 6.87267 10.0027C6.40733 10.0027 5.93933 10.0207 5.47533 9.986C5.01067 9.95133 4.82467 9.65267 5.01 9.19667C5.22067 8.67067 5.47467 8.162 5.71 7.64667L5.76333 7.50867C5.57533 7.50867 5.41067 7.51333 5.246 7.50867C5.112 7.51067 4.978 7.498 4.84733 7.472C4.72481 7.45524 4.61384 7.39079 4.53857 7.29267C4.46329 7.19455 4.42979 7.07069 4.44533 6.948C4.45125 6.89312 4.46658 6.83967 4.49067 6.79C4.77267 6.11267 5.08867 5.44867 5.39333 4.78133C5.49267 4.56267 5.59667 4.34733 5.70867 4.13467C5.73733 4.07933 5.804 4.00867 5.85533 4.00667C6.29067 3.996 6.72733 4.00133 7.202 4.00133C7.16067 4.10733 7.13733 4.17933 7.106 4.24667C6.83933 4.80467 6.572 5.362 6.30333 5.918C6.24933 6.03067 6.18333 6.148 6.386 6.234C6.43933 5.944 6.658 5.99667 6.84867 5.99667H7.94867C7.90267 6.10667 7.87267 6.18333 7.83933 6.256C7.49933 6.966 7.154 7.67067 6.81933 8.38C6.682 8.66867 6.728 8.73933 7.048 8.742C7.21267 8.73733 7.37933 8.73667 7.59933 8.73667ZM7.00067 10.4847C6.74267 11.002 6.512 11.4673 6.276 11.93C6.2622 11.9493 6.24427 11.9653 6.22351 11.9769C6.20276 11.9884 6.1797 11.9952 6.156 11.9967C5.52333 11.99 4.88933 11.978 4.25467 11.9613C4.16765 11.9482 4.08228 11.9259 4 11.8947L4.35467 11.1773C4.47 10.94 4.58267 10.704 4.70733 10.4787C4.72373 10.4518 4.74586 10.4289 4.77214 10.4116C4.79842 10.3944 4.82819 10.3831 4.85933 10.3787C5.44067 10.4073 6.022 10.448 6.604 10.4833C6.72 10.4893 6.83067 10.4847 7.00067 10.4847Z" fill="white"/>
-            </g>
-            <defs>
-              <clipPath id="clip0_20_102">
-                <rect width="16" height="16" fill="white"/>
-              </clipPath>
-            </defs>
-          </svg>
+          <a class="info-link" href="https://www.xiaohongshu.com/user/profile/5c094b50f7e8b948da476607" target="_blank" rel="noopener noreferrer" title="Follow on Xiaohongshu">
+            <svg class="info-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_20_102)">
+                <path d="M4 0H12C14.6667 0 16 1.33333 16 4V12C16 14.6667 14.6667 16 12 16H4C1.33333 16 0 14.6667 0 12V4C0 1.33333 1.33333 0 4 0Z" fill="#F24E1E"/>
+                <path d="M6.966 11.9733C7.03134 11.8307 7.086 11.7067 7.14534 11.586C7.28001 11.3362 7.40129 11.0794 7.50867 10.8167C7.53628 10.7 7.60884 10.5988 7.71057 10.5353C7.81231 10.4718 7.935 10.4509 8.052 10.4773C8.39534 10.502 8.74 10.484 9.09867 10.484V6.01334C8.85734 6.01334 8.61934 6.00468 8.38334 6.01334C8.21867 6.02201 8.16067 5.96801 8.166 5.79201C8.17734 5.36868 8.166 4.94401 8.166 4.50134H11.5133V5.52801C11.5133 6.01068 11.5133 6.01068 11.0453 6.01068H10.5747V10.4787H11.5907C12 10.4787 12 10.4787 12 10.9087V11.8093C12 11.934 11.9693 11.9973 11.834 11.9973C10.2453 11.9947 8.656 11.9927 7.06734 11.994C7.033 11.9899 6.99909 11.9827 6.966 11.9727" fill="white"/>
+                <path d="M7.59933 8.73667C7.39 9.168 7.206 9.55333 7.01267 9.932C6.99611 9.95351 6.97493 9.97102 6.9507 9.98325C6.92647 9.99548 6.8998 10.0021 6.87267 10.0027C6.40733 10.0027 5.93933 10.0207 5.47533 9.986C5.01067 9.95133 4.82467 9.65267 5.01 9.19667C5.22067 8.67067 5.47467 8.162 5.71 7.64667L5.76333 7.50867C5.57533 7.50867 5.41067 7.51333 5.246 7.50867C5.112 7.51067 4.978 7.498 4.84733 7.472C4.72481 7.45524 4.61384 7.39079 4.53857 7.29267C4.46329 7.19455 4.42979 7.07069 4.44533 6.948C4.45125 6.89312 4.46658 6.83967 4.49067 6.79C4.77267 6.11267 5.08867 5.44867 5.39333 4.78133C5.49267 4.56267 5.59667 4.34733 5.70867 4.13467C5.73733 4.07933 5.804 4.00867 5.85533 4.00667C6.29067 3.996 6.72733 4.00133 7.202 4.00133C7.16067 4.10733 7.13733 4.17933 7.106 4.24667C6.83933 4.80467 6.572 5.362 6.30333 5.918C6.24933 6.03067 6.18333 6.148 6.386 6.234C6.43933 5.944 6.658 5.99667 6.84867 5.99667H7.94867C7.90267 6.10667 7.87267 6.18333 7.83933 6.256C7.49933 6.966 7.154 7.67067 6.81933 8.38C6.682 8.66867 6.728 8.73933 7.048 8.742C7.21267 8.73733 7.37933 8.73667 7.59933 8.73667ZM7.00067 10.4847C6.74267 11.002 6.512 11.4673 6.276 11.93C6.2622 11.9493 6.24427 11.9653 6.22351 11.9769C6.20276 11.9884 6.1797 11.9952 6.156 11.9967C5.52333 11.99 4.88933 11.978 4.25467 11.9613C4.16765 11.9482 4.08228 11.9259 4 11.8947L4.35467 11.1773C4.47 10.94 4.58267 10.704 4.70733 10.4787C4.72373 10.4518 4.74586 10.4289 4.77214 10.4116C4.79842 10.3944 4.82819 10.3831 4.85933 10.3787C5.44067 10.4073 6.022 10.448 6.604 10.4833C6.72 10.4893 6.83067 10.4847 7.00067 10.4847Z" fill="white"/>
+              </g>
+              <defs>
+                <clipPath id="clip0_20_102">
+                  <rect width="16" height="16" fill="white"/>
+                </clipPath>
+              </defs>
+            </svg>
+          </a>
         </footer>
       </div>
-    `;
+    `);
 
     const btnEntire = shadowRoot.querySelector("#btnEntire");
     const btnElement = shadowRoot.querySelector("#btnElement");
@@ -535,8 +593,8 @@
   function showSelectionIndicator() {
     const { shadowRoot, wrapper } = getOrCreateHost();
     injectHighlightStyle();
-    
-    wrapper.innerHTML = `
+
+    setWrapperContent(wrapper, `
       <div class="capsule-container selection-capsule">
         <div class="capsule-left-group">
           <!-- click pointer icon (22:134) -->
@@ -551,8 +609,8 @@
           </svg>
         </button>
       </div>
-    `;
-    
+    `);
+
     shadowRoot.querySelector("#figmaCancelBtn").addEventListener("click", () => {
       deactivateElementSelection();
       showMainPanel();
@@ -563,13 +621,13 @@
 
   function showCapturingIndicator() {
     const { wrapper } = getOrCreateHost();
-    
-    wrapper.innerHTML = `
+
+    setWrapperContent(wrapper, `
       <div class="capsule-container capturing-capsule">
         <div class="spinner"></div>
         <span class="capsule-label">Capturing Figma design...</span>
       </div>
-    `;
+    `);
     showIndicator();
   }
 
@@ -584,7 +642,7 @@
       displayLabel = `Copied! Press ${keyName} to paste in Figma`;
     }
     
-    wrapper.innerHTML = `
+    setWrapperContent(wrapper, `
       <div class="capsule-container success-capsule">
         <div class="capsule-left-group">
           <!-- check circle icon (22:144) -->
@@ -599,8 +657,8 @@
           </svg>
         </button>
       </div>
-    `;
-    
+    `);
+
     shadowRoot.querySelector("#figmaSuccessClose").addEventListener("click", () => {
       removeExisting();
     });
@@ -618,7 +676,7 @@
   function showErrorIndicator() {
     const { shadowRoot, wrapper } = getOrCreateHost();
     
-    wrapper.innerHTML = `
+    setWrapperContent(wrapper, `
       <div class="capsule-container error-capsule">
         <div class="capsule-left-group">
           <!-- error icon -->
@@ -634,8 +692,8 @@
             </svg>
           </button>
       </div>
-    `;
-    
+    `);
+
     shadowRoot.querySelector("#figmaErrorClose").addEventListener("click", () => {
       showMainPanel();
     });
