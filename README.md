@@ -22,38 +22,26 @@
 
 ## 功能特点
 
-- **高颜值悬浮工具栏**：采用毛玻璃（Glassmorphism）磨砂质感与动效设计，支持网页内自由拖拽移动。
-- **双重抓取模式**：
-  - **整页抓取（Entire Screen）**：一键捕获整个网页的布局与全部节点。
-  - **元素选择抓取（Select Element）**：支持在网页上直接高亮并选择任意 DOM 元素，实现局部局部抓取。
-- **免下载极速体验**：抓取生成的数据自动以 Figma 识别的 `text/html` base64 编码写入剪贴板，**无需下载/导入任何 JSON 文件**，在 Figma 软件中直接使用 `Ctrl+V` (或 `Cmd+V`) 粘贴即可完美还原为可编辑的设计稿图层。
-- **跨域图片代理与并发控制**：支持通过 Service Worker 进行跨域图片资源解析，可自定义配置采集并发数（可选 `4/6/8/10/12/16/20/无限`），有效避免网页图片因 CORS 限制而丢失。
+- **极简悬浮工具栏**：采用毛玻璃质感与动效设计，支持网页内自由拖拽，交互丝滑。
+- **双重抓取模式**：支持“整页抓取（Entire Screen）”与“特定元素选择抓取（Select Element）”。
+- **复制粘贴即用**：**无需下载/导入任何 JSON 配置文件**，数据直接写入剪贴板，在 Figma 中一键 `Ctrl/Cmd + V` 粘贴即刻还原为图层。
+- **自动跨域代理**：内置 Service Worker 自动处理跨域图片解析，结合 8 并发限制，确保图片资源不丢失。
 
-## 安装与使用方法 (Installation & Usage)
+## 使用方法
 
 ### 1. 安装插件
-1. 下载本项目源码并解压到本地。
-2. 在项目根目录下打开终端，运行以下命令安装依赖并打包：
-   ```bash
-   npm install
-   npm run build
-   ```
-3. 打开 Chrome 浏览器，进入扩展管理页面 `chrome://extensions/`。
-4. 开启右上角的 **“开发者模式” (Developer mode)**。
-5. 点击左上角 **“加载已解压的扩展程序” (Load unpacked)**，选择本项目编译生成的 `dist` 目录。
+*   **开箱即用（推荐）**：直接在 GitHub Releases 中下载 `web-to-design-plus.zip` 并解压，打开 Chrome 进入 `chrome://extensions/`，开启“开发者模式”，点击“加载已解压的扩展程序”导入解压后的文件夹即可。
+*   **源码编译**：拉取源码后，在根目录依次执行以下命令：
+    ```bash
+    npm install
+    npm run build
+    ```
+    然后将编译生成的 `dist/` 文件夹通过上述方式导入 Chrome 中。
 
-### 2. 网页抓取
-1. 访问任意您想要抓取的网页，点击 Chrome 插件栏中的 **Web to Design Plus** 图标，页面右上角将滑出悬浮工具栏。
-2. 根据需要选择抓取模式：
-   - 点击 **Entire screen**：自动滚动并抓取整个网页。
-   - 点击 **Select element**：鼠标在网页上悬停选择目标区域，点击即可锁定局部抓取。
-3. 抓取完成后，工具栏将显示绿色的 `Copied to clipboard`，此时数据已成功以 Figma HTML 格式写入您的剪贴板。
-
-### 3. 粘贴到 Figma
-1. 打开 Figma 客户端或网页版。
-2. 新建或打开一个设计 Draft。
-3. 直接在 Figma 画布中按下 `Ctrl + V`（macOS 用户按 `Cmd + V`）进行粘贴。
-4. 稍等片刻，网页图层便会原封不动地转换为 Figma 可编辑的矢量图层呈现在画布中！
+### 2. 抓取与还原
+1. 访问任意网页，点击 Chrome 插件栏中的 **Web to Design Plus** 唤出悬浮工具栏。
+2. 点击 **Entire screen**（整页）或 **Select element**（悬停选择特定 DOM 元素）。
+3. 提示 `Copied to clipboard` 后，直接在 Figma 中按 `Ctrl/Cmd + V` 粘贴，即刻还原为可编辑设计稿。
 
 ## 后续规划 (Roadmap)
 

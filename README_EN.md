@@ -23,38 +23,26 @@
 
 ## Features
 
-- **Beautiful Floating Toolbar**: Designed with premium Glassmorphism styling and smooth animations, supporting free dragging on any web page.
-- **Dual Capture Modes**:
-  - **Entire Screen**: Capture the full layout and all DOM elements in one click.
-  - **Select Element**: Highlight and select specific elements interactively for local captures.
-- **Zero-Download Workflow**: Captured page data is formatted into Figma's recognized `text/html` base64 structure and written directly to the clipboard. **No JSON downloads required** — simply press `Ctrl+V` (or `Cmd+V`) inside Figma to paste and edit layers immediately.
-- **CORS Image Proxy & Concurrency**: Fetches cross-origin assets securely via background Service Workers, with configurable concurrency settings (`4/6/8/10/12/16/20/infinite`) to prevent image loss.
+- **Minimal Floating Toolbar**: Premium glassmorphism design with smooth transition animations, draggable anywhere on the screen.
+- **Dual Capture Modes**: Support full-page capture (Entire Screen) and interactive local element selection (Select Element).
+- **Instant Copy & Paste**: **No JSON file downloads**. Data is directly formatted and written to your clipboard — paste with `Ctrl/Cmd + V` directly in Figma to generate editable layers.
+- **Auto Image Proxy**: Automatically resolves CORS-restricted images via Service Worker background fetching with an 8-concurrency limit.
 
-## Installation & Usage
+## Usage
 
-### 1. Install the Extension
-1. Download this repository's source code and extract it locally.
-2. Open a terminal in the project root directory, and run the following commands to install dependencies and build:
-   ```bash
-   npm install
-   npm run build
-   ```
-3. Open Google Chrome and navigate to the extension management page: `chrome://extensions/`.
-4. Enable **"Developer mode"** in the top-right corner.
-5. Click **"Load unpacked"** in the top-left corner, and select the compiled `dist` directory.
+### 1. Installation
+*   **Ready-to-use (Recommended)**: Download `web-to-design-plus.zip` from GitHub Releases, extract it, open `chrome://extensions/` in Chrome, enable "Developer mode", click "Load unpacked", and select the unzipped folder.
+*   **From Source**: Clone the repository and run the following commands in the root folder:
+    ```bash
+    npm install
+    npm run build
+    ```
+    Then load the compiled `dist/` directory using the "Load unpacked" method.
 
-### 2. Capture Web Pages
-1. Visit any web page you wish to capture, click the **Web to Design Plus** icon in your Chrome extensions bar, and the floating toolbar will slide out in the top-right corner.
-2. Select your capture mode:
-   - Click **Entire screen**: Automatically scrolls and captures the full web page layout.
-   - Click **Select element**: Hover and select any specific DOM element on the page, then click to capture.
-3. Once completed, the toolbar will display a green `Copied to clipboard` indicator, meaning the Figma-ready data has been securely written to your clipboard.
-
-### 3. Paste into Figma
-1. Open the Figma client or web editor.
-2. Create or open a design Draft.
-3. Press `Ctrl + V` (`Cmd + V` on macOS) on the canvas to paste the layout.
-4. Wait a few moments, and the web page will be reconstructed into clean, editable Figma layers!
+### 2. Capture & Restore
+1. Open any webpage and click the **Web to Design Plus** extension icon to reveal the toolbar.
+2. Select **Entire screen** or **Select element** (hover and click on your target DOM element).
+3. Once the `Copied to clipboard` success indicator appears, press `Ctrl/Cmd + V` in Figma to paste and edit layers immediately.
 
 ## Future Roadmap
 
