@@ -31,7 +31,7 @@
 ## Usage
 
 ### 1. Installation
-*   **Ready-to-use (Recommended)**: Download `web-to-design-plus.zip` from GitHub Releases, extract it, open `chrome://extensions/` in Chrome, enable "Developer mode", click "Load unpacked", and select the unzipped folder.
+*   **Ready-to-use (Recommended)**: Download the latest `web-to-design-plus.zip` from [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases), extract it, open `chrome://extensions/` in Chrome, enable "Developer mode", click "Load unpacked", and select the unzipped folder.
 *   **From Source**: Clone the repository and run the following commands in the root folder:
     ```bash
     npm install

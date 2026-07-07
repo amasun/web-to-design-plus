@@ -30,7 +30,7 @@
 ## 使用方法
 
 ### 1. 安装插件
-*   **开箱即用（推荐）**：直接在 GitHub Releases 中下载 `web-to-design-plus.zip` 并解压，打开 Chrome 进入 `chrome://extensions/`，开启“开发者模式”，点击“加载已解压的扩展程序”导入解压后的文件夹即可。
+*   **开箱即用（推荐）**：直接在 [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases) 中下载最新版本的 `web-to-design-plus.zip` 并解压，打开 Chrome 进入 `chrome://extensions/`，开启“开发者模式”，点击“加载已解压的扩展程序”选择解压后的文件夹即可。
 *   **源码编译**：拉取源码后，在根目录依次执行以下命令：
     ```bash
     npm install
