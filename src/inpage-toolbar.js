@@ -37,13 +37,17 @@
         z-index: 2147483647;
         pointer-events: auto;
         user-select: none;
-        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: 
+          opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+          transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+          width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+          height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       }
       
       /* Glassmorphism Container */
       .popup-container {
-        width: 274px;
-        height: 242px;
+        width: 100%;
+        height: 100%;
         background: rgba(44, 44, 44, 0.87);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
@@ -246,12 +250,12 @@
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        height: 40px;
+        height: 100%;
         padding: 0 8px;
         background: rgba(44, 44, 44, 0.87);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border-radius: 13px;
+        border-radius: 16px;
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 
           0px 8px 32px 0px rgba(0, 0, 0, 0.35), 
@@ -434,7 +438,7 @@
     }
   }
 
-  function showMainPanel() {
+  function showMainPanel(isInitial = false) {
     const { shadowRoot, wrapper } = getOrCreateHost();
     
     wrapper.style.width = "274px";
@@ -538,7 +542,7 @@
       removeExisting();
     });
 
-    showIndicator();
+    showIndicator(isInitial);
   }
 
   function showSelectionIndicator() {
@@ -665,17 +669,19 @@
     }, 20000);
   }
 
-  function showIndicator() {
+  function showIndicator(isInitial = false) {
     const host = document.getElementById(HOST_ID);
     if (!host) return;
     host.style.display = "block";
     const wrapper = host.shadowRoot.querySelector(".wrapper-outer");
     if (wrapper) {
-      wrapper.style.opacity = "0";
-      wrapper.style.transform = "translateY(-20px)";
-      wrapper.offsetHeight; // force reflow
+      if (isInitial) {
+        wrapper.style.opacity = "0";
+        wrapper.style.transform = "translateY(-20px) scale(0.95)";
+        wrapper.offsetHeight; // force reflow
+      }
       wrapper.style.opacity = "1";
-      wrapper.style.transform = "translateY(0)";
+      wrapper.style.transform = "translateY(0) scale(1)";
     }
   }
 
@@ -794,6 +800,6 @@
   removeExisting();
   if (!wasActive) {
     injectGoogleFonts();
-    showMainPanel();
+    showMainPanel(true);
   }
 })();
