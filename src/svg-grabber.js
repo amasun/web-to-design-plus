@@ -5,18 +5,19 @@
   const BG_SCAN_CHUNK_SIZE = 800;
   const IMG_FETCH_CONCURRENCY = 6;
 
-  const SOURCE_LABELS = { inline: "Inline", img: "Image", background: "Background", sprite: "Sprite" };
-
-  const ICON_TITLE = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>`;
+  const ICON_TITLE = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.2887 9.00525C9.1505 9.19475 8.10931 9.76218 7.33312 10.616C6.55693 11.4698 6.09101 12.5602 6.01052 13.7113M13.7113 9.00525C14.8495 9.19475 15.8907 9.76218 16.6669 10.616C17.4431 11.4698 17.909 12.5602 17.9895 13.7113M10.2887 8.57743H5.15488M5.15488 8.57743C5.15488 8.80436 5.06474 9.02199 4.90427 9.18246C4.74381 9.34292 4.52617 9.43307 4.29924 9.43307C4.07231 9.43307 3.85468 9.34292 3.69421 9.18246C3.53375 9.02199 3.4436 8.80436 3.4436 8.57743C3.4436 8.3505 3.53375 8.13286 3.69421 7.9724C3.85468 7.81194 4.07231 7.72179 4.29924 7.72179C4.52617 7.72179 4.74381 7.81194 4.90427 7.9724C5.06474 8.13286 5.15488 8.3505 5.15488 8.57743ZM18.8451 8.57743H13.7113M18.8451 8.57743C18.8451 8.80436 18.9353 9.02199 19.0957 9.18246C19.2562 9.34292 19.4738 9.43307 19.7008 9.43307C19.9277 9.43307 20.1453 9.34292 20.3058 9.18246C20.4662 9.02199 20.5564 8.80436 20.5564 8.57743C20.5564 8.3505 20.4662 8.13286 20.3058 7.9724C20.1453 7.81194 19.9277 7.72179 19.7008 7.72179C19.4738 7.72179 19.2562 7.81194 19.0957 7.9724C18.9353 8.13286 18.8451 8.3505 18.8451 8.57743ZM4.29924 14.5669C4.29924 14.34 4.38939 14.1223 4.54985 13.9619C4.71032 13.8014 4.92795 13.7113 5.15488 13.7113H6.86616C7.09309 13.7113 7.31073 13.8014 7.47119 13.9619C7.63165 14.1223 7.7218 14.34 7.7218 14.5669V16.2782C7.7218 16.5051 7.63165 16.7228 7.47119 16.8832C7.31073 17.0437 7.09309 17.1338 6.86616 17.1338H5.15488C4.92795 17.1338 4.71032 17.0437 4.54985 16.8832C4.38939 16.7228 4.29924 16.5051 4.29924 16.2782V14.5669ZM16.2782 14.5669C16.2782 14.34 16.3683 14.1223 16.5288 13.9619C16.6893 13.8014 16.9069 13.7113 17.1338 13.7113H18.8451C19.072 13.7113 19.2897 13.8014 19.4501 13.9619C19.6106 14.1223 19.7008 14.34 19.7008 14.5669V16.2782C19.7008 16.5051 19.6106 16.7228 19.4501 16.8832C19.2897 17.0437 19.072 17.1338 18.8451 17.1338H17.1338C16.9069 17.1338 16.6893 17.0437 16.5288 16.8832C16.3683 16.7228 16.2782 16.5051 16.2782 16.2782V14.5669ZM10.2887 7.72179C10.2887 7.49486 10.3789 7.27722 10.5393 7.11676C10.6998 6.9563 10.9174 6.86615 11.1444 6.86615H12.8556C13.0826 6.86615 13.3002 6.9563 13.4607 7.11676C13.6211 7.27722 13.7113 7.49486 13.7113 7.72179V9.43307C13.7113 9.66 13.6211 9.87763 13.4607 10.0381C13.3002 10.1986 13.0826 10.2887 12.8556 10.2887H11.1444C10.9174 10.2887 10.6998 10.1986 10.5393 10.0381C10.3789 9.87763 10.2887 9.66 10.2887 9.43307V7.72179Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const ICON_CLOSE = `<svg width="14" height="14" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L7 7M7 1L1 7" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const ICON_COPY = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M5 15V6a2 2 0 0 1 2-2h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>`;
   const ICON_DOWNLOAD = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const ICON_LINK = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 14a5 5 0 0 1 0-7.07l1-1a5 5 0 0 1 7.07 7.07l-1 1M14 10a5 5 0 0 1 0 7.07l-1 1a5 5 0 0 1-7.07-7.07l1-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const ICON_CHECK = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12.5 9.5 17 19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const ICON_ERROR = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const ICON_SUN = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+  const ICON_MOON = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
 
   const iconsByHash = new Map();
   const fallbacksByUrl = new Map();
+  const selectedIds = new Set();
   let allIcons = [];
   let allFallbacks = [];
   let anonymousCounter = 0;
@@ -24,7 +25,6 @@
   let filterText = "";
   let sortAsc = true;
   let previewColor = null;
-  let applyColorToExport = false;
 
   function ensureFontsLoaded() {
     const fontId = "__figma_fonts__";
@@ -226,6 +226,7 @@
   function resetState() {
     iconsByHash.clear();
     fallbacksByUrl.clear();
+    selectedIds.clear();
     allIcons = [];
     allFallbacks = [];
     anonymousCounter = 0;
@@ -234,6 +235,7 @@
 
   async function runScan(shadowRoot) {
     resetState();
+    updateBatchButton(shadowRoot);
     setStatus(shadowRoot, "Scanning page for SVG icons…");
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -264,22 +266,39 @@
     applyFiltersAndRender(shadowRoot);
   }
 
+  // DOM-based recolor (not regex) so it works regardless of quote style,
+  // attribute casing, or currentColor usage. Elements with an explicit
+  // fill/stroke of "none" are left untouched so outline-only icons don't
+  // gain an unwanted fill. Setting fill on the root is a safe fallback for
+  // icons that never declare their own fill (SVG presentation attributes
+  // inherit down the tree, so children pick it up unless overridden).
   function recolorMarkup(markup, color) {
-    return markup.replace(/fill="(?!none)[^"]*"/gi, `fill="${color}"`).replace(/stroke="(?!none)[^"]*"/gi, `stroke="${color}"`);
+    try {
+      const doc = new DOMParser().parseFromString(markup, "image/svg+xml");
+      const svg = doc.documentElement;
+      if (!svg || svg.nodeName === "parsererror") return markup;
+      svg.querySelectorAll("*").forEach((el) => {
+        const fill = el.getAttribute("fill");
+        if (fill && fill.toLowerCase() !== "none") el.setAttribute("fill", color);
+        const stroke = el.getAttribute("stroke");
+        if (stroke && stroke.toLowerCase() !== "none") el.setAttribute("stroke", color);
+      });
+      svg.setAttribute("fill", color);
+      return new XMLSerializer().serializeToString(svg);
+    } catch (e) {
+      return markup;
+    }
   }
 
   function previewMarkup(item) {
     return previewColor ? recolorMarkup(item.markup, previewColor) : item.markup;
   }
 
-  function markupForExport(item) {
-    return applyColorToExport && previewColor ? recolorMarkup(item.markup, previewColor) : item.markup;
-  }
-
   function cardHtml(item) {
-    const badge = item.count > 1 ? `<span class="sg-count-badge">×${item.count}</span>` : "";
-    const sourceLabel = SOURCE_LABELS[item.source] || item.source;
     const label = item.label || "icon";
+    const checkbox = item.isFallback
+      ? ""
+      : `<label class="sg-card-checkbox" title="Select"><input type="checkbox" data-select-id="${escapeAttr(item.id)}" ${selectedIds.has(item.id) ? "checked" : ""} /></label>`;
 
     const previewInner = item.isFallback
       ? `<img class="sg-fallback-img" src="${escapeAttr(item.originalUrl)}" alt="" />`
@@ -287,17 +306,17 @@
 
     const actions = item.isFallback
       ? `<a class="sg-action-btn" href="${escapeAttr(item.originalUrl)}" target="_blank" rel="noopener noreferrer" title="Open original">${ICON_LINK}</a>`
-      : `<button class="sg-action-btn" data-action="copy" data-icon-id="${escapeAttr(item.id)}" title="Copy SVG">${ICON_COPY}</button>
-         <button class="sg-action-btn" data-action="download" data-icon-id="${escapeAttr(item.id)}" title="Download .svg">${ICON_DOWNLOAD}</button>`;
+      : `<button class="sg-action-btn" data-action="copy" data-icon-id="${escapeAttr(item.id)}" title="Copy SVG code">${ICON_COPY}</button>
+         <button class="sg-action-btn" data-action="download" data-icon-id="${escapeAttr(item.id)}" title="Download as .svg">${ICON_DOWNLOAD}</button>`;
+
+    const previewBoxClass = item.isFallback ? "sg-preview-box sg-preview-box-fallback" : "sg-preview-box";
+    const previewTitle = item.isFallback ? "" : ` title="Click to copy"`;
 
     return `
       <div class="sg-card">
-        <div class="sg-preview-box">${previewInner}${badge}</div>
+        <div class="${previewBoxClass}"${previewTitle}>${checkbox}${previewInner}</div>
         <div class="sg-card-label" title="${escapeAttr(label)}">${escapeHtml(label)}</div>
-        <div class="sg-card-footer">
-          <span class="sg-source-chip">${sourceLabel}</span>
-          <div class="sg-card-actions">${actions}</div>
-        </div>
+        <div class="sg-card-footer">${actions}</div>
       </div>
     `;
   }
@@ -341,31 +360,149 @@
     const item = iconsByHash.get(btn.getAttribute("data-icon-id"));
     if (!item) return;
     try {
-      await navigator.clipboard.writeText(markupForExport(item));
+      await navigator.clipboard.writeText(item.markup);
       flashButton(btn, ICON_CHECK);
     } catch (e) {
       flashButton(btn, ICON_ERROR);
     }
   }
 
-  function handleDownload(btn) {
-    const item = iconsByHash.get(btn.getAttribute("data-icon-id"));
-    if (!item) return;
-    const blob = new Blob([markupForExport(item)], { type: "image/svg+xml" });
+  function triggerDownload(blob, filename) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${sanitizeFilename(item.label)}.svg`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  function handleDownload(btn) {
+    const item = iconsByHash.get(btn.getAttribute("data-icon-id"));
+    if (!item) return;
+    triggerDownload(new Blob([item.markup], { type: "image/svg+xml" }), `${sanitizeFilename(item.label)}.svg`);
     flashButton(btn, ICON_CHECK);
+  }
+
+  function updateBatchButton(shadowRoot) {
+    const btn = shadowRoot.querySelector("#sgBatchDownload");
+    if (!btn) return;
+    btn.textContent = `Download ZIP (${selectedIds.size})`;
+    btn.disabled = selectedIds.size === 0;
+  }
+
+  function handleBatchDownload(shadowRoot) {
+    const items = Array.from(selectedIds).map((id) => iconsByHash.get(id)).filter(Boolean);
+    if (!items.length) return;
+    const usedNames = new Set();
+    const entries = items.map((item) => {
+      const base = sanitizeFilename(item.label);
+      let name = `${base}.svg`;
+      let n = 1;
+      while (usedNames.has(name)) name = `${base}-${++n}.svg`;
+      usedNames.add(name);
+      return { name, data: new TextEncoder().encode(item.markup) };
+    });
+    triggerDownload(buildZipBlob(entries), "svg-icons.zip");
   }
 
   function wireCardActions(shadowRoot) {
     shadowRoot.querySelectorAll('.sg-action-btn[data-action="copy"]').forEach((btn) => btn.addEventListener("click", () => handleCopy(btn)));
     shadowRoot.querySelectorAll('.sg-action-btn[data-action="download"]').forEach((btn) => btn.addEventListener("click", () => handleDownload(btn)));
+
+    shadowRoot.querySelectorAll("[data-select-id]").forEach((cb) => {
+      cb.addEventListener("change", () => {
+        const id = cb.getAttribute("data-select-id");
+        if (cb.checked) selectedIds.add(id);
+        else selectedIds.delete(id);
+        updateBatchButton(shadowRoot);
+      });
+    });
+
+    shadowRoot.querySelectorAll(".sg-preview-box:not(.sg-preview-box-fallback)").forEach((box) => {
+      box.addEventListener("click", (e) => {
+        if (e.target.closest(".sg-card-checkbox")) return;
+        const copyBtn = box.parentElement.querySelector('.sg-action-btn[data-action="copy"]');
+        if (copyBtn) handleCopy(copyBtn);
+      });
+    });
+  }
+
+  // Minimal uncompressed (STORE method) ZIP writer - no external deps.
+  function crc32(bytes) {
+    let crc = ~0;
+    for (let i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (let j = 0; j < 8; j++) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+    }
+    return ~crc >>> 0;
+  }
+
+  function buildZipBlob(entries) {
+    const localParts = [];
+    const centralParts = [];
+    let offset = 0;
+    const now = new Date();
+    const dosTime = ((now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xffff;
+    const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xffff;
+
+    entries.forEach((entry) => {
+      const nameBytes = new TextEncoder().encode(entry.name);
+      const data = entry.data;
+      const crc = crc32(data);
+
+      const local = new DataView(new ArrayBuffer(30));
+      local.setUint32(0, 0x04034b50, true);
+      local.setUint16(4, 20, true);
+      local.setUint16(6, 0, true);
+      local.setUint16(8, 0, true);
+      local.setUint16(10, dosTime, true);
+      local.setUint16(12, dosDate, true);
+      local.setUint32(14, crc, true);
+      local.setUint32(18, data.length, true);
+      local.setUint32(22, data.length, true);
+      local.setUint16(26, nameBytes.length, true);
+      local.setUint16(28, 0, true);
+      localParts.push(new Uint8Array(local.buffer), nameBytes, data);
+
+      const central = new DataView(new ArrayBuffer(46));
+      central.setUint32(0, 0x02014b50, true);
+      central.setUint16(4, 20, true);
+      central.setUint16(6, 20, true);
+      central.setUint16(8, 0, true);
+      central.setUint16(10, 0, true);
+      central.setUint16(12, dosTime, true);
+      central.setUint16(14, dosDate, true);
+      central.setUint32(16, crc, true);
+      central.setUint32(20, data.length, true);
+      central.setUint32(24, data.length, true);
+      central.setUint16(28, nameBytes.length, true);
+      central.setUint16(30, 0, true);
+      central.setUint16(32, 0, true);
+      central.setUint16(34, 0, true);
+      central.setUint16(36, 0, true);
+      central.setUint32(38, 0, true);
+      central.setUint32(42, offset, true);
+      centralParts.push(new Uint8Array(central.buffer), nameBytes);
+
+      offset += local.byteLength + nameBytes.length + data.length;
+    });
+
+    const centralStart = offset;
+    const centralSize = centralParts.reduce((sum, p) => sum + p.length, 0);
+
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true);
+    end.setUint16(4, 0, true);
+    end.setUint16(6, 0, true);
+    end.setUint16(8, entries.length, true);
+    end.setUint16(10, entries.length, true);
+    end.setUint32(12, centralSize, true);
+    end.setUint32(16, centralStart, true);
+    end.setUint16(20, 0, true);
+
+    return new Blob([...localParts, ...centralParts, new Uint8Array(end.buffer)], { type: "application/zip" });
   }
 
   function getShellHtml() {
@@ -377,21 +514,18 @@
             <button class="sg-close-btn" id="sgClose" type="button" title="Close">${ICON_CLOSE}</button>
           </div>
           <div class="sg-controls">
-            <input class="sg-search" id="sgSearch" type="text" placeholder="Filter icons…" />
-            <button class="sg-control-btn" id="sgSort" type="button" title="Sort">A–Z</button>
+            <input class="sg-search" id="sgSearch" type="text" placeholder="Filter icons…" title="Filter by name" />
+            <button class="sg-control-btn" id="sgSort" type="button" title="Sort alphabetically">A–Z</button>
             <div class="sg-bg-toggle" id="sgBgToggle">
-              <button data-bg="light" class="active" type="button">Light</button>
-              <button data-bg="dark" type="button">Dark</button>
+              <button data-bg="light" class="active" type="button" title="Light preview">${ICON_SUN}</button>
+              <button data-bg="dark" type="button" title="Dark preview">${ICON_MOON}</button>
             </div>
             <label class="sg-color-control" title="Preview color override">
-              <input id="sgColor" type="color" value="#000000" />
+              <input id="sgColor" type="color" value="#000000" title="Preview color override" />
               <span>Color</span>
             </label>
-            <button class="sg-control-btn" id="sgColorReset" type="button">Reset</button>
-            <label class="sg-apply-export">
-              <input id="sgApplyExport" type="checkbox" />
-              <span>Apply to copy/download</span>
-            </label>
+            <button class="sg-control-btn" id="sgColorReset" type="button" title="Reset color override">Reset</button>
+            <button class="sg-control-btn" id="sgBatchDownload" type="button" title="Download selected icons as a .zip" disabled>Download ZIP (0)</button>
           </div>
           <div class="sg-status" id="sgStatus"></div>
           <div class="sg-grid" id="sgGrid"></div>
@@ -497,23 +631,23 @@
         white-space: nowrap;
       }
       .sg-control-btn:hover { background: rgba(255, 255, 255, 0.15); }
+      .sg-control-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
       .sg-bg-toggle { display: flex; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; overflow: hidden; }
       .sg-bg-toggle button {
         background: transparent;
         border: none;
         color: rgba(255, 255, 255, 0.7);
-        font-family: 'Inter', sans-serif;
-        font-size: 12px;
-        padding: 6px 10px;
+        padding: 6px 8px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
       }
+      .sg-bg-toggle button svg { width: 14px; height: 14px; display: block; }
       .sg-bg-toggle button.active { background: #D4FC5D; color: #000000; }
 
       .sg-color-control { display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; }
       .sg-color-control input[type="color"] { width: 22px; height: 22px; border: none; border-radius: 4px; padding: 0; cursor: pointer; background: transparent; }
-
-      .sg-apply-export { display: flex; align-items: center; gap: 6px; font-size: 11px; color: rgba(255, 255, 255, 0.6); cursor: pointer; white-space: nowrap; }
 
       .sg-status { padding: 8px 16px 0; font-size: 12px; color: rgba(255, 255, 255, 0.6); min-height: 18px; flex-shrink: 0; }
 
@@ -525,25 +659,34 @@
         gap: 12px;
         padding: 16px;
         align-content: start;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
       }
+      .sg-grid::-webkit-scrollbar { width: 8px; }
+      .sg-grid::-webkit-scrollbar-track { background: transparent; }
+      .sg-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 4px; }
+      .sg-grid::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
 
       .sg-empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: rgba(255, 255, 255, 0.5); font-size: 13px; }
 
+      /* Cards follow the light/dark preview toggle as a whole, not just the icon swatch. */
       .sg-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: #f5f5f5;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        color: #1a1a1a;
         border-radius: 10px;
         padding: 10px;
         display: flex;
         flex-direction: column;
         gap: 8px;
       }
+      .sg-grid.sg-preview-dark .sg-card { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); }
 
       .sg-preview-box {
         position: relative;
-        height: 72px;
+        height: 80px;
         border-radius: 6px;
-        background: #f5f5f5;
+        background: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -551,51 +694,41 @@
         transition: background-color 0.2s ease;
       }
       .sg-grid.sg-preview-dark .sg-preview-box { background: #1c1c1c; }
+      .sg-preview-box:not(.sg-preview-box-fallback) { cursor: pointer; }
+      .sg-preview-box:not(.sg-preview-box-fallback):hover { box-shadow: 0 0 0 2px #D4FC5D inset; }
 
-      .sg-svg-preview { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+      .sg-svg-preview { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
       .sg-svg-preview svg { max-width: 100%; max-height: 100%; width: auto; height: auto; }
 
-      .sg-fallback-img { max-width: 32px; max-height: 32px; }
+      .sg-fallback-img { max-width: 36px; max-height: 36px; }
 
-      .sg-count-badge {
+      .sg-card-checkbox {
         position: absolute;
         top: 4px;
-        right: 4px;
-        background: rgba(0, 0, 0, 0.6);
-        color: #ffffff;
-        font-size: 10px;
-        padding: 1px 5px;
-        border-radius: 4px;
+        left: 4px;
+        z-index: 1;
+        display: flex;
+        cursor: pointer;
       }
+      .sg-card-checkbox input { width: 15px; height: 15px; margin: 0; cursor: pointer; }
 
       .sg-card-label {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.85);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        opacity: 0.85;
       }
 
-      .sg-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-
-      .sg-source-chip {
-        font-size: 10px;
-        color: rgba(255, 255, 255, 0.5);
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 4px;
-        padding: 1px 6px;
-        white-space: nowrap;
-      }
-
-      .sg-card-actions { display: flex; gap: 4px; }
+      .sg-card-footer { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
 
       .sg-action-btn {
         border: none;
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.8);
-        width: 22px;
-        height: 22px;
-        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.06);
+        color: rgba(0, 0, 0, 0.65);
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -603,9 +736,10 @@
         text-decoration: none;
         transition: background-color 0.2s ease, color 0.2s ease;
       }
+      .sg-grid.sg-preview-dark .sg-action-btn { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.8); }
       .sg-action-btn:hover { background: #D4FC5D; color: #000000; }
       .sg-action-btn-success { background: #D4FC5D !important; color: #000000 !important; }
-      .sg-action-btn svg { width: 12px; height: 12px; display: block; }
+      .sg-action-btn svg { width: 16px; height: 16px; display: block; }
 
       .sg-footer { padding: 8px 16px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 11px; color: rgba(255, 255, 255, 0.5); flex-shrink: 0; }
     `;
@@ -619,7 +753,7 @@
     const bgButtons = shadowRoot.querySelectorAll("#sgBgToggle button");
     const colorInput = shadowRoot.querySelector("#sgColor");
     const colorReset = shadowRoot.querySelector("#sgColorReset");
-    const applyExport = shadowRoot.querySelector("#sgApplyExport");
+    const batchBtn = shadowRoot.querySelector("#sgBatchDownload");
     const grid = shadowRoot.querySelector("#sgGrid");
 
     function onKeyDown(e) {
@@ -662,12 +796,11 @@
 
     colorReset.addEventListener("click", () => {
       previewColor = null;
+      colorInput.value = "#000000";
       applyFiltersAndRender(shadowRoot);
     });
 
-    applyExport.addEventListener("change", () => {
-      applyColorToExport = applyExport.checked;
-    });
+    batchBtn.addEventListener("click", () => handleBatchDownload(shadowRoot));
   }
 
   function open() {
