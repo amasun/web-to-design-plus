@@ -251,7 +251,7 @@
         justify-content: space-between;
         width: 100%;
         height: 100%;
-        padding: 0 8px;
+        padding: 0 10px;
         background: rgba(44, 44, 44, 0.87);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
@@ -267,9 +267,12 @@
       .capsule-left-group {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         height: 100%;
         box-sizing: border-box;
+        overflow: hidden;
+        flex-shrink: 1;
+        min-width: 0;
       }
 
       .capsule-label {
@@ -280,6 +283,10 @@
         color: rgba(255, 255, 255, 0.9);
         letter-spacing: 0.06px;
         white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        flex-shrink: 1;
+        min-width: 0;
       }
 
 
@@ -549,7 +556,7 @@
     const { shadowRoot, wrapper } = getOrCreateHost();
     injectHighlightStyle();
     
-    wrapper.style.width = "253px";
+    wrapper.style.width = "274px";
     wrapper.style.height = "40px";
     
     wrapper.innerHTML = `
@@ -580,7 +587,7 @@
   function showCapturingIndicator() {
     const { wrapper } = getOrCreateHost();
     
-    wrapper.style.width = "210px";
+    wrapper.style.width = "274px";
     wrapper.style.height = "40px";
     
     wrapper.innerHTML = `
@@ -640,7 +647,7 @@
   function showErrorIndicator() {
     const { shadowRoot, wrapper } = getOrCreateHost();
     
-    wrapper.style.width = "200px";
+    wrapper.style.width = "274px";
     wrapper.style.height = "40px";
     
     wrapper.innerHTML = `
