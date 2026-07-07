@@ -5,8 +5,8 @@
 <h1 align="center">🌌 Web to Design Plus</h1>
 
 <p align="center">
-  <strong>一键抓取网页并转换为 Figma 可编辑设计稿</strong><br>
-  在任意网页快速捕获页面或指定元素，完美还原 DOM 节点、样式及布局，提供极速无缝的设计还原体验。
+  <strong>One-click web page capture and conversion to editable Figma designs</strong><br>
+  Quickly capture full pages or specific elements on any webpage, perfectly restoring DOM nodes, styles, and layouts for a seamless design recovery experience.
 </p>
 
 <p align="center">
@@ -17,58 +17,59 @@
 </p>
 
 <p align="center">
-  <a href="README.md">简体中文</a> | <a href="README_EN.md">English</a>
+  English | <a href="README_CN.md">简体中文</a>
 </p>
 
-## 🚀 功能特点
 
-- **极简悬浮工具栏**：采用毛玻璃质感与动效设计，支持网页内自由拖拽，交互丝滑。
-- **双重抓取模式**：支持“整页抓取（Entire Screen）”与“特定元素选择抓取（Select Element）”。
-- **复制粘贴即用**：**无需下载/导入任何 JSON 配置文件**，数据直接写入剪贴板，在 Figma 中一键 `Ctrl/Cmd + V` 粘贴即刻还原为图层。
-- **自动跨域代理**：内置 Service Worker 自动处理跨域图片解析，结合 8 并发限制，确保图片资源不丢失。
+## 🚀 Features
 
-## 📦 使用方法
+- **Minimal Floating Toolbar**: Premium glassmorphism design with smooth transition animations, draggable anywhere on the screen.
+- **Dual Capture Modes**: Support full-page capture (Entire Screen) and interactive local element selection (Select Element).
+- **Instant Copy & Paste**: **No JSON file downloads**. Data is directly formatted and written to your clipboard — paste with `Ctrl/Cmd + V` directly in Figma to generate editable layers.
+- **Auto Image Proxy**: Automatically resolves CORS-restricted images via Service Worker background fetching with an 8-concurrency limit.
 
-### 1. 安装插件
-直接在 [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases) 中下载最新版本的 `web-to-design-plus.zip` 并解压，打开 Chrome 浏览器进入 `chrome://extensions/`，开启右上角的 **“开发者模式”**，点击左上角的 **“加载已解压的扩展程序”**，选择解压出的文件夹即可。
+## 📦 Usage
 
-### 2. 抓取与还原
-1. 访问任意网页，点击 Chrome 插件栏中的 **Web to Design Plus** 唤出悬浮工具栏。
-2. 点击 **Entire screen**（整页）或 **Select element**（悬停选择特定 DOM 元素）。
-3. 提示 `Copied to clipboard` 后，直接在 Figma 中按 `Ctrl/Cmd + V` 粘贴，即刻还原为可编辑设计稿。
+### 1. Installation
+Download the latest `web-to-design-plus.zip` from [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases) and extract it. Open Google Chrome, go to `chrome://extensions/`, enable **"Developer mode"** in the top-right corner, click **"Load unpacked"** in the top-left, and select the extracted folder.
 
-## 🗺️ 后续规划 (Roadmap)
+### 2. Capture & Restore
+1. Open any webpage and click the **Web to Design Plus** extension icon to reveal the toolbar.
+2. Select **Entire screen** or **Select element** (hover and click on your target DOM element).
+3. Once the `Copied to clipboard` success indicator appears, press `Ctrl/Cmd + V` in Figma to paste and edit layers immediately.
 
-在接下来的版本中，我们计划陆续开发并补充以下功能：
-1. **SVG 素材单独抓取 (Grab SVG)**：独立提取并单独复制网页中的 SVG 矢量路径与图标资产。
-2. **字体与排版规范提取 (What's the Font)**：智能识别网页所使用的特殊 Web 字体，并导出排版样式指南。
-3. **Web 设计系统规范生成**：支持根据目标网页的配色、阴影和间距，自动在 Figma 中生成对应的设计规范样式/变量。
+## 🗺️ Future Roadmap
+
+We plan to introduce the following features in upcoming updates:
+1. **SVG Asset Capture (Grab SVG)**: Extract and copy SVG vectors/icons independently from the webpage.
+2. **Font & Typography Guidelines (What's the Font)**: Identify web fonts used on the page and export typographical style guides.
+3. **Web-to-Design System Generation**: Automatically generate typography, spacing, shadows, and color palette variables directly into Figma.
 
 
 
-## ⚙️ 核心抓取运行环境 (Core Runtime)
+## ⚙️ Core Runtime
 
-- **`capture.js` 来源**：该脚本来源于 Figma 官方服务：[mcp.figma.com/mcp/html-to-design/capture.js](https://mcp.figma.com/mcp/html-to-design/capture.js)，是进行 HTML 节点转换的核心引擎。
-- **关于代码混淆的提示**：
+- **`capture.js` Source**: Sourced from Figma's official service: [mcp.figma.com/mcp/html-to-design/capture.js](https://mcp.figma.com/mcp/html-to-design/capture.js). This script is the core engine for HTML-to-design conversion.
+- **Obfuscation Rule**:
   > [!IMPORTANT]
-  > `capture.js` 是核心抓取运行时（Core capture runtime）。**如需对代码进行混淆，请仅在发布包（release copy）上进行，切勿直接在源码目录（`src/`）下的文件上操作**，以确保核心抓取引擎的可读性与未来的官方更新兼容性。
+  > `capture.js` is the core capture runtime. **If you obfuscate code, do it on a release copy, not on source files (inside the `src/` directory)** to ensure readability and future compatibility with official upstream updates.
 
-## ⚠️ 免责声明
+## ⚠️ Disclaimer
 
-- 本项目仅供学习、研究以及提升生产力使用。
-- 使用本工具时，您需自行负责遵守目标网站的服务条款、版权规则、隐私法律及当地法律法规。
-- 请勿将本工具用于抓取或分发未经授权、敏感或非法的网页内容。
-- 作者及贡献者不对因滥用、数据丢失或任何直接/间接损害而导致的后果承担任何责任。
+- This project is provided for learning, research, and productivity use only.
+- You are responsible for complying with website terms, copyright rules, privacy laws, and applicable local regulations.
+- Do not use this tool to capture or distribute unauthorized, sensitive, or illegal content.
+- The authors and contributors are not liable for misuse, data loss, or any direct/indirect damages caused by this project.
 
-## 💖 致谢 (Acknowledgements)
+## 💖 Acknowledgements
 
-特别感谢 [派大鑫](https://github.com/Paidax01) 及其开源的原项目 [web-to-figma](https://github.com/Paidax01/web-to-figma)。本项目在此优秀项目的基础与灵感启发上进行了重构与体验优化，非常感谢原作者对开源社区做出的杰出贡献！
+Special thanks to [Paidax01 (派大鑫)](https://github.com/Paidax01) for his original open-source project [web-to-figma](https://github.com/Paidax01/web-to-figma). This project was redesigned and optimized based on the core logic and inspiration of his excellent work. We truly appreciate the author's outstanding contribution to the open-source community!
 
-## 📄 开源协议
+## 📄 License
 
-本项目采用 [MIT 许可证](./LICENSE) 开源。
+This project is open-sourced under the [MIT License](./LICENSE).
 
-## 📈 GitHub Star 变化
+## 📈 GitHub Star History
 
 <p align="center">
   <a href="https://star-history.com/#amasun/web-to-design-plus&Date">
