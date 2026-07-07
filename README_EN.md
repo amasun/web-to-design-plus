@@ -30,6 +30,32 @@
 - **Zero-Download Workflow**: Captured page data is formatted into Figma's recognized `text/html` base64 structure and written directly to the clipboard. **No JSON downloads required** — simply press `Ctrl+V` (or `Cmd+V`) inside Figma to paste and edit layers immediately.
 - **CORS Image Proxy & Concurrency**: Fetches cross-origin assets securely via background Service Workers, with configurable concurrency settings (`4/6/8/10/12/16/20/infinite`) to prevent image loss.
 
+## Installation & Usage
+
+### 1. Install the Extension
+1. Download this repository's source code and extract it locally.
+2. Open a terminal in the project root directory, and run the following commands to install dependencies and build:
+   ```bash
+   npm install
+   npm run build
+   ```
+3. Open Google Chrome and navigate to the extension management page: `chrome://extensions/`.
+4. Enable **"Developer mode"** in the top-right corner.
+5. Click **"Load unpacked"** in the top-left corner, and select the compiled `dist` directory.
+
+### 2. Capture Web Pages
+1. Visit any web page you wish to capture, click the **Web to Design Plus** icon in your Chrome extensions bar, and the floating toolbar will slide out in the top-right corner.
+2. Select your capture mode:
+   - Click **Entire screen**: Automatically scrolls and captures the full web page layout.
+   - Click **Select element**: Hover and select any specific DOM element on the page, then click to capture.
+3. Once completed, the toolbar will display a green `Copied to clipboard` indicator, meaning the Figma-ready data has been securely written to your clipboard.
+
+### 3. Paste into Figma
+1. Open the Figma client or web editor.
+2. Create or open a design Draft.
+3. Press `Ctrl + V` (`Cmd + V` on macOS) on the canvas to paste the layout.
+4. Wait a few moments, and the web page will be reconstructed into clean, editable Figma layers!
+
 ## Future Roadmap
 
 We plan to introduce the following features in upcoming updates:
