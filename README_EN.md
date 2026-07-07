@@ -52,6 +52,10 @@ We plan to introduce the following features in upcoming updates:
 - Do not use this tool to capture or distribute unauthorized, sensitive, or illegal content.
 - The authors and contributors are not liable for misuse, data loss, or any direct/indirect damages caused by this project.
 
+## Acknowledgements
+
+Special thanks to [Paidax01 (派大鑫)](https://github.com/Paidax01) for his original open-source project [web-to-figma](https://github.com/Paidax01/web-to-figma). This project was redesigned and optimized based on the core logic and inspiration of his excellent work. We truly appreciate the author's outstanding contribution to the open-source community!
+
 ## License
 
 This project is open-sourced under the [MIT License](./LICENSE).
