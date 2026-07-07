@@ -2,7 +2,7 @@
   <img src="src/logo/icon128.png" width="128" height="128" alt="Web to Design Plus Logo" style="border-radius: 20%;" />
 </p>
 
-<h1 align="center">🌌 Web to Design Plus</h1>
+<h1 align="center">Web to Design Plus</h1>
 
 <p align="center">
   <strong>One-click web page capture and conversion to editable Figma designs</strong><br>
