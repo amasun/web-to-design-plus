@@ -617,11 +617,13 @@
           </svg>
           <span class="capsule-label">${displayLabel}</span>
         </div>
-        <button class="close-btn" id="figmaSuccessClose" type="button" title="Close">
-            <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
-              <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
+        <button class="capsule-close-btn" id="figmaSuccessClose" type="button" title="Close">
+          <!-- close cross icon (22:137) -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:block;">
+            <path d="M13 7L7 13" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 7L13 13" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
     `;
 
