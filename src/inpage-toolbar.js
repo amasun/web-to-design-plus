@@ -30,8 +30,6 @@
         position: fixed;
         top: 16px;
         right: 16px;
-        width: 276px;
-        height: 240px;
         opacity: 0;
         transform: translateY(-20px) scale(0.95);
         z-index: 2147483647;
@@ -669,8 +667,8 @@
     const child = wrapper.firstElementChild;
     if (!child) return;
     
-    const currentWidth = wrapper.style.width || "276px";
-    const currentHeight = wrapper.style.height || "240px";
+    const currentWidth = wrapper.style.width || "auto";
+    const currentHeight = wrapper.style.height || "auto";
     
     wrapper.style.transition = "none";
     wrapper.style.width = "auto";
@@ -678,7 +676,8 @@
     
     const rect = child.getBoundingClientRect();
     // Add 2px to account for the wrapper's 1px border on each side (box-sizing: border-box)
-    const targetWidth = Math.ceil(rect.width) + 2;
+    // Plus 1px extra safety margin to prevent subpixel cropping in some browsers
+    const targetWidth = Math.ceil(rect.width) + 3;
     const targetHeight = Math.ceil(rect.height) + 2;
     
     wrapper.style.width = currentWidth;
