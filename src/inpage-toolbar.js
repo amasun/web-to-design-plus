@@ -599,16 +599,13 @@
     
     const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
     const keyName = isMac ? "⌘V" : "Ctrl+V";
-    const isZh = navigator.language.toLowerCase().startsWith("zh");
     
     let displayLabel = label;
     if (label === "Copied to clipboard") {
-      displayLabel = isZh 
-        ? `已复制！按 ${keyName} 粘贴至 Figma` 
-        : `Copied! Press ${keyName} in Figma`;
+      displayLabel = `Copied! Press ${keyName} to paste in Figma`;
     }
     
-    wrapper.style.width = isZh ? "245px" : "255px";
+    wrapper.style.width = "274px";
     wrapper.style.height = "40px";
     
     wrapper.innerHTML = `
