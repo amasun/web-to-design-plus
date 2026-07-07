@@ -2,6 +2,7 @@ const WORLD = "ISOLATED";
 const CAPTURE_FILE = "capture.js";
 const RUNNER_FILE = "runner.js";
 const TOOLBAR_FILE = "inpage-toolbar.js";
+const SVG_GRABBER_FILE = "svg-grabber.js";
 
 const FIGMA_CAPTURE_CONCURRENCY_KEY = "proxyFetchConcurrency";
 const FIGMA_CAPTURE_ALLOWED_CONCURRENCY = new Set([4, 6, 8, 10, 12, 16, 20]);
@@ -448,6 +449,15 @@ chrome.action.onClicked.addListener(async (tab) => {
   } catch (error) {
     console.error("Toolbar inject failed:", error);
   }
+});
+
+chrome.runtime.onMessage.addListener((msg, sender) => {
+  if (!msg || msg.type !== "FIGMA_RUN_SVG_GRABBER") return;
+  const tabId = sender.tab?.id || msg.tabId;
+  if (!tabId) return;
+  injectScriptFile(tabId, SVG_GRABBER_FILE).catch((error) => {
+    console.error("SVG grabber inject failed:", error);
+  });
 });
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
