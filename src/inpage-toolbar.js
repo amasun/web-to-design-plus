@@ -398,6 +398,7 @@
       host = document.createElement("div");
       host.id = HOST_ID;
       host.setAttribute("data-figma-capture-ignore", "1");
+      host.setAttribute("data-h2d-ignore", "true");
       
       shadowRoot = host.attachShadow({ mode: "open" });
       
@@ -698,6 +699,7 @@
       highlight = document.createElement("div");
       highlight.id = HIGHLIGHT_ID;
       highlight.setAttribute("data-figma-capture-ignore", "1");
+      highlight.setAttribute("data-h2d-ignore", "true");
       document.documentElement.appendChild(highlight);
     }
     const rect = el.getBoundingClientRect();
