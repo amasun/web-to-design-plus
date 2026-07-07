@@ -35,11 +35,7 @@
         z-index: 2147483647;
         pointer-events: auto;
         user-select: none;
-        transition: 
-          opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
-          transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-          width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-          height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
         box-sizing: border-box;
 
@@ -533,7 +529,6 @@
       removeExisting();
     });
 
-    adjustWrapperSize();
     showIndicator(isInitial);
   }
 
@@ -558,8 +553,6 @@
       </div>
     `;
     
-    adjustWrapperSize();
-
     shadowRoot.querySelector("#figmaCancelBtn").addEventListener("click", () => {
       deactivateElementSelection();
       showMainPanel();
@@ -577,7 +570,6 @@
         <span class="capsule-label">Capturing Figma design...</span>
       </div>
     `;
-    adjustWrapperSize();
     showIndicator();
   }
 
@@ -609,8 +601,6 @@
       </div>
     `;
     
-    adjustWrapperSize();
-
     shadowRoot.querySelector("#figmaSuccessClose").addEventListener("click", () => {
       removeExisting();
     });
@@ -646,8 +636,6 @@
       </div>
     `;
     
-    adjustWrapperSize();
-
     shadowRoot.querySelector("#figmaErrorClose").addEventListener("click", () => {
       showMainPanel();
     });
@@ -660,33 +648,6 @@
         showMainPanel();
       }
     }, 20000);
-  }
-
-  function adjustWrapperSize() {
-    const { wrapper } = getOrCreateHost();
-    const child = wrapper.firstElementChild;
-    if (!child) return;
-    
-    const currentWidth = wrapper.style.width || "auto";
-    const currentHeight = wrapper.style.height || "auto";
-    
-    wrapper.style.transition = "none";
-    wrapper.style.width = "auto";
-    wrapper.style.height = "auto";
-    
-    const rect = child.getBoundingClientRect();
-    // Add 2px to account for the wrapper's 1px border on each side (box-sizing: border-box)
-    // Plus 1px extra safety margin to prevent subpixel cropping in some browsers
-    const targetWidth = Math.ceil(rect.width) + 3;
-    const targetHeight = Math.ceil(rect.height) + 2;
-    
-    wrapper.style.width = currentWidth;
-    wrapper.style.height = currentHeight;
-    wrapper.offsetHeight; // force reflow
-    
-    wrapper.style.transition = "";
-    wrapper.style.width = `${targetWidth}px`;
-    wrapper.style.height = `${targetHeight}px`;
   }
 
   function showIndicator(isInitial = false) {
