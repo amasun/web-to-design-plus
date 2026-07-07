@@ -23,18 +23,19 @@
 
 ## Features
 
-- **In-page Floating Toolbar**: Quick access to trigger capture directly from the page.
-- **Cross-origin Image Proxy**: Optional mode to fetch images through background proxy, reducing missing images due to CORS.
-- **Concurrency Control**: Configurable image fetch concurrency (`4/6/8/10/12/16/20/infinite`).
-- **One-click Export**: Automatically download capture results as `.json`.
+- **Beautiful Floating Toolbar**: Designed with premium Glassmorphism styling and smooth animations, supporting free dragging on any web page.
+- **Dual Capture Modes**:
+  - **Entire Screen**: Capture the full layout and all DOM elements in one click.
+  - **Select Element**: Highlight and select specific elements interactively for local captures.
+- **Zero-Download Workflow**: Captured page data is formatted into Figma's recognized `text/html` base64 structure and written directly to the clipboard. **No JSON downloads required** — simply press `Ctrl+V` (or `Cmd+V`) inside Figma to paste and edit layers immediately.
+- **CORS Image Proxy & Concurrency**: Fetches cross-origin assets securely via background Service Workers, with configurable concurrency settings (`4/6/8/10/12/16/20/infinite`) to prevent image loss.
 
 ## Future Roadmap
 
 We plan to introduce the following features in upcoming updates:
-1. **Interactive Element Selection**: Allow users to select specific elements on the page before triggering a local capture and copy.
-2. **SVG Asset Capture**: Add a dedicated feature to capture and export SVG icons and graphics separately.
-3. **Web-to-Design System Generation**: Automatically generate design guidelines and Figma components from webpage analysis.
-4. **Font & Typography Extraction**: Extract custom fonts and generate cohesive typography guidelines.
+1. **SVG Asset Capture (Grab SVG)**: Extract and copy SVG vectors/icons independently from the webpage.
+2. **Font & Typography Guidelines (What's the Font)**: Identify web fonts used on the page and export typographical style guides.
+3. **Web-to-Design System Generation**: Automatically generate typography, spacing, shadows, and color palette variables directly into Figma.
 
 
 
