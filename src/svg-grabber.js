@@ -24,8 +24,6 @@
   let truncatedCount = 0;
   let filterText = "";
   let sortAsc = true;
-  let previewFillColor = null;
-  let previewStrokeColor = null;
 
   function ensureFontsLoaded() {
     const fontId = "__figma_fonts__";
@@ -267,49 +265,6 @@
     applyFiltersAndRender(shadowRoot);
   }
 
-  // DOM-based recolor (not regex) so it works regardless of quote style,
-  // attribute casing, or currentColor usage. Parsed via a detached <div>'s
-  // innerHTML rather than DOMParser("image/svg+xml") - the latter is strict
-  // XML and throws a parsererror on markup that's extremely common in the
-  // wild (e.g. unnamespaced xlink:href from a sprite <use>), which silently
-  // fell back to the un-recolored original. The HTML parser's "foreign
-  // content" handling for embedded <svg> tolerates all of that. Elements
-  // with an explicit fill/stroke of "none" are left untouched so
-  // outline-only icons don't gain an unwanted fill/stroke. Setting fill on
-  // the root is a safe fallback for icons that never declare their own
-  // fill (SVG presentation attributes inherit down the tree), but only
-  // when the root isn't itself explicitly fill="none" (stroke-only sets).
-  function recolorMarkup(markup, fillColor, strokeColor) {
-    if (!fillColor && !strokeColor) return markup;
-    try {
-      const container = document.createElement("div");
-      container.innerHTML = markup;
-      const svg = container.querySelector("svg");
-      if (!svg) return markup;
-      svg.querySelectorAll("*").forEach((el) => {
-        if (fillColor) {
-          const fill = el.getAttribute("fill");
-          if (fill && fill.toLowerCase() !== "none") el.setAttribute("fill", fillColor);
-        }
-        if (strokeColor) {
-          const stroke = el.getAttribute("stroke");
-          if (stroke && stroke.toLowerCase() !== "none") el.setAttribute("stroke", strokeColor);
-        }
-      });
-      if (fillColor) {
-        const rootFill = svg.getAttribute("fill");
-        if (!rootFill || rootFill.toLowerCase() !== "none") svg.setAttribute("fill", fillColor);
-      }
-      return svg.outerHTML;
-    } catch (e) {
-      return markup;
-    }
-  }
-
-  function previewMarkup(item) {
-    return recolorMarkup(item.markup, previewFillColor, previewStrokeColor);
-  }
-
   function cardHtml(item) {
     const label = item.label || "icon";
     const checkbox = item.isFallback
@@ -318,7 +273,7 @@
 
     const previewInner = item.isFallback
       ? `<img class="sg-fallback-img" src="${escapeAttr(item.originalUrl)}" alt="" />`
-      : `<div class="sg-svg-preview">${previewMarkup(item)}</div>`;
+      : `<div class="sg-svg-preview">${item.markup}</div>`;
 
     const actions = item.isFallback
       ? `<a class="sg-action-btn" href="${escapeAttr(item.originalUrl)}" target="_blank" rel="noopener noreferrer" title="Open original">${ICON_LINK}</a>`
@@ -552,15 +507,6 @@
               <button data-bg="light" class="active" type="button" title="Light preview">${ICON_SUN}</button>
               <button data-bg="dark" type="button" title="Dark preview">${ICON_MOON}</button>
             </div>
-            <label class="sg-color-control" title="Fill color override">
-              <input id="sgFillColor" type="color" value="#000000" title="Fill color override" />
-              <span>Fill</span>
-            </label>
-            <label class="sg-color-control" title="Stroke color override">
-              <input id="sgStrokeColor" type="color" value="#000000" title="Stroke color override" />
-              <span>Stroke</span>
-            </label>
-            <button class="sg-control-btn" id="sgColorReset" type="button" title="Reset color override">Reset</button>
             <button class="sg-control-btn" id="sgSelectAll" type="button" title="Select or deselect all icons" disabled>Select All</button>
             <button class="sg-control-btn" id="sgBatchDownload" type="button" title="Download selected icons as a .zip" disabled>Download ZIP (0)</button>
           </div>
@@ -705,9 +651,6 @@
       .sg-theme-dark .sg-bg-toggle { border-color: rgba(255, 255, 255, 0.12); }
       .sg-theme-dark .sg-bg-toggle button { color: rgba(255, 255, 255, 0.7); }
 
-      .sg-color-control { display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; }
-      .sg-color-control input[type="color"] { width: 22px; height: 22px; border: none; border-radius: 4px; padding: 0; cursor: pointer; background: transparent; }
-
       .sg-status { padding: 8px 16px 0; font-size: 12px; color: rgba(0, 0, 0, 0.55); min-height: 18px; flex-shrink: 0; }
       .sg-theme-dark .sg-status { color: rgba(255, 255, 255, 0.6); }
 
@@ -820,9 +763,6 @@
     const searchInput = shadowRoot.querySelector("#sgSearch");
     const sortBtn = shadowRoot.querySelector("#sgSort");
     const bgButtons = shadowRoot.querySelectorAll("#sgBgToggle button");
-    const fillColorInput = shadowRoot.querySelector("#sgFillColor");
-    const strokeColorInput = shadowRoot.querySelector("#sgStrokeColor");
-    const colorReset = shadowRoot.querySelector("#sgColorReset");
     const selectAllBtn = shadowRoot.querySelector("#sgSelectAll");
     const batchBtn = shadowRoot.querySelector("#sgBatchDownload");
 
@@ -857,24 +797,6 @@
         btn.classList.add("active");
         panel.classList.toggle("sg-theme-dark", btn.dataset.bg === "dark");
       });
-    });
-
-    fillColorInput.addEventListener("input", () => {
-      previewFillColor = fillColorInput.value;
-      applyFiltersAndRender(shadowRoot);
-    });
-
-    strokeColorInput.addEventListener("input", () => {
-      previewStrokeColor = strokeColorInput.value;
-      applyFiltersAndRender(shadowRoot);
-    });
-
-    colorReset.addEventListener("click", () => {
-      previewFillColor = null;
-      previewStrokeColor = null;
-      fillColorInput.value = "#000000";
-      strokeColorInput.value = "#000000";
-      applyFiltersAndRender(shadowRoot);
     });
 
     selectAllBtn.addEventListener("click", () => {
