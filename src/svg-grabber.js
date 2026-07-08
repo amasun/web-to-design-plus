@@ -24,7 +24,8 @@
   let truncatedCount = 0;
   let filterText = "";
   let sortAsc = true;
-  let previewColor = null;
+  let previewFillColor = null;
+  let previewStrokeColor = null;
 
   function ensureFontsLoaded() {
     const fontId = "__figma_fonts__";
@@ -235,7 +236,7 @@
 
   async function runScan(shadowRoot) {
     resetState();
-    updateBatchButton(shadowRoot);
+    updateSelectionUI(shadowRoot, []);
     setStatus(shadowRoot, "Scanning page for SVG icons…");
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -269,21 +270,30 @@
   // DOM-based recolor (not regex) so it works regardless of quote style,
   // attribute casing, or currentColor usage. Elements with an explicit
   // fill/stroke of "none" are left untouched so outline-only icons don't
-  // gain an unwanted fill. Setting fill on the root is a safe fallback for
-  // icons that never declare their own fill (SVG presentation attributes
-  // inherit down the tree, so children pick it up unless overridden).
-  function recolorMarkup(markup, color) {
+  // gain an unwanted fill/stroke. Setting fill on the root is a safe
+  // fallback for icons that never declare their own fill (SVG presentation
+  // attributes inherit down the tree), but only when the root isn't itself
+  // explicitly fill="none" (common on stroke-only icon sets).
+  function recolorMarkup(markup, fillColor, strokeColor) {
+    if (!fillColor && !strokeColor) return markup;
     try {
       const doc = new DOMParser().parseFromString(markup, "image/svg+xml");
       const svg = doc.documentElement;
       if (!svg || svg.nodeName === "parsererror") return markup;
       svg.querySelectorAll("*").forEach((el) => {
-        const fill = el.getAttribute("fill");
-        if (fill && fill.toLowerCase() !== "none") el.setAttribute("fill", color);
-        const stroke = el.getAttribute("stroke");
-        if (stroke && stroke.toLowerCase() !== "none") el.setAttribute("stroke", color);
+        if (fillColor) {
+          const fill = el.getAttribute("fill");
+          if (fill && fill.toLowerCase() !== "none") el.setAttribute("fill", fillColor);
+        }
+        if (strokeColor) {
+          const stroke = el.getAttribute("stroke");
+          if (stroke && stroke.toLowerCase() !== "none") el.setAttribute("stroke", strokeColor);
+        }
       });
-      svg.setAttribute("fill", color);
+      if (fillColor) {
+        const rootFill = svg.getAttribute("fill");
+        if (!rootFill || rootFill.toLowerCase() !== "none") svg.setAttribute("fill", fillColor);
+      }
       return new XMLSerializer().serializeToString(svg);
     } catch (e) {
       return markup;
@@ -291,7 +301,7 @@
   }
 
   function previewMarkup(item) {
-    return previewColor ? recolorMarkup(item.markup, previewColor) : item.markup;
+    return recolorMarkup(item.markup, previewFillColor, previewStrokeColor);
   }
 
   function cardHtml(item) {
@@ -315,22 +325,28 @@
     return `
       <div class="sg-card">
         <div class="${previewBoxClass}"${previewTitle}>${checkbox}${previewInner}</div>
-        <div class="sg-card-label" title="${escapeAttr(label)}">${escapeHtml(label)}</div>
-        <div class="sg-card-footer">${actions}</div>
+        <div class="sg-card-info">
+          <div class="sg-card-label" title="${escapeAttr(label)}">${escapeHtml(label)}</div>
+          <div class="sg-card-actions">${actions}</div>
+        </div>
       </div>
     `;
   }
 
-  function applyFiltersAndRender(shadowRoot) {
-    const grid = shadowRoot.querySelector("#sgGrid");
-    const countEl = shadowRoot.querySelector("#sgCount");
+  function getFilteredItems() {
     let items = [...allIcons, ...allFallbacks];
-
     if (filterText) {
       const q = filterText.toLowerCase();
       items = items.filter((it) => it.label.toLowerCase().includes(q));
     }
     items.sort((a, b) => (sortAsc ? a.label.localeCompare(b.label) : b.label.localeCompare(a.label)));
+    return items;
+  }
+
+  function applyFiltersAndRender(shadowRoot) {
+    const grid = shadowRoot.querySelector("#sgGrid");
+    const countEl = shadowRoot.querySelector("#sgCount");
+    const items = getFilteredItems();
 
     grid.innerHTML = items.length ? items.map(cardHtml).join("") : `<div class="sg-empty">No SVG icons found on this page.</div>`;
 
@@ -340,6 +356,18 @@
       : `${items.length} icon${items.length === 1 ? "" : "s"} found`;
 
     wireCardActions(shadowRoot);
+    updateSelectionUI(shadowRoot, items);
+  }
+
+  function updateSelectionUI(shadowRoot, items) {
+    const selectAllBtn = shadowRoot.querySelector("#sgSelectAll");
+    if (selectAllBtn) {
+      const selectable = items.filter((it) => !it.isFallback);
+      const allSelected = selectable.length > 0 && selectable.every((it) => selectedIds.has(it.id));
+      selectAllBtn.textContent = allSelected ? "Deselect All" : "Select All";
+      selectAllBtn.disabled = selectable.length === 0;
+    }
+    updateBatchButton(shadowRoot);
   }
 
   function flashButton(btn, iconSvg) {
@@ -416,7 +444,7 @@
         const id = cb.getAttribute("data-select-id");
         if (cb.checked) selectedIds.add(id);
         else selectedIds.delete(id);
-        updateBatchButton(shadowRoot);
+        updateSelectionUI(shadowRoot, getFilteredItems());
       });
     });
 
@@ -520,11 +548,16 @@
               <button data-bg="light" class="active" type="button" title="Light preview">${ICON_SUN}</button>
               <button data-bg="dark" type="button" title="Dark preview">${ICON_MOON}</button>
             </div>
-            <label class="sg-color-control" title="Preview color override">
-              <input id="sgColor" type="color" value="#000000" title="Preview color override" />
-              <span>Color</span>
+            <label class="sg-color-control" title="Fill color override">
+              <input id="sgFillColor" type="color" value="#000000" title="Fill color override" />
+              <span>Fill</span>
+            </label>
+            <label class="sg-color-control" title="Stroke color override">
+              <input id="sgStrokeColor" type="color" value="#000000" title="Stroke color override" />
+              <span>Stroke</span>
             </label>
             <button class="sg-control-btn" id="sgColorReset" type="button" title="Reset color override">Reset</button>
+            <button class="sg-control-btn" id="sgSelectAll" type="button" title="Select or deselect all icons" disabled>Select All</button>
             <button class="sg-control-btn" id="sgBatchDownload" type="button" title="Download selected icons as a .zip" disabled>Download ZIP (0)</button>
           </div>
           <div class="sg-status" id="sgStatus"></div>
@@ -551,18 +584,28 @@
         font-family: 'Inter', sans-serif;
       }
 
+      /* Light theme is the default (matches the "Light" toggle being active
+         on open); .sg-theme-dark below restores the original all-dark look
+         for the whole panel, not just the card previews. */
       .sg-panel {
         width: min(1040px, 92vw);
         height: min(720px, 88vh);
-        background: rgba(30, 30, 30, 0.96);
+        background: rgba(255, 255, 255, 0.98);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.45), 0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.25), 0px 0px 1px 0px rgba(255, 255, 255, 0.4) inset;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        color: #1a1a1a;
+        transition: background-color 0.2s ease, color 0.2s ease;
+      }
+      .sg-panel.sg-theme-dark {
+        background: rgba(30, 30, 30, 0.96);
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.45), 0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
         color: rgba(255, 255, 255, 0.9);
       }
 
@@ -571,17 +614,18 @@
         align-items: center;
         justify-content: space-between;
         padding: 14px 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
         flex-shrink: 0;
       }
+      .sg-theme-dark .sg-header { border-bottom-color: rgba(255, 255, 255, 0.08); }
 
       .sg-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
-      .sg-title svg { width: 18px; height: 18px; display: block; flex-shrink: 0; color: #D4FC5D; }
+      .sg-title svg { width: 24px; height: 24px; display: block; flex-shrink: 0; color: #D4FC5D; }
 
       .sg-close-btn {
         border: none;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.9);
+        background: rgba(0, 0, 0, 0.06);
+        color: rgba(0, 0, 0, 0.65);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -589,55 +633,62 @@
         height: 24px;
         border-radius: 50%;
         cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         flex-shrink: 0;
       }
-      .sg-close-btn:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(90deg); }
+      .sg-close-btn:hover { background: rgba(0, 0, 0, 0.12); transform: rotate(90deg); }
+      .sg-theme-dark .sg-close-btn { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9); }
+      .sg-theme-dark .sg-close-btn:hover { background: rgba(255, 255, 255, 0.2); }
 
       .sg-controls {
         display: flex;
         align-items: center;
         gap: 8px;
         padding: 10px 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
         flex-wrap: wrap;
         flex-shrink: 0;
       }
+      .sg-theme-dark .sg-controls { border-bottom-color: rgba(255, 255, 255, 0.08); }
 
       .sg-search {
         flex: 1 1 160px;
         min-width: 120px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.12);
         border-radius: 6px;
-        color: rgba(255, 255, 255, 0.9);
+        color: #1a1a1a;
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         padding: 6px 10px;
         outline: none;
       }
-      .sg-search::placeholder { color: rgba(255, 255, 255, 0.4); }
+      .sg-search::placeholder { color: rgba(0, 0, 0, 0.4); }
       .sg-search:focus { border-color: #D4FC5D; }
+      .sg-theme-dark .sg-search { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.9); }
+      .sg-theme-dark .sg-search::placeholder { color: rgba(255, 255, 255, 0.4); }
 
       .sg-control-btn {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.12);
         border-radius: 6px;
-        color: rgba(255, 255, 255, 0.9);
+        color: #1a1a1a;
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         padding: 6px 10px;
         cursor: pointer;
         white-space: nowrap;
       }
-      .sg-control-btn:hover { background: rgba(255, 255, 255, 0.15); }
+      .sg-control-btn:hover { background: rgba(0, 0, 0, 0.08); }
       .sg-control-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+      .sg-theme-dark .sg-control-btn { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.9); }
+      .sg-theme-dark .sg-control-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
-      .sg-bg-toggle { display: flex; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; overflow: hidden; }
+      .sg-bg-toggle { display: flex; border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 6px; overflow: hidden; }
       .sg-bg-toggle button {
         background: transparent;
         border: none;
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(0, 0, 0, 0.55);
         padding: 6px 8px;
         cursor: pointer;
         display: flex;
@@ -645,11 +696,14 @@
       }
       .sg-bg-toggle button svg { width: 14px; height: 14px; display: block; }
       .sg-bg-toggle button.active { background: #D4FC5D; color: #000000; }
+      .sg-theme-dark .sg-bg-toggle { border-color: rgba(255, 255, 255, 0.12); }
+      .sg-theme-dark .sg-bg-toggle button { color: rgba(255, 255, 255, 0.7); }
 
       .sg-color-control { display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer; }
       .sg-color-control input[type="color"] { width: 22px; height: 22px; border: none; border-radius: 4px; padding: 0; cursor: pointer; background: transparent; }
 
-      .sg-status { padding: 8px 16px 0; font-size: 12px; color: rgba(255, 255, 255, 0.6); min-height: 18px; flex-shrink: 0; }
+      .sg-status { padding: 8px 16px 0; font-size: 12px; color: rgba(0, 0, 0, 0.55); min-height: 18px; flex-shrink: 0; }
+      .sg-theme-dark .sg-status { color: rgba(255, 255, 255, 0.6); }
 
       .sg-grid {
         flex: 1;
@@ -660,16 +714,19 @@
         padding: 16px;
         align-content: start;
         scrollbar-width: thin;
-        scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
       }
       .sg-grid::-webkit-scrollbar { width: 8px; }
       .sg-grid::-webkit-scrollbar-track { background: transparent; }
-      .sg-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 4px; }
-      .sg-grid::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+      .sg-grid::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
+      .sg-grid::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.35); }
+      .sg-theme-dark .sg-grid { scrollbar-color: rgba(255, 255, 255, 0.25) transparent; }
+      .sg-theme-dark .sg-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
+      .sg-theme-dark .sg-grid::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
 
-      .sg-empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: rgba(255, 255, 255, 0.5); font-size: 13px; }
+      .sg-empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: rgba(0, 0, 0, 0.45); font-size: 13px; }
+      .sg-theme-dark .sg-empty { color: rgba(255, 255, 255, 0.5); }
 
-      /* Cards follow the light/dark preview toggle as a whole, not just the icon swatch. */
       .sg-card {
         background: #f5f5f5;
         border: 1px solid rgba(0, 0, 0, 0.08);
@@ -680,7 +737,7 @@
         flex-direction: column;
         gap: 8px;
       }
-      .sg-grid.sg-preview-dark .sg-card { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); }
+      .sg-theme-dark .sg-card { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); }
 
       .sg-preview-box {
         position: relative;
@@ -693,7 +750,7 @@
         overflow: hidden;
         transition: background-color 0.2s ease;
       }
-      .sg-grid.sg-preview-dark .sg-preview-box { background: #1c1c1c; }
+      .sg-theme-dark .sg-preview-box { background: #1c1c1c; }
       .sg-preview-box:not(.sg-preview-box-fallback) { cursor: pointer; }
       .sg-preview-box:not(.sg-preview-box-fallback):hover { box-shadow: 0 0 0 2px #D4FC5D inset; }
 
@@ -712,7 +769,11 @@
       }
       .sg-card-checkbox input { width: 15px; height: 15px; margin: 0; cursor: pointer; }
 
+      .sg-card-info { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+
       .sg-card-label {
+        flex: 1;
+        min-width: 0;
         font-size: 11px;
         white-space: nowrap;
         overflow: hidden;
@@ -720,7 +781,7 @@
         opacity: 0.85;
       }
 
-      .sg-card-footer { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+      .sg-card-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
       .sg-action-btn {
         border: none;
@@ -736,25 +797,28 @@
         text-decoration: none;
         transition: background-color 0.2s ease, color 0.2s ease;
       }
-      .sg-grid.sg-preview-dark .sg-action-btn { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.8); }
+      .sg-theme-dark .sg-action-btn { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.8); }
       .sg-action-btn:hover { background: #D4FC5D; color: #000000; }
       .sg-action-btn-success { background: #D4FC5D !important; color: #000000 !important; }
       .sg-action-btn svg { width: 16px; height: 16px; display: block; }
 
-      .sg-footer { padding: 8px 16px; border-top: 1px solid rgba(255, 255, 255, 0.08); font-size: 11px; color: rgba(255, 255, 255, 0.5); flex-shrink: 0; }
+      .sg-footer { padding: 8px 16px; border-top: 1px solid rgba(0, 0, 0, 0.08); font-size: 11px; color: rgba(0, 0, 0, 0.5); flex-shrink: 0; }
+      .sg-theme-dark .sg-footer { border-top-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.5); }
     `;
   }
 
   function wireShell(shadowRoot, host) {
+    const panel = shadowRoot.querySelector(".sg-panel");
     const backdrop = shadowRoot.querySelector(".sg-backdrop");
     const closeBtn = shadowRoot.querySelector("#sgClose");
     const searchInput = shadowRoot.querySelector("#sgSearch");
     const sortBtn = shadowRoot.querySelector("#sgSort");
     const bgButtons = shadowRoot.querySelectorAll("#sgBgToggle button");
-    const colorInput = shadowRoot.querySelector("#sgColor");
+    const fillColorInput = shadowRoot.querySelector("#sgFillColor");
+    const strokeColorInput = shadowRoot.querySelector("#sgStrokeColor");
     const colorReset = shadowRoot.querySelector("#sgColorReset");
+    const selectAllBtn = shadowRoot.querySelector("#sgSelectAll");
     const batchBtn = shadowRoot.querySelector("#sgBatchDownload");
-    const grid = shadowRoot.querySelector("#sgGrid");
 
     function onKeyDown(e) {
       if (e.key === "Escape") cleanupAndClose();
@@ -785,18 +849,32 @@
       btn.addEventListener("click", () => {
         bgButtons.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        grid.classList.toggle("sg-preview-dark", btn.dataset.bg === "dark");
+        panel.classList.toggle("sg-theme-dark", btn.dataset.bg === "dark");
       });
     });
 
-    colorInput.addEventListener("input", () => {
-      previewColor = colorInput.value;
+    fillColorInput.addEventListener("input", () => {
+      previewFillColor = fillColorInput.value;
+      applyFiltersAndRender(shadowRoot);
+    });
+
+    strokeColorInput.addEventListener("input", () => {
+      previewStrokeColor = strokeColorInput.value;
       applyFiltersAndRender(shadowRoot);
     });
 
     colorReset.addEventListener("click", () => {
-      previewColor = null;
-      colorInput.value = "#000000";
+      previewFillColor = null;
+      previewStrokeColor = null;
+      fillColorInput.value = "#000000";
+      strokeColorInput.value = "#000000";
+      applyFiltersAndRender(shadowRoot);
+    });
+
+    selectAllBtn.addEventListener("click", () => {
+      const selectable = getFilteredItems().filter((it) => !it.isFallback);
+      const allSelected = selectable.length > 0 && selectable.every((it) => selectedIds.has(it.id));
+      selectable.forEach((it) => (allSelected ? selectedIds.delete(it.id) : selectedIds.add(it.id)));
       applyFiltersAndRender(shadowRoot);
     });
 
