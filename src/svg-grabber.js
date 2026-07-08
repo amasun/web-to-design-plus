@@ -339,6 +339,31 @@
     }, 1200);
   }
 
+  let toastHideTimer = null;
+
+  function getCopyToastText() {
+    const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+    const key = isMac ? "⌘V" : "Ctrl+V";
+    return `Copied! Press ${key} to paste in Figma or Adobe (PS/AI)`;
+  }
+
+  function showToast(root, text) {
+    const shadowRoot = root instanceof ShadowRoot ? root : root.getRootNode();
+    const panel = shadowRoot.querySelector(".sg-panel");
+    if (!panel) return;
+    let toast = shadowRoot.querySelector("#sgToast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "sgToast";
+      toast.className = "sg-toast";
+      panel.appendChild(toast);
+    }
+    toast.textContent = text;
+    toast.classList.add("sg-toast-visible");
+    clearTimeout(toastHideTimer);
+    toastHideTimer = setTimeout(() => toast.classList.remove("sg-toast-visible"), 2400);
+  }
+
   function sanitizeFilename(name) {
     return String(name).replace(/[^a-z0-9-_]+/gi, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "icon";
   }
@@ -349,6 +374,7 @@
     try {
       await navigator.clipboard.writeText(item.markup);
       flashButton(btn, ICON_CHECK);
+      showToast(btn.getRootNode(), getCopyToastText());
     } catch (e) {
       flashButton(btn, ICON_ERROR);
     }
@@ -497,7 +523,7 @@
       <div class="sg-backdrop">
         <div class="sg-panel" role="dialog" aria-label="Grab SVG icons">
           <div class="sg-header">
-            <div class="sg-title">${ICON_TITLE}<span>Grab SVG</span></div>
+            <div class="sg-title"><span class="sg-title-icon">${ICON_TITLE}</span><span>Grab SVG</span></div>
             <button class="sg-close-btn" id="sgClose" type="button" title="Close">${ICON_CLOSE}</button>
           </div>
           <div class="sg-controls">
@@ -539,6 +565,7 @@
          for the whole panel, not just the card previews. */
       .sg-panel {
         --sg-accent: #7ee100;
+        position: relative;
         width: min(1040px, 92vw);
         height: min(720px, 88vh);
         background: #ededed;
@@ -572,7 +599,17 @@
       .sg-theme-dark .sg-header { border-bottom-color: rgba(255, 255, 255, 0.08); }
 
       .sg-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
-      .sg-title svg { width: 24px; height: 24px; display: block; flex-shrink: 0; color: var(--sg-accent); }
+      .sg-title-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: var(--sg-accent);
+        flex-shrink: 0;
+      }
+      .sg-title-icon svg { width: 16px; height: 16px; display: block; color: #ffffff; }
 
       .sg-close-btn {
         border: none;
@@ -688,8 +725,10 @@
         flex-direction: column;
         align-items: center;
         gap: 8px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
       }
       .sg-theme-dark .sg-card { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); }
+      .sg-card:hover, .sg-card:active { border-color: var(--sg-accent); box-shadow: 0 0 0 2px var(--sg-accent) inset; }
 
       .sg-preview-box {
         position: relative;
@@ -705,7 +744,6 @@
       }
       .sg-theme-dark .sg-preview-box { background: #1c1c1c; }
       .sg-preview-box:not(.sg-preview-box-fallback) { cursor: pointer; }
-      .sg-preview-box:not(.sg-preview-box-fallback):hover { box-shadow: 0 0 0 2px var(--sg-accent) inset; }
 
       .sg-svg-preview { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
       .sg-svg-preview svg { max-width: 100%; max-height: 100%; width: auto; height: auto; }
@@ -755,6 +793,27 @@
 
       .sg-footer { padding: 8px 16px; border-top: 1px solid rgba(0, 0, 0, 0.08); font-size: 11px; color: rgba(0, 0, 0, 0.5); flex-shrink: 0; }
       .sg-theme-dark .sg-footer { border-top-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.5); }
+
+      .sg-toast {
+        position: absolute;
+        left: 50%;
+        bottom: 20px;
+        transform: translate(-50%, 12px);
+        background: rgba(20, 20, 20, 0.92);
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 8px 14px;
+        border-radius: 8px;
+        box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 1;
+      }
+      .sg-toast-visible { opacity: 1; transform: translate(-50%, 0); }
     `;
   }
 

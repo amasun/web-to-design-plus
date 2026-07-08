@@ -50,9 +50,10 @@
 
   .sg-root .sg-panel {
     --sg-accent: #7ee100;
+    position: relative;
     width: min(1040px, 92vw);
     height: min(720px, 88vh);
-    background: rgba(255, 255, 255, 0.98);
+    background: #ededed;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-radius: 16px;
@@ -83,7 +84,17 @@
   .sg-root .sg-theme-dark .sg-header { border-bottom-color: rgba(255, 255, 255, 0.08); }
 
   .sg-root .sg-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
-  .sg-root .sg-title svg { width: 24px; height: 24px; display: block; flex-shrink: 0; color: var(--sg-accent); }
+  .sg-root .sg-title-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--sg-accent);
+    flex-shrink: 0;
+  }
+  .sg-root .sg-title-icon svg { width: 16px; height: 16px; display: block; color: #ffffff; }
 
   .sg-root .sg-close-btn {
     border: none;
@@ -199,8 +210,10 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   .sg-root .sg-theme-dark .sg-card { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); }
+  .sg-root .sg-card:hover, .sg-root .sg-card:active { border-color: var(--sg-accent); box-shadow: 0 0 0 2px var(--sg-accent) inset; }
 
   .sg-root .sg-preview-box {
     position: relative;
@@ -216,7 +229,6 @@
   }
   .sg-root .sg-theme-dark .sg-preview-box { background: #1c1c1c; }
   .sg-root .sg-preview-box:not(.sg-preview-box-fallback) { cursor: pointer; }
-  .sg-root .sg-preview-box:not(.sg-preview-box-fallback):hover { box-shadow: 0 0 0 2px var(--sg-accent) inset; }
 
   .sg-root .sg-svg-preview { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
   .sg-root .sg-svg-preview svg { max-width: 100%; max-height: 100%; width: auto; height: auto; }
@@ -266,6 +278,27 @@
 
   .sg-root .sg-footer { padding: 8px 16px; border-top: 1px solid rgba(0, 0, 0, 0.08); font-size: 11px; color: rgba(0, 0, 0, 0.5); flex-shrink: 0; }
   .sg-root .sg-theme-dark .sg-footer { border-top-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.5); }
+
+  .sg-root .sg-toast {
+    position: absolute;
+    left: 50%;
+    bottom: 20px;
+    transform: translate(-50%, 12px);
+    background: rgba(20, 20, 20, 0.92);
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 8px;
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1;
+  }
+  .sg-root .sg-toast-visible { opacity: 1; transform: translate(-50%, 0); }
 </style>
 </head>
 <body>
@@ -277,7 +310,9 @@
       <div class="sg-panel" role="dialog" aria-label="Grab SVG icons">
         <div class="sg-header">
           <div class="sg-title">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.2887 9.00525C9.1505 9.19475 8.10931 9.76218 7.33312 10.616C6.55693 11.4698 6.09101 12.5602 6.01052 13.7113M13.7113 9.00525C14.8495 9.19475 15.8907 9.76218 16.6669 10.616C17.4431 11.4698 17.909 12.5602 17.9895 13.7113M10.2887 8.57743H5.15488M5.15488 8.57743C5.15488 8.80436 5.06474 9.02199 4.90427 9.18246C4.74381 9.34292 4.52617 9.43307 4.29924 9.43307C4.07231 9.43307 3.85468 9.34292 3.69421 9.18246C3.53375 9.02199 3.4436 8.80436 3.4436 8.57743C3.4436 8.3505 3.53375 8.13286 3.69421 7.9724C3.85468 7.81194 4.07231 7.72179 4.29924 7.72179C4.52617 7.72179 4.74381 7.81194 4.90427 7.9724C5.06474 8.13286 5.15488 8.3505 5.15488 8.57743ZM18.8451 8.57743H13.7113M18.8451 8.57743C18.8451 8.80436 18.9353 9.02199 19.0957 9.18246C19.2562 9.34292 19.4738 9.43307 19.7008 9.43307C19.9277 9.43307 20.1453 9.34292 20.3058 9.18246C20.4662 9.02199 20.5564 8.80436 20.5564 8.57743C20.5564 8.3505 20.4662 8.13286 20.3058 7.9724C20.1453 7.81194 19.9277 7.72179 19.7008 7.72179C19.4738 7.72179 19.2562 7.81194 19.0957 7.9724C18.9353 8.13286 18.8451 8.3505 18.8451 8.57743ZM4.29924 14.5669C4.29924 14.34 4.38939 14.1223 4.54985 13.9619C4.71032 13.8014 4.92795 13.7113 5.15488 13.7113H6.86616C7.09309 13.7113 7.31073 13.8014 7.47119 13.9619C7.63165 14.1223 7.7218 14.34 7.7218 14.5669V16.2782C7.7218 16.5051 7.63165 16.7228 7.47119 16.8832C7.31073 17.0437 7.09309 17.1338 6.86616 17.1338H5.15488C4.92795 17.1338 4.71032 17.0437 4.54985 16.8832C4.38939 16.7228 4.29924 16.5051 4.29924 16.2782V14.5669ZM16.2782 14.5669C16.2782 14.34 16.3683 14.1223 16.5288 13.9619C16.6893 13.8014 16.9069 13.7113 17.1338 13.7113H18.8451C19.072 13.7113 19.2897 13.8014 19.4501 13.9619C19.6106 14.1223 19.7008 14.34 19.7008 14.5669V16.2782C19.7008 16.5051 19.6106 16.7228 19.4501 16.8832C19.2897 17.0437 19.072 17.1338 18.8451 17.1338H17.1338C16.9069 17.1338 16.6893 17.0437 16.5288 16.8832C16.3683 16.7228 16.2782 16.5051 16.2782 16.2782V14.5669ZM10.2887 7.72179C10.2887 7.49486 10.3789 7.27722 10.5393 7.11676C10.6998 6.9563 10.9174 6.86615 11.1444 6.86615H12.8556C13.0826 6.86615 13.3002 6.9563 13.4607 7.11676C13.6211 7.27722 13.7113 7.49486 13.7113 7.72179V9.43307C13.7113 9.66 13.6211 9.87763 13.4607 10.0381C13.3002 10.1986 13.0826 10.2887 12.8556 10.2887H11.1444C10.9174 10.2887 10.6998 10.1986 10.5393 10.0381C10.3789 9.87763 10.2887 9.66 10.2887 9.43307V7.72179Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="sg-title-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.2887 9.00525C9.1505 9.19475 8.10931 9.76218 7.33312 10.616C6.55693 11.4698 6.09101 12.5602 6.01052 13.7113M13.7113 9.00525C14.8495 9.19475 15.8907 9.76218 16.6669 10.616C17.4431 11.4698 17.909 12.5602 17.9895 13.7113M10.2887 8.57743H5.15488M5.15488 8.57743C5.15488 8.80436 5.06474 9.02199 4.90427 9.18246C4.74381 9.34292 4.52617 9.43307 4.29924 9.43307C4.07231 9.43307 3.85468 9.34292 3.69421 9.18246C3.53375 9.02199 3.4436 8.80436 3.4436 8.57743C3.4436 8.3505 3.53375 8.13286 3.69421 7.9724C3.85468 7.81194 4.07231 7.72179 4.29924 7.72179C4.52617 7.72179 4.74381 7.81194 4.90427 7.9724C5.06474 8.13286 5.15488 8.3505 5.15488 8.57743ZM18.8451 8.57743H13.7113M18.8451 8.57743C18.8451 8.80436 18.9353 9.02199 19.0957 9.18246C19.2562 9.34292 19.4738 9.43307 19.7008 9.43307C19.9277 9.43307 20.1453 9.34292 20.3058 9.18246C20.4662 9.02199 20.5564 8.80436 20.5564 8.57743C20.5564 8.3505 20.4662 8.13286 20.3058 7.9724C20.1453 7.81194 19.9277 7.72179 19.7008 7.72179C19.4738 7.72179 19.2562 7.81194 19.0957 7.9724C18.9353 8.13286 18.8451 8.3505 18.8451 8.57743ZM4.29924 14.5669C4.29924 14.34 4.38939 14.1223 4.54985 13.9619C4.71032 13.8014 4.92795 13.7113 5.15488 13.7113H6.86616C7.09309 13.7113 7.31073 13.8014 7.47119 13.9619C7.63165 14.1223 7.7218 14.34 7.7218 14.5669V16.2782C7.7218 16.5051 7.63165 16.7228 7.47119 16.8832C7.31073 17.0437 7.09309 17.1338 6.86616 17.1338H5.15488C4.92795 17.1338 4.71032 17.0437 4.54985 16.8832C4.38939 16.7228 4.29924 16.5051 4.29924 16.2782V14.5669ZM16.2782 14.5669C16.2782 14.34 16.3683 14.1223 16.5288 13.9619C16.6893 13.8014 16.9069 13.7113 17.1338 13.7113H18.8451C19.072 13.7113 19.2897 13.8014 19.4501 13.9619C19.6106 14.1223 19.7008 14.34 19.7008 14.5669V16.2782C19.7008 16.5051 19.6106 16.7228 19.4501 16.8832C19.2897 17.0437 19.072 17.1338 18.8451 17.1338H17.1338C16.9069 17.1338 16.6893 17.0437 16.5288 16.8832C16.3683 16.7228 16.2782 16.5051 16.2782 16.2782V14.5669ZM10.2887 7.72179C10.2887 7.49486 10.3789 7.27722 10.5393 7.11676C10.6998 6.9563 10.9174 6.86615 11.1444 6.86615H12.8556C13.0826 6.86615 13.3002 6.9563 13.4607 7.11676C13.6211 7.27722 13.7113 7.49486 13.7113 7.72179V9.43307C13.7113 9.66 13.6211 9.87763 13.4607 10.0381C13.3002 10.1986 13.0826 10.2887 12.8556 10.2887H11.1444C10.9174 10.2887 10.6998 10.1986 10.5393 10.0381C10.3789 9.87763 10.2887 9.66 10.2887 9.43307V7.72179Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
             <span>Grab SVG</span>
           </div>
           <button class="sg-close-btn" id="sgClose" type="button" title="Close">
@@ -404,11 +439,31 @@
     updateSelectionUI(items);
   }
 
+  let toastHideTimer = null;
+  function getCopyToastText() {
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const key = isMac ? '⌘V' : 'Ctrl+V';
+    return `Copied! Press ${key} to paste in Figma or Adobe (PS/AI)`;
+  }
+  function showToast(text) {
+    let toast = document.getElementById('sgToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'sgToast';
+      toast.className = 'sg-toast';
+      panel.appendChild(toast);
+    }
+    toast.textContent = text;
+    toast.classList.add('sg-toast-visible');
+    clearTimeout(toastHideTimer);
+    toastHideTimer = setTimeout(() => toast.classList.remove('sg-toast-visible'), 2400);
+  }
+
   function wireCardActions(items) {
     grid.querySelectorAll('.sg-action-btn[data-action="copy"]').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.getAttribute('data-icon-id').slice(1));
-        try { navigator.clipboard.writeText(SAMPLE_ICONS[idx].markup); flashButton(btn, ICON_CHECK); }
+        try { navigator.clipboard.writeText(SAMPLE_ICONS[idx].markup); flashButton(btn, ICON_CHECK); showToast(getCopyToastText()); }
         catch (e) { flashButton(btn, ICON_ERROR); }
       });
     });
