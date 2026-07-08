@@ -25,6 +25,7 @@
 
 - **Minimal Floating Toolbar**: Premium glassmorphism design with smooth transition animations, draggable anywhere on the screen.
 - **Dual Capture Modes**: Support full-page capture (Entire Screen) and interactive local element selection (Select Element).
+- **SVG Vector Extraction (Grab SVG)**: Extract and copy SVG vectors/icons independently from the webpage into Figma editable layers.
 - **Instant Copy & Paste**: **No JSON file downloads**. Data is directly formatted and written to your clipboard — paste with `Ctrl/Cmd + V` directly in Figma to generate editable layers.
 - **Auto Image Proxy**: Automatically resolves CORS-restricted images via Service Worker background fetching with an 8-concurrency limit.
 
@@ -41,9 +42,10 @@ Download the latest `web-to-design-plus.zip` from [GitHub Releases](https://gith
 ## 🗺️ Future Roadmap
 
 We plan to introduce the following features in upcoming updates:
-1. **SVG Asset Capture (Grab SVG)**: Extract and copy SVG vectors/icons independently from the webpage.
-2. **Font & Typography Guidelines (What's the Font)**: Identify web fonts used on the page and export typographical style guides.
-3. **Web-to-Design System Generation**: Automatically generate typography, spacing, shadows, and color palette variables directly into Figma.
+1. **React/Vue/Tailwind Code Export**: Copy captured elements directly as structured React (JSX) or Vue component code, converting inline CSS styles into Tailwind utility classes.
+2. **Font Detection & Download (What's the Font)**: Identify custom web fonts used on the page and provide Google Fonts installer links on success.
+3. **Asset Compression & Metadata Cleaning**: Automatically convert small images (<100KB) to Base64 to bypass proxy restrictions, and filter out sketch/Adobe tags to reduce clipboard size.
+4. **Keyboard Shortcuts & Hotkeys**: Support customizable global shortcut (`Alt+Shift+D`) to toggle the toolbar, and single-key navigation triggers inside the panel (`A` / `E` / `S`).
 
 
 
