@@ -541,7 +541,7 @@
         --sg-accent: #7ee100;
         width: min(1040px, 92vw);
         height: min(720px, 88vh);
-        background: rgba(255, 255, 255, 0.98);
+        background: #ededed;
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border-radius: 16px;
@@ -636,20 +636,22 @@
       .sg-theme-dark .sg-control-btn { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.9); }
       .sg-theme-dark .sg-control-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
-      .sg-bg-toggle { display: flex; border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 6px; overflow: hidden; }
+      .sg-bg-toggle { display: flex; border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 6px; overflow: hidden; background: rgba(0, 0, 0, 0.02); }
       .sg-bg-toggle button {
         background: transparent;
         border: none;
-        color: rgba(0, 0, 0, 0.55);
+        color: rgba(0, 0, 0, 0.45);
         padding: 6px 8px;
         cursor: pointer;
         display: flex;
         align-items: center;
+        transition: all 0.2s ease;
       }
       .sg-bg-toggle button svg { width: 14px; height: 14px; display: block; }
-      .sg-bg-toggle button.active { background: var(--sg-accent); color: #000000; }
-      .sg-theme-dark .sg-bg-toggle { border-color: rgba(255, 255, 255, 0.12); }
-      .sg-theme-dark .sg-bg-toggle button { color: rgba(255, 255, 255, 0.7); }
+      .sg-bg-toggle button.active { background: rgba(0, 0, 0, 0.08); color: rgba(0, 0, 0, 0.9); }
+      .sg-theme-dark .sg-bg-toggle { border-color: rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.02); }
+      .sg-theme-dark .sg-bg-toggle button { color: rgba(255, 255, 255, 0.45); }
+      .sg-theme-dark .sg-bg-toggle button.active { background: rgba(255, 255, 255, 0.15); color: #ffffff; }
 
       .sg-status { padding: 8px 16px 0; font-size: 12px; color: rgba(0, 0, 0, 0.55); min-height: 18px; flex-shrink: 0; }
       .sg-theme-dark .sg-status { color: rgba(255, 255, 255, 0.6); }
@@ -677,7 +679,7 @@
       .sg-theme-dark .sg-empty { color: rgba(255, 255, 255, 0.5); }
 
       .sg-card {
-        background: #f5f5f5;
+        background: #ffffff;
         border: 1px solid rgba(0, 0, 0, 0.08);
         color: #1a1a1a;
         border-radius: 10px;
@@ -694,7 +696,7 @@
         width: 100%;
         height: 80px;
         border-radius: 6px;
-        background: #ffffff;
+        background: rgba(237, 237, 237, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
