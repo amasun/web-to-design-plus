@@ -161,7 +161,6 @@
         background: #d4fc5d;
         color: #000000;
         transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(212, 252, 93, 0.35);
       }
 
       .action-btn:not(.disabled):active {
@@ -352,12 +351,31 @@
       #${HIGHLIGHT_ID} {
         position: absolute;
         pointer-events: none;
-        border: 2px solid #38bdf8; /* Sky-400 */
-        background: rgba(56, 189, 248, 0.08);
-        box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
-        z-index: 2147483647;
-        border-radius: 4px;
+        border: 2px solid #0BDC00;
+        background: rgba(21, 255, 0, 0.12);
+        z-index: 2147483646;
+        border-radius: 8px 0 8px 8px;
         display: none;
+        box-sizing: border-box;
+        transition: top 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+                    left 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+                    width 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+                    height 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      #${HIGHLIGHT_ID} .highlight-tooltip {
+        position: absolute;
+        bottom: 100%;
+        right: -2px;
+        background: #0BDC00;
+        color: #000000;
+        padding: 3px 8px;
+        border-radius: 4px 4px 0 4px;
+        font-size: 11px;
+        font-weight: 700;
+        font-family: 'Inter', sans-serif;
+        white-space: nowrap;
+        pointer-events: none;
+        line-height: 14px;
       }
     `;
   }
@@ -781,7 +799,36 @@
       highlight.setAttribute("data-h2d-ignore", "true");
       document.documentElement.appendChild(highlight);
     }
+
+    // Generate label for the element (id, class or tag)
+    let selector = el.tagName.toLowerCase();
+    if (el.id) {
+      selector += `#${el.id}`;
+    } else if (el.classList && el.classList.length > 0) {
+      const classes = Array.from(el.classList).filter(c => {
+        return typeof c === "string" && !c.startsWith("__figma") && !c.startsWith("temp-") && c.length < 24;
+      });
+      if (classes.length > 0) {
+        selector += `.${classes.slice(0, 2).join(".")}`;
+      }
+    }
+    if (selector.length > 30) {
+      selector = selector.slice(0, 27) + "...";
+    }
+
     const rect = el.getBoundingClientRect();
+    const width = Math.round(rect.width);
+    const height = Math.round(rect.height);
+    const label = `${selector} | ${width} × ${height}`;
+
+    let tooltip = highlight.querySelector(".highlight-tooltip");
+    if (!tooltip) {
+      tooltip = document.createElement("div");
+      tooltip.className = "highlight-tooltip";
+      highlight.appendChild(tooltip);
+    }
+    tooltip.textContent = label;
+
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
@@ -828,11 +875,12 @@
   }
 
   function handleClick(e) {
-    e.preventDefault();
-    e.stopPropagation();
     const target = currentHighlightedEl || getRealTarget(e);
+    // Let clicks on our own toolbar buttons (close, cancel, etc.) pass through
     if (!target || e.composedPath().some(el => el.id === HOST_ID) || target.closest?.(`#${HIGHLIGHT_ID}`)) return;
 
+    e.preventDefault();
+    e.stopPropagation();
     deactivateElementSelection();
     hideIndicator();
 

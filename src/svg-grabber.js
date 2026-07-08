@@ -18,6 +18,7 @@
   const iconsByHash = new Map();
   const fallbacksByUrl = new Map();
   const selectedIds = new Set();
+  let activeCardId = null;
   let allIcons = [];
   let allFallbacks = [];
   let anonymousCounter = 0;
@@ -124,7 +125,7 @@
     return `h${hash}_${normalized.length}`;
   }
 
-  function registerIcon(markup, meta) {
+  function registerIcon(markup, meta, originalSvgEl = null) {
     if (!markup) return;
     const hash = hashMarkup(markup);
     const existing = iconsByHash.get(hash);
@@ -137,7 +138,7 @@
       return;
     }
     const label = (meta.label || "").trim() || `icon-${++anonymousCounter}`;
-    iconsByHash.set(hash, { id: hash, markup, count: 1, source: meta.source, label });
+    iconsByHash.set(hash, { id: hash, markup, count: 1, source: meta.source, label, originalEl: originalSvgEl });
   }
 
   function registerFallback(meta) {
@@ -160,7 +161,7 @@
       const rect = svg.getBoundingClientRect();
       if (rect.width < 1 || rect.height < 1) return;
       const markup = serializeSvg(svg);
-      if (markup) registerIcon(markup, { source: "inline", label: elementLabel(svg) });
+      if (markup) registerIcon(markup, { source: "inline", label: elementLabel(svg) }, svg);
     });
   }
 
@@ -282,9 +283,10 @@
 
     const previewBoxClass = item.isFallback ? "sg-preview-box sg-preview-box-fallback" : "sg-preview-box";
     const previewTitle = item.isFallback ? "" : ` title="Click to copy"`;
+    const activeClass = item.id === activeCardId ? " sg-card-active" : "";
 
     return `
-      <div class="sg-card">
+      <div class="sg-card${activeClass}" data-card-id="${escapeAttr(item.id)}">
         <div class="${previewBoxClass}"${previewTitle}>${checkbox}${previewInner}</div>
         <div class="sg-card-label" title="${escapeAttr(label)}">${escapeHtml(label)}</div>
         <div class="sg-card-actions">${actions}</div>
@@ -344,7 +346,16 @@
   function getCopyToastText() {
     const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
     const key = isMac ? "⌘V" : "Ctrl+V";
-    return `Copied! Press ${key} to paste in Figma or Adobe (PS/AI)`;
+    return `
+      <div class="sg-toast-inner">
+        <svg class="sg-toast-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; flex-shrink:0;">
+          <path d="M16 5.07193C17.2067 5.76862 18.2104 6.76837 18.9119 7.9722C19.6134 9.17604 19.9884 10.5422 19.9996 11.9355C20.0109 13.3288 19.658 14.7008 18.9761 15.9158C18.2941 17.1308 17.3066 18.1467 16.1114 18.8628C14.9162 19.5788 13.5547 19.9704 12.1617 19.9986C10.7686 20.0268 9.39238 19.6906 8.16917 19.0235C6.94596 18.3563 5.9182 17.3813 5.18763 16.1949C4.45705 15.0085 4.04901 13.6518 4.00388 12.2592L3.99988 12L4.00388 11.7408C4.04868 10.3592 4.45072 9.01274 5.1708 7.83276C5.89089 6.65277 6.90444 5.6795 8.11264 5.00783C9.32085 4.33617 10.6825 3.98903 12.0648 4.00026C13.4471 4.0115 14.8029 4.38072 16 5.07193ZM14.9656 9.83439C14.8279 9.69664 14.6446 9.6139 14.4502 9.60167C14.2557 9.58945 14.0635 9.64858 13.9096 9.76799L13.8344 9.83439L11.2 12.468L10.1656 11.4344L10.0904 11.368C9.93642 11.2487 9.74425 11.1896 9.54987 11.2019C9.35549 11.2141 9.17227 11.2969 9.03455 11.4346C8.89683 11.5723 8.81408 11.7556 8.80182 11.9499C8.78956 12.1443 8.84862 12.3365 8.96794 12.4904L9.03434 12.5656L10.6344 14.1656L10.7096 14.232C10.8499 14.3409 11.0224 14.4 11.2 14.4C11.3775 14.4 11.5501 14.3409 11.6904 14.232L11.7656 14.1656L14.9656 10.9656L15.032 10.8904C15.1514 10.7365 15.2106 10.5443 15.1983 10.3498C15.1861 10.1554 15.1034 9.97214 14.9656 9.83439Z" fill="#D4FC5D"/>
+        </svg>
+        <span class="sg-toast-label sg-toast-label-dim">Copied! Press</span>
+        <span class="sg-shortcut-key">${key}</span>
+        <span class="sg-toast-label">to paste</span>
+      </div>
+    `;
   }
 
   function showToast(root, text) {
@@ -358,7 +369,7 @@
       toast.className = "sg-toast";
       panel.appendChild(toast);
     }
-    toast.textContent = text;
+    toast.innerHTML = text;
     toast.classList.add("sg-toast-visible");
     clearTimeout(toastHideTimer);
     toastHideTimer = setTimeout(() => toast.classList.remove("sg-toast-visible"), 2400);
@@ -368,17 +379,243 @@
     return String(name).replace(/[^a-z0-9-_]+/gi, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "icon";
   }
 
+  async function copySvgToClipboard(svgMarkup) {
+    let success = false;
+
+    // Attempt 1: Classic execCommand copy with copy event listener.
+    const listener = (e) => {
+      try {
+        e.clipboardData.setData("text/plain", svgMarkup);
+        e.clipboardData.setData("text/html", svgMarkup);
+        e.clipboardData.setData("image/svg+xml", svgMarkup);
+        e.preventDefault();
+        success = true;
+      } catch (err) {
+        console.error("setData failed inside copy listener:", err);
+      }
+    };
+
+    document.addEventListener("copy", listener);
+    try {
+      document.execCommand("copy");
+    } catch (err) {
+      console.warn("execCommand copy failed:", err);
+    } finally {
+      document.removeEventListener("copy", listener);
+    }
+
+    if (success) return true;
+
+    // Attempt 2: Fall back to modern Async Clipboard API with ClipboardItem
+    try {
+      const textBlob = new Blob([svgMarkup], { type: "text/plain" });
+      const htmlBlob = new Blob([svgMarkup], { type: "text/html" });
+      const svgBlob = new Blob([svgMarkup], { type: "image/svg+xml" });
+
+      const data = {
+        "text/plain": textBlob,
+        "text/html": htmlBlob
+      };
+
+      try {
+        data["image/svg+xml"] = svgBlob;
+      } catch (e) {
+        console.warn("image/svg+xml not supported in ClipboardItem:", e);
+      }
+
+      await navigator.clipboard.write([new ClipboardItem(data)]);
+      return true;
+    } catch (err) {
+      console.warn("ClipboardItem write failed, falling back to writeText:", err);
+      await navigator.clipboard.writeText(svgMarkup);
+      return true;
+    }
+  }
+
+  function cleanSvgForAi(markup, originalSvgEl) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(markup, "image/svg+xml");
+      const svg = doc.querySelector("svg");
+      if (!svg) return markup;
+
+      // 1. Ensure namespaces & version
+      if (!svg.getAttribute("xmlns")) {
+        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      }
+      if (!svg.getAttribute("version")) {
+        svg.setAttribute("version", "1.1");
+      }
+
+      // 2. Determine target width and height, prioritizing the actual rendered layout size on the webpage
+      let targetWidth = null;
+      let targetHeight = null;
+
+      if (originalSvgEl) {
+        const rect = originalSvgEl.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          targetWidth = rect.width;
+          targetHeight = rect.height;
+        }
+      }
+
+      if (!targetWidth || !targetHeight) {
+        const wAttr = svg.getAttribute("width");
+        const hAttr = svg.getAttribute("height");
+        if (wAttr && hAttr) {
+          const parsedW = parseFloat(wAttr);
+          const parsedH = parseFloat(hAttr);
+          if (!isNaN(parsedW) && !isNaN(parsedH)) {
+            targetWidth = parsedW;
+            targetHeight = parsedH;
+          }
+        }
+      }
+
+      if (!targetWidth || !targetHeight) {
+        const viewBox = svg.getAttribute("viewBox");
+        if (viewBox) {
+          const parts = viewBox.trim().split(/\s+/);
+          if (parts.length === 4) {
+            const vbWidth = parseFloat(parts[2]);
+            const vbHeight = parseFloat(parts[3]);
+            if (!isNaN(vbWidth) && !isNaN(vbHeight)) {
+              targetWidth = vbWidth;
+              targetHeight = vbHeight;
+            }
+          }
+        }
+      }
+
+      if (!targetWidth || !targetHeight) {
+        targetWidth = 24;
+        targetHeight = 24;
+      }
+
+      svg.setAttribute("width", targetWidth);
+      svg.setAttribute("height", targetHeight);
+
+      // Clean up "px" suffix if present
+      const wVal = svg.getAttribute("width");
+      if (wVal && wVal.endsWith && wVal.endsWith("px")) {
+        svg.setAttribute("width", parseFloat(wVal));
+      }
+      const hVal = svg.getAttribute("height");
+      if (hVal && hVal.endsWith && hVal.endsWith("px")) {
+        svg.setAttribute("height", parseFloat(hVal));
+      }
+
+      // 3. Inline computed styles (only if original element is available and is SVG)
+      if (originalSvgEl && originalSvgEl.tagName.toLowerCase() === "svg") {
+        const origElements = [originalSvgEl, ...originalSvgEl.querySelectorAll("*")];
+        const cloneElements = [svg, ...svg.querySelectorAll("*")];
+
+        for (let i = 0; i < origElements.length; i++) {
+          const orig = origElements[i];
+          const cln = cloneElements[i];
+          if (!orig || !cln) continue;
+          if (orig.nodeType !== Node.ELEMENT_NODE) continue;
+
+          if (orig.closest("defs") || orig.closest("symbol") || orig.tagName.toLowerCase() === "defs" || orig.tagName.toLowerCase() === "symbol") {
+            continue;
+          }
+
+          const computed = window.getComputedStyle(orig);
+          
+          // fill
+          const fillVal = computed.getPropertyValue("fill");
+          if (fillVal && fillVal !== "none") {
+            cln.setAttribute("fill", fillVal);
+          } else if (fillVal === "none") {
+            cln.setAttribute("fill", "none");
+          }
+          
+          // stroke
+          const strokeVal = computed.getPropertyValue("stroke");
+          if (strokeVal && strokeVal !== "none") {
+            cln.setAttribute("stroke", strokeVal);
+            
+            const strokeWidth = computed.getPropertyValue("stroke-width");
+            if (strokeWidth && strokeWidth !== "0px") cln.setAttribute("stroke-width", strokeWidth);
+            
+            const strokeLinecap = computed.getPropertyValue("stroke-linecap");
+            if (strokeLinecap && strokeLinecap !== "butt") cln.setAttribute("stroke-linecap", strokeLinecap);
+            
+            const strokeLinejoin = computed.getPropertyValue("stroke-linejoin");
+            if (strokeLinejoin && strokeLinejoin !== "miter") cln.setAttribute("stroke-linejoin", strokeLinejoin);
+
+            const strokeDasharray = computed.getPropertyValue("stroke-dasharray");
+            if (strokeDasharray && strokeDasharray !== "none") cln.setAttribute("stroke-dasharray", strokeDasharray);
+
+            const strokeOpacity = computed.getPropertyValue("stroke-opacity");
+            if (strokeOpacity && strokeOpacity !== "1") cln.setAttribute("stroke-opacity", strokeOpacity);
+          }
+          
+          // opacity
+          const opacityVal = computed.getPropertyValue("opacity");
+          if (opacityVal && opacityVal !== "1") {
+            cln.setAttribute("opacity", opacityVal);
+          }
+          
+          const fillOpacityVal = computed.getPropertyValue("fill-opacity");
+          if (fillOpacityVal && fillOpacityVal !== "1") {
+            cln.setAttribute("fill-opacity", fillOpacityVal);
+          }
+
+          // transform
+          const transformVal = computed.getPropertyValue("transform");
+          if (transformVal && transformVal !== "none") {
+            cln.setAttribute("transform", transformVal);
+          }
+        }
+      }
+
+      let cleanMarkup = svg.outerHTML;
+
+      // 4. Resolve wide-gamut display-p3 color syntax using regex
+      cleanMarkup = cleanMarkup.replace(/color\s*\(\s*display-p3\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\s*\)/g, (match, r, g, b, a) => {
+        const red = Math.round(parseFloat(r) * 255);
+        const green = Math.round(parseFloat(g) * 255);
+        const blue = Math.round(parseFloat(b) * 255);
+        if (a !== undefined) {
+          return `rgba(${red}, ${green}, ${blue}, ${parseFloat(a)})`;
+        }
+        return `rgb(${red}, ${green}, ${blue})`;
+      });
+
+      // 5. Remove any overriding stroke:color(display-p3 ...) style rule inside style attributes to prevent Illustrator parser failure
+      cleanMarkup = cleanMarkup.replace(/stroke\s*:\s*color\([^)]+\)\s*;?/g, "");
+      cleanMarkup = cleanMarkup.replace(/fill\s*:\s*color\([^)]+\)\s*;?/g, "");
+
+      return cleanMarkup;
+    } catch (e) {
+      console.error("Error cleaning SVG for Ai:", e);
+      return markup;
+    }
+  }
+
+  async function performCopy(item, btn = null, rootNode = null) {
+    try {
+      const cleaned = cleanSvgForAi(item.markup, item.originalEl);
+      await copySvgToClipboard(cleaned);
+      if (btn) {
+        flashButton(btn, ICON_CHECK);
+      }
+      showToast(rootNode || btn.getRootNode(), getCopyToastText());
+    } catch (e) {
+      if (btn) {
+        flashButton(btn, ICON_ERROR);
+      }
+    }
+  }
+
   async function handleCopy(btn) {
     const item = iconsByHash.get(btn.getAttribute("data-icon-id"));
     if (!item) return;
-    try {
-      await navigator.clipboard.writeText(item.markup);
-      flashButton(btn, ICON_CHECK);
-      showToast(btn.getRootNode(), getCopyToastText());
-    } catch (e) {
-      flashButton(btn, ICON_ERROR);
-    }
+    await performCopy(item, btn);
   }
+
+
 
   function triggerDownload(blob, filename) {
     const url = URL.createObjectURL(blob);
@@ -436,8 +673,29 @@
     shadowRoot.querySelectorAll(".sg-preview-box:not(.sg-preview-box-fallback)").forEach((box) => {
       box.addEventListener("click", (e) => {
         if (e.target.closest(".sg-card-checkbox")) return;
-        const copyBtn = box.parentElement.querySelector('.sg-action-btn[data-action="copy"]');
-        if (copyBtn) handleCopy(copyBtn);
+        const card = box.closest(".sg-card");
+        if (!card) return;
+        const id = card.getAttribute("data-card-id");
+        const item = iconsByHash.get(id);
+        if (item) {
+          performCopy(item, null, shadowRoot);
+        }
+      });
+    });
+
+    shadowRoot.querySelectorAll(".sg-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        const id = card.getAttribute("data-card-id");
+        if (activeCardId === id) return;
+
+        // Remove active class from the previously active card immediately (no lag)
+        shadowRoot.querySelectorAll(".sg-card.sg-card-active").forEach((el) => {
+          el.classList.remove("sg-card-active");
+        });
+
+        // Add active class to the clicked card
+        card.classList.add("sg-card-active");
+        activeCardId = id;
       });
     });
   }
@@ -538,7 +796,10 @@
           </div>
           <div class="sg-status" id="sgStatus"></div>
           <div class="sg-grid" id="sgGrid"></div>
-          <div class="sg-footer"><span id="sgCount"></span></div>
+          <div class="sg-footer">
+            <span id="sgCount"></span>
+            <span class="sg-compat-info">Compatible with Figma / Sketch / XD / Illustrator</span>
+          </div>
         </div>
       </div>
     `;
@@ -558,6 +819,18 @@
         align-items: center;
         justify-content: center;
         font-family: 'Inter', sans-serif;
+        animation: sg-fade-in 0.25s ease both;
+      }
+      .sg-backdrop.sg-closing {
+        animation: sg-fade-out 0.2s ease both;
+      }
+      @keyframes sg-fade-in {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes sg-fade-out {
+        from { opacity: 1; }
+        to   { opacity: 0; }
       }
 
       /* Light theme is the default (matches the "Light" toggle being active
@@ -579,6 +852,18 @@
         overflow: hidden;
         color: #1a1a1a;
         transition: background-color 0.2s ease, color 0.2s ease;
+        animation: sg-panel-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      .sg-panel.sg-closing {
+        animation: sg-panel-out 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+      }
+      @keyframes sg-panel-in {
+        from { opacity: 0; transform: translateY(16px) scale(0.96); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      @keyframes sg-panel-out {
+        from { opacity: 1; transform: translateY(0) scale(1); }
+        to   { opacity: 0; transform: translateY(8px) scale(0.97); }
       }
       .sg-panel.sg-theme-dark {
         --sg-accent: #D4FC5D;
@@ -609,7 +894,7 @@
         background: var(--sg-accent);
         flex-shrink: 0;
       }
-      .sg-title-icon svg { width: 16px; height: 16px; display: block; color: #ffffff; }
+      .sg-title-icon svg { width: 16px; height: 16px; display: block; color: #000000; }
 
       .sg-close-btn {
         border: none;
@@ -643,7 +928,7 @@
       .sg-search {
         flex: 1 1 160px;
         min-width: 120px;
-        background: rgba(0, 0, 0, 0.04);
+        background: #ffffff;
         border: 1px solid rgba(0, 0, 0, 0.12);
         border-radius: 6px;
         color: #1a1a1a;
@@ -653,7 +938,7 @@
         outline: none;
       }
       .sg-search::placeholder { color: rgba(0, 0, 0, 0.4); }
-      .sg-search:focus { border-color: var(--sg-accent); }
+      .sg-search:focus { border-color: var(--sg-accent); box-shadow: 0 0 0 1px var(--sg-accent); }
       .sg-theme-dark .sg-search { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.9); }
       .sg-theme-dark .sg-search::placeholder { color: rgba(255, 255, 255, 0.4); }
 
@@ -725,10 +1010,10 @@
         flex-direction: column;
         align-items: center;
         gap: 8px;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        /* Instant response, no transition to prevent lag on switch */
       }
       .sg-theme-dark .sg-card { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); }
-      .sg-card:hover, .sg-card:active { border-color: var(--sg-accent); box-shadow: 0 0 0 2px var(--sg-accent) inset; }
+      .sg-card:hover, .sg-card:active, .sg-card.sg-card-active { border-color: var(--sg-accent); box-shadow: 0 0 0 2px var(--sg-accent) inset; }
 
       .sg-preview-box {
         position: relative;
@@ -774,7 +1059,7 @@
 
       .sg-action-btn {
         border: none;
-        background: rgba(0, 0, 0, 0.06);
+        background: transparent;
         color: rgba(0, 0, 0, 0.65);
         width: 30px;
         height: 30px;
@@ -786,34 +1071,75 @@
         text-decoration: none;
         transition: background-color 0.2s ease, color 0.2s ease;
       }
-      .sg-theme-dark .sg-action-btn { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.8); }
+      .sg-theme-dark .sg-action-btn { background: transparent; color: rgba(255, 255, 255, 0.8); }
       .sg-action-btn:hover { background: var(--sg-accent); color: #000000; }
       .sg-action-btn-success { background: var(--sg-accent) !important; color: #000000 !important; }
       .sg-action-btn svg { width: 16px; height: 16px; display: block; }
 
-      .sg-footer { padding: 8px 16px; border-top: 1px solid rgba(0, 0, 0, 0.08); font-size: 11px; color: rgba(0, 0, 0, 0.5); flex-shrink: 0; }
+      .sg-footer {
+        padding: 8px 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        font-size: 11px;
+        color: rgba(0, 0, 0, 0.5);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
       .sg-theme-dark .sg-footer { border-top-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.5); }
+      .sg-compat-info {
+        color: rgba(0, 0, 0, 0.4);
+        font-weight: 500;
+      }
+      .sg-theme-dark .sg-compat-info {
+        color: rgba(255, 255, 255, 0.4);
+      }
 
       .sg-toast {
         position: absolute;
         left: 50%;
         bottom: 20px;
         transform: translate(-50%, 12px);
-        background: rgba(20, 20, 20, 0.92);
+        background: rgba(20, 20, 20, 0.95);
         color: #ffffff;
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         font-weight: 500;
-        padding: 8px 14px;
-        border-radius: 8px;
+        padding: 6px 12px;
+        border-radius: 20px;
         box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
         white-space: nowrap;
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.2s ease, transform 0.2s ease;
-        z-index: 1;
+        z-index: 1000;
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
       .sg-toast-visible { opacity: 1; transform: translate(-50%, 0); }
+      .sg-toast-inner {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .sg-toast-label {
+        color: rgba(255, 255, 255, 0.9);
+      }
+      .sg-toast-label-dim {
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .sg-shortcut-key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 5px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.95);
+        background: rgba(255, 255, 255, 0.06);
+        line-height: 12px;
+      }
     `;
   }
 
@@ -832,7 +1158,9 @@
     }
     function cleanupAndClose() {
       document.removeEventListener("keydown", onKeyDown, true);
-      host.remove();
+      backdrop.classList.add("sg-closing");
+      panel.classList.add("sg-closing");
+      setTimeout(() => host.remove(), 200);
     }
 
     backdrop.addEventListener("click", (e) => {
