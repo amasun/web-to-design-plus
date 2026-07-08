@@ -268,18 +268,24 @@
   }
 
   // DOM-based recolor (not regex) so it works regardless of quote style,
-  // attribute casing, or currentColor usage. Elements with an explicit
-  // fill/stroke of "none" are left untouched so outline-only icons don't
-  // gain an unwanted fill/stroke. Setting fill on the root is a safe
-  // fallback for icons that never declare their own fill (SVG presentation
-  // attributes inherit down the tree), but only when the root isn't itself
-  // explicitly fill="none" (common on stroke-only icon sets).
+  // attribute casing, or currentColor usage. Parsed via a detached <div>'s
+  // innerHTML rather than DOMParser("image/svg+xml") - the latter is strict
+  // XML and throws a parsererror on markup that's extremely common in the
+  // wild (e.g. unnamespaced xlink:href from a sprite <use>), which silently
+  // fell back to the un-recolored original. The HTML parser's "foreign
+  // content" handling for embedded <svg> tolerates all of that. Elements
+  // with an explicit fill/stroke of "none" are left untouched so
+  // outline-only icons don't gain an unwanted fill/stroke. Setting fill on
+  // the root is a safe fallback for icons that never declare their own
+  // fill (SVG presentation attributes inherit down the tree), but only
+  // when the root isn't itself explicitly fill="none" (stroke-only sets).
   function recolorMarkup(markup, fillColor, strokeColor) {
     if (!fillColor && !strokeColor) return markup;
     try {
-      const doc = new DOMParser().parseFromString(markup, "image/svg+xml");
-      const svg = doc.documentElement;
-      if (!svg || svg.nodeName === "parsererror") return markup;
+      const container = document.createElement("div");
+      container.innerHTML = markup;
+      const svg = container.querySelector("svg");
+      if (!svg) return markup;
       svg.querySelectorAll("*").forEach((el) => {
         if (fillColor) {
           const fill = el.getAttribute("fill");
@@ -294,7 +300,7 @@
         const rootFill = svg.getAttribute("fill");
         if (!rootFill || rootFill.toLowerCase() !== "none") svg.setAttribute("fill", fillColor);
       }
-      return new XMLSerializer().serializeToString(svg);
+      return svg.outerHTML;
     } catch (e) {
       return markup;
     }
@@ -325,10 +331,8 @@
     return `
       <div class="sg-card">
         <div class="${previewBoxClass}"${previewTitle}>${checkbox}${previewInner}</div>
-        <div class="sg-card-info">
-          <div class="sg-card-label" title="${escapeAttr(label)}">${escapeHtml(label)}</div>
-          <div class="sg-card-actions">${actions}</div>
-        </div>
+        <div class="sg-card-label" title="${escapeAttr(label)}">${escapeHtml(label)}</div>
+        <div class="sg-card-actions">${actions}</div>
       </div>
     `;
   }
@@ -588,6 +592,7 @@
          on open); .sg-theme-dark below restores the original all-dark look
          for the whole panel, not just the card previews. */
       .sg-panel {
+        --sg-accent: #7ee100;
         width: min(1040px, 92vw);
         height: min(720px, 88vh);
         background: rgba(255, 255, 255, 0.98);
@@ -603,6 +608,7 @@
         transition: background-color 0.2s ease, color 0.2s ease;
       }
       .sg-panel.sg-theme-dark {
+        --sg-accent: #D4FC5D;
         background: rgba(30, 30, 30, 0.96);
         border-color: rgba(255, 255, 255, 0.08);
         box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.45), 0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
@@ -620,7 +626,7 @@
       .sg-theme-dark .sg-header { border-bottom-color: rgba(255, 255, 255, 0.08); }
 
       .sg-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
-      .sg-title svg { width: 24px; height: 24px; display: block; flex-shrink: 0; color: #D4FC5D; }
+      .sg-title svg { width: 24px; height: 24px; display: block; flex-shrink: 0; color: var(--sg-accent); }
 
       .sg-close-btn {
         border: none;
@@ -664,7 +670,7 @@
         outline: none;
       }
       .sg-search::placeholder { color: rgba(0, 0, 0, 0.4); }
-      .sg-search:focus { border-color: #D4FC5D; }
+      .sg-search:focus { border-color: var(--sg-accent); }
       .sg-theme-dark .sg-search { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.9); }
       .sg-theme-dark .sg-search::placeholder { color: rgba(255, 255, 255, 0.4); }
 
@@ -695,7 +701,7 @@
         align-items: center;
       }
       .sg-bg-toggle button svg { width: 14px; height: 14px; display: block; }
-      .sg-bg-toggle button.active { background: #D4FC5D; color: #000000; }
+      .sg-bg-toggle button.active { background: var(--sg-accent); color: #000000; }
       .sg-theme-dark .sg-bg-toggle { border-color: rgba(255, 255, 255, 0.12); }
       .sg-theme-dark .sg-bg-toggle button { color: rgba(255, 255, 255, 0.7); }
 
@@ -735,12 +741,14 @@
         padding: 10px;
         display: flex;
         flex-direction: column;
+        align-items: center;
         gap: 8px;
       }
       .sg-theme-dark .sg-card { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); }
 
       .sg-preview-box {
         position: relative;
+        width: 100%;
         height: 80px;
         border-radius: 6px;
         background: #ffffff;
@@ -752,7 +760,7 @@
       }
       .sg-theme-dark .sg-preview-box { background: #1c1c1c; }
       .sg-preview-box:not(.sg-preview-box-fallback) { cursor: pointer; }
-      .sg-preview-box:not(.sg-preview-box-fallback):hover { box-shadow: 0 0 0 2px #D4FC5D inset; }
+      .sg-preview-box:not(.sg-preview-box-fallback):hover { box-shadow: 0 0 0 2px var(--sg-accent) inset; }
 
       .sg-svg-preview { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
       .sg-svg-preview svg { max-width: 100%; max-height: 100%; width: auto; height: auto; }
@@ -769,19 +777,17 @@
       }
       .sg-card-checkbox input { width: 15px; height: 15px; margin: 0; cursor: pointer; }
 
-      .sg-card-info { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-
       .sg-card-label {
-        flex: 1;
-        min-width: 0;
+        width: 100%;
         font-size: 11px;
+        text-align: center;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         opacity: 0.85;
       }
 
-      .sg-card-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+      .sg-card-actions { display: flex; align-items: center; justify-content: center; gap: 6px; }
 
       .sg-action-btn {
         border: none;
@@ -798,8 +804,8 @@
         transition: background-color 0.2s ease, color 0.2s ease;
       }
       .sg-theme-dark .sg-action-btn { background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.8); }
-      .sg-action-btn:hover { background: #D4FC5D; color: #000000; }
-      .sg-action-btn-success { background: #D4FC5D !important; color: #000000 !important; }
+      .sg-action-btn:hover { background: var(--sg-accent); color: #000000; }
+      .sg-action-btn-success { background: var(--sg-accent) !important; color: #000000 !important; }
       .sg-action-btn svg { width: 16px; height: 16px; display: block; }
 
       .sg-footer { padding: 8px 16px; border-top: 1px solid rgba(0, 0, 0, 0.08); font-size: 11px; color: rgba(0, 0, 0, 0.5); flex-shrink: 0; }
