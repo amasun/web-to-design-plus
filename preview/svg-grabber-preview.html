@@ -364,6 +364,22 @@
     background: rgba(255, 255, 255, 0.06);
     line-height: 12px;
   }
+  .sg-root .sg-svg-preview svg { opacity: 0; transition: opacity 0.2s ease; }
+  .sg-root .sg-svg-preview.loaded svg { opacity: 1; }
+  .sg-root .sg-preview-placeholder {
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    animation: sg-pulse 1.5s infinite ease-in-out;
+  }
+  .sg-root .sg-theme-dark .sg-preview-placeholder {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  @keyframes sg-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.3; }
+  }
 </style>
 </head>
 <body>
@@ -466,7 +482,7 @@
       <div class="sg-card${activeClass}" data-card-id="${escapeAttr(id)}">
         <div class="sg-preview-box" title="Click to copy">
           <label class="sg-card-checkbox" title="Select"><input type="checkbox" data-select-id="${escapeAttr(id)}" ${checked} /></label>
-          <div class="sg-svg-preview">${item.markup}</div>
+          <div class="sg-svg-preview" data-lazy-id="${escapeAttr(id)}"><div class="sg-preview-placeholder"></div></div>
         </div>
         <div class="sg-card-label" title="${escapeAttr(item.label)}">${escapeHtml(item.label)}</div>
         <div class="sg-card-actions">
@@ -493,6 +509,36 @@
     setTimeout(() => { btn.innerHTML = original; btn.classList.remove('sg-action-btn-success'); }, 1200);
   }
 
+  let observer = null;
+  function setupLazyLoading() {
+    if (observer) {
+      observer.disconnect();
+    }
+    const previews = grid.querySelectorAll(".sg-svg-preview[data-lazy-id]");
+    if (!previews.length) return;
+
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const container = entry.target;
+          const id = container.getAttribute("data-lazy-id");
+          const idx = parseInt(id.slice(1));
+          const item = SAMPLE_ICONS[idx];
+          if (item) {
+            container.innerHTML = item.markup;
+            container.classList.add("loaded");
+          }
+          observer.unobserve(container);
+        }
+      });
+    }, {
+      root: grid,
+      rootMargin: "100px 0px"
+    });
+
+    previews.forEach(p => observer.observe(p));
+  }
+
   function updateSelectionUI(items) {
     const allSelected = items.length > 0 && items.every(it => selectedIds.has(it.id));
     selectAllBtn.textContent = allSelected ? 'Deselect All' : 'Select All';
@@ -507,6 +553,7 @@
     countEl.textContent = `${items.length} icon${items.length === 1 ? '' : 's'} found`;
     wireCardActions(items);
     updateSelectionUI(items);
+    setupLazyLoading();
   }
 
   let toastHideTimer = null;

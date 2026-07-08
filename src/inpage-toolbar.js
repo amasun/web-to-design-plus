@@ -5,6 +5,12 @@
   let isSelectionModeActive = false;
   let currentHighlightedEl = null;
 
+  let lastSelectedResolution = "auto";
+  let lastCustomWidth = 1920;
+  let lastCustomHeight = 1080;
+  let lastAutoScrollActive = true;
+  let lastAdvancedExpanded = false;
+
   function removeExisting() {
     const oldHost = document.getElementById(HOST_ID);
     if (oldHost) oldHost.remove();
@@ -37,10 +43,8 @@
         pointer-events: auto;
         user-select: none;
         transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                    width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                    height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow: hidden;
+                    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: visible;
         box-sizing: border-box;
 
         /* Shared background card styling */
@@ -61,7 +65,7 @@
         display: flex;
         flex-direction: column;
         box-sizing: border-box;
-        overflow: hidden;
+        overflow: visible;
       }
 
       /* Header */
@@ -227,6 +231,8 @@
         align-items: center;
         border-bottom-left-radius: 16px;
         border-bottom-right-radius: 16px;
+        background: transparent;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
         box-sizing: border-box;
       }
 
@@ -236,8 +242,11 @@
         font-weight: 400;
         line-height: 1;
         color: white;
-        opacity: 0.6;
+        opacity: 0.4;
         letter-spacing: 0.06px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
       }
 
       .info-icon {
@@ -343,6 +352,276 @@
         display: block;
         flex-shrink: 0;
       }
+
+      .viewport-section {
+        padding: 0 12px 10px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-sizing: border-box;
+      }
+      .viewport-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.45);
+        flex-shrink: 0;
+      }
+      .custom-select {
+        position: relative;
+        flex: 1;
+      }
+      .custom-select-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: rgba(255, 255, 255, 0.9);
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 0 10.667px;
+        height: 28px;
+        line-height: 28px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        box-sizing: border-box;
+        user-select: none;
+      }
+      .custom-select-trigger:hover {
+        background: rgba(255, 255, 255, 0.09);
+        border-color: rgba(255, 255, 255, 0.16);
+      }
+      .custom-select-trigger.open {
+        border-color: #d4fc5d;
+        box-shadow: 0 0 0 2px rgba(212, 252, 93, 0.25);
+      }
+      .custom-select-trigger .chevron-icon {
+        opacity: 0.5;
+        transition: transform 0.2s ease;
+        display: block;
+        flex-shrink: 0;
+      }
+      .custom-select-trigger.open .chevron-icon {
+        transform: rotate(180deg);
+      }
+      .custom-select-popover {
+        position: absolute;
+        top: calc(100% + 4px);
+        right: 0;
+        width: max-content;
+        min-width: 100%;
+        background: rgba(24, 24, 27, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 4px;
+        box-sizing: border-box;
+        z-index: 2147483647;
+        box-shadow: 0px 10px 25px -5px rgba(0, 0, 0, 0.5);
+        max-height: 240px;
+        overflow-y: auto;
+      }
+      .custom-select-popover::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-select-popover::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 2px;
+      }
+      .custom-select-item {
+        padding: 6px 8px;
+        border-radius: 4px;
+        color: rgba(255, 255, 255, 0.8);
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease;
+        user-select: none;
+        text-align: left;
+        white-space: nowrap;
+      }
+      .custom-select-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+      }
+      .custom-select-item.selected {
+        background: #d4fc5d;
+        color: #000000;
+      }
+      .viewport-custom-fields {
+        padding: 0 12px 10px 12px;
+        box-sizing: border-box;
+      }
+      .input-group {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 6px;
+        padding: 4px 8px;
+        box-sizing: border-box;
+        gap: 6px;
+      }
+      .custom-input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        outline: none;
+        padding: 2px 0;
+        box-sizing: border-box;
+      }
+      .custom-input::-webkit-outer-spin-button,
+      .custom-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      .input-separator {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 14px;
+        font-weight: 500;
+        user-select: none;
+      }
+
+      .toggle-section {
+        padding: 0 12px 10px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-sizing: border-box;
+      }
+      .toggle-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.45);
+        flex-shrink: 0;
+      }
+      .switch-container {
+        position: relative;
+        display: inline-block;
+        width: 32px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+      .switch-container input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .switch-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: .2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 9px;
+      }
+      .switch-slider:before {
+        position: absolute;
+        content: "";
+        height: 12px;
+        width: 12px;
+        left: 2.5px;
+        bottom: 2px;
+        background-color: rgba(255, 255, 255, 0.9);
+        transition: .2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 50%;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      }
+      .switch-container input:checked + .switch-slider {
+        background-color: #d4fc5d;
+        border-color: #d4fc5d;
+      }
+      .switch-container input:checked + .switch-slider:before {
+        transform: translateX(14px);
+        background-color: #000000;
+      }
+
+      .advanced-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px;
+        margin: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        user-select: none;
+        box-sizing: border-box;
+        width: 100%;
+      }
+      .advanced-trigger-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: rgba(255, 255, 255, 0.4);
+        display: flex;
+        align-items: center;
+      }
+      .advanced-trigger .chevron-icon {
+        opacity: 0.5;
+        transition: transform 0.2s ease;
+        color: rgba(255, 255, 255, 0.6);
+        display: block;
+        flex-shrink: 0;
+      }
+      .advanced-trigger.expanded .chevron-icon {
+        transform: rotate(180deg);
+      }
+      .advanced-wrapper {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        width: 100%;
+      }
+      .advanced-wrapper.expanded {
+        grid-template-rows: 1fr;
+      }
+      .advanced-wrapper:has(.custom-select-trigger.open) {
+        overflow: visible !important;
+      }
+      .advanced-content {
+        min-height: 0;
+      }
+
+      .custom-fields-wrapper {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+      }
+      .custom-fields-wrapper.expanded {
+        grid-template-rows: 1fr;
+      }
+      .custom-fields-content {
+        min-height: 0;
+      }
+
+      .settings {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 0 0 0;
+        width: 274px;
+        box-sizing: border-box;
+        flex-shrink: 0;
+      }
     `;
   }
 
@@ -389,17 +668,17 @@
       if (!isDragging) return;
       const deltaX = e.clientX - startX;
       const deltaY = e.clientY - startY;
-      
+
       let newLeft = startLeft + deltaX;
       let newTop = startTop + deltaY;
-      
+
       const rect = wrapper.getBoundingClientRect();
       const maxX = window.innerWidth - rect.width;
       const maxY = window.innerHeight - rect.height;
-      
+
       newLeft = Math.max(0, Math.min(newLeft, maxX));
       newTop = Math.max(0, Math.min(newTop, maxY));
-      
+
       wrapper.style.left = `${newLeft}px`;
       wrapper.style.top = `${newTop}px`;
     }
@@ -410,7 +689,7 @@
       const handle = shadowRoot.querySelector(".logo-section");
       if (handle) handle.style.cursor = "grab";
       wrapper.style.transition = "opacity 0.2s ease, transform 0.2s ease";
-      
+
       document.removeEventListener("mousemove", handleMouseMove, true);
       document.removeEventListener("mouseup", handleMouseUp, true);
     }
@@ -419,28 +698,28 @@
       const path = e.composedPath();
       const isHeaderClick = path.some(el => el.classList && el.classList.contains("logo-section"));
       const isCloseBtn = path.some(el => el.id === "figmaBtnClose" || (el.classList && el.classList.contains("close-btn")));
-      
+
       if (!isHeaderClick || isCloseBtn || e.button !== 0) return;
-      
+
       const rect = wrapper.getBoundingClientRect();
       startLeft = rect.left;
       startTop = rect.top;
-      
+
       wrapper.style.left = `${startLeft}px`;
       wrapper.style.top = `${startTop}px`;
       wrapper.style.right = "auto";
       wrapper.style.transition = "none";
-      
+
       isDragging = true;
       startX = e.clientX;
       startY = e.clientY;
-      
+
       const handle = shadowRoot.querySelector(".logo-section");
       if (handle) handle.style.cursor = "grabbing";
-      
+
       document.addEventListener("mousemove", handleMouseMove, true);
       document.addEventListener("mouseup", handleMouseUp, true);
-      
+
       e.preventDefault();
     });
   }
@@ -453,19 +732,19 @@
       host.id = HOST_ID;
       host.setAttribute("data-figma-capture-ignore", "1");
       host.setAttribute("data-h2d-ignore", "true");
-      
+
       shadowRoot = host.attachShadow({ mode: "open" });
-      
+
       const style = document.createElement("style");
       style.textContent = getStyleContent();
       shadowRoot.appendChild(style);
-      
+
       wrapper = document.createElement("div");
       wrapper.className = "wrapper-outer";
       shadowRoot.appendChild(wrapper);
-      
+
       setupDragging(wrapper, shadowRoot);
-      
+
       if (document.body) {
         document.body.appendChild(host);
       } else {
@@ -530,6 +809,7 @@
 
   function showMainPanel(isInitial = false) {
     const { shadowRoot, wrapper } = getOrCreateHost();
+    const customFieldsStyle = lastSelectedResolution === "custom" ? "display: block;" : "display: none;";
 
     setWrapperContent(wrapper, `
       <div class="popup-container">
@@ -590,24 +870,108 @@
           </button>
         </main>
 
+        <!-- Settings Section -->
+        <div class="settings">
+          <!-- Advanced Settings Trigger -->
+          <div class="advanced-trigger ${lastAdvancedExpanded ? "expanded" : ""}" id="figmaAdvancedTrigger">
+          <span class="advanced-trigger-label">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 4px; display: inline-block; vertical-align: middle;">
+              <g opacity="0.4">
+                <path d="M11.1111 2.67942L12.7972 5.60005C13.0429 6.02571 13.1723 6.50855 13.1723 7.00005C13.1723 7.49156 13.0429 7.9744 12.7972 8.40005L11.1113 11.3207C10.8656 11.7464 10.5121 12.0998 10.0864 12.3456C9.6607 12.5914 9.17782 12.7207 8.68629 12.7207H5.31393C4.8224 12.7207 4.33952 12.5914 3.91383 12.3456C3.48815 12.0998 3.13466 11.7464 2.88889 11.3207L1.20283 8.40005C0.957075 7.9744 0.827698 7.49156 0.827698 7.00005C0.827698 6.50855 0.957075 6.02571 1.20283 5.60005L2.88889 2.67942C3.13466 2.25374 3.48815 1.90026 3.91383 1.65451C4.33952 1.40875 4.8224 1.27939 5.31393 1.27942H8.68606C9.17759 1.27939 9.66047 1.40875 10.0862 1.65451C10.5118 1.90026 10.8653 2.25374 11.1111 2.67942ZM10.3028 3.14609C10.139 2.86229 9.9033 2.62663 9.6195 2.46279C9.33569 2.29896 9.01376 2.21272 8.68606 2.21275H5.31393C4.98623 2.21272 4.66429 2.29896 4.38049 2.46279C4.09668 2.62663 3.86101 2.86229 3.69716 3.14609L2.01133 6.06672C1.84749 6.35049 1.76124 6.67238 1.76124 7.00005C1.76124 7.32772 1.84749 7.64962 2.01133 7.93339L3.69739 10.854C3.86124 11.1378 4.09692 11.3735 4.38072 11.5373C4.66453 11.7011 4.98646 11.7874 5.31416 11.7874H8.68629C9.01399 11.7874 9.33593 11.7011 9.61973 11.5373C9.90354 11.3735 10.1392 11.1378 10.3031 10.854L11.9887 7.93339C12.1525 7.64962 12.2387 7.32772 12.2387 7.00005C12.2387 6.67238 12.1525 6.35049 11.9887 6.06672L10.3026 3.14609H10.3028Z" fill="white"/>
+                <path d="M6.99996 9.33342C8.28866 9.33342 9.33329 8.28878 9.33329 7.00008C9.33329 5.71138 8.28866 4.66675 6.99996 4.66675C5.71126 4.66675 4.66663 5.71138 4.66663 7.00008C4.66663 8.28878 5.71126 9.33342 6.99996 9.33342ZM6.99996 8.40008C6.62866 8.40008 6.27256 8.25258 6.01001 7.99003C5.74746 7.72748 5.59996 7.37138 5.59996 7.00008C5.59996 6.62878 5.74746 6.27268 6.01001 6.01013C6.27256 5.74758 6.62866 5.60008 6.99996 5.60008C7.37126 5.60008 7.72736 5.74758 7.98991 6.01013C8.25246 6.27268 8.39996 6.62878 8.39996 7.00008C8.39996 7.37138 8.25246 7.72748 7.98991 7.99003C7.72736 8.25258 7.37126 8.40008 6.99996 8.40008Z" fill="white"/>
+              </g>
+            </svg>
+            Advanced Options
+          </span>
+          <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+
+        <!-- Advanced Collapsible Container Wrapper -->
+        <div class="advanced-wrapper ${lastAdvancedExpanded ? "expanded" : ""}" id="figmaAdvancedWrapper">
+          <div class="advanced-content">
+            <!-- Viewport Selection -->
+            <div class="viewport-section">
+              <span class="viewport-label">Canvas Size</span>
+              <div class="custom-select" id="figmaViewportSelectContainer">
+                <div class="custom-select-trigger" id="figmaViewportTrigger">
+                  <span id="figmaViewportValue">${
+                    lastSelectedResolution === "auto" ? "Default" :
+                    lastSelectedResolution === "custom" ? "Custom..." :
+                    lastSelectedResolution.includes("x") ? `${lastSelectedResolution.split("x")[0]} × ${lastSelectedResolution.split("x")[1]}` :
+                    "Default"
+                  }</span>
+                  <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </div>
+                <div class="custom-select-popover" id="figmaViewportPopover" style="display: none;">
+                  <div class="custom-select-item ${lastSelectedResolution === "auto" ? "selected" : ""}" data-value="auto">Default</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "1920x1080" ? "selected" : ""}" data-value="1920x1080">Desktop FHD (1920 × 1080)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "1440x900" ? "selected" : ""}" data-value="1440x900">MacBook Pro (1440 × 900)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "1024x1366" ? "selected" : ""}" data-value="1024x1366">iPad Pro 12.9" (1024 × 1366)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "834x1194" ? "selected" : ""}" data-value="834x1194">iPad Pro 11" (834 × 1194)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "744x1133" ? "selected" : ""}" data-value="744x1133">iPad mini (744 × 1133)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "440x956" ? "selected" : ""}" data-value="440x956">iPhone Pro Max (440 × 956)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "402x874" ? "selected" : ""}" data-value="402x874">iPhone 16/17 Pro (402 × 874)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "390x844" ? "selected" : ""}" data-value="390x844">iPhone 13/14 (390 × 844)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "custom" ? "selected" : ""}" data-value="custom">Custom...</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Custom fields collapsible wrapper -->
+            <div class="custom-fields-wrapper ${lastSelectedResolution === "custom" ? "expanded" : ""}" id="figmaCustomFieldsWrapper">
+              <div class="custom-fields-content">
+                <div class="viewport-custom-fields" id="figmaCustomFields">
+                  <div class="input-group">
+                    <input class="custom-input" id="figmaCustomWidth" type="number" placeholder="W" min="300" max="8000" value="${lastCustomWidth}" />
+                    <span class="input-separator">×</span>
+                    <input class="custom-input" id="figmaCustomHeight" type="number" placeholder="H" min="300" max="8000" value="${lastCustomHeight}" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Scroll Toggle -->
+            <div class="toggle-section">
+              <span class="toggle-label">Auto Scroll</span>
+              <label class="switch-container">
+                <input type="checkbox" id="figmaAutoScrollToggle" ${lastAutoScrollActive ? "checked" : ""} />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        </div>
+        </div>
+ 
         <!-- Footer -->
         <footer class="footer-section">
-          <span class="footer-credit">By Artgineer</span>
-          <!-- Xiaohongshu logo brand icon (20:102) -->
-          <a class="info-link" href="https://www.xiaohongshu.com/user/profile/5c094b50f7e8b948da476607" target="_blank" rel="noopener noreferrer" title="Follow on Xiaohongshu">
-            <svg class="info-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g clip-path="url(#clip0_20_102)">
-                <path d="M4 0H12C14.6667 0 16 1.33333 16 4V12C16 14.6667 14.6667 16 12 16H4C1.33333 16 0 14.6667 0 12V4C0 1.33333 1.33333 0 4 0Z" fill="#F24E1E"/>
-                <path d="M6.966 11.9733C7.03134 11.8307 7.086 11.7067 7.14534 11.586C7.28001 11.3362 7.40129 11.0794 7.50867 10.8167C7.53628 10.7 7.60884 10.5988 7.71057 10.5353C7.81231 10.4718 7.935 10.4509 8.052 10.4773C8.39534 10.502 8.74 10.484 9.09867 10.484V6.01334C8.85734 6.01334 8.61934 6.00468 8.38334 6.01334C8.21867 6.02201 8.16067 5.96801 8.166 5.79201C8.17734 5.36868 8.166 4.94401 8.166 4.50134H11.5133V5.52801C11.5133 6.01068 11.5133 6.01068 11.0453 6.01068H10.5747V10.4787H11.5907C12 10.4787 12 10.4787 12 10.9087V11.8093C12 11.934 11.9693 11.9973 11.834 11.9973C10.2453 11.9947 8.656 11.9927 7.06734 11.994C7.033 11.9899 6.99909 11.9827 6.966 11.9727" fill="white"/>
-                <path d="M7.59933 8.73667C7.39 9.168 7.206 9.55333 7.01267 9.932C6.99611 9.95351 6.97493 9.97102 6.9507 9.98325C6.92647 9.99548 6.8998 10.0021 6.87267 10.0027C6.40733 10.0027 5.93933 10.0207 5.47533 9.986C5.01067 9.95133 4.82467 9.65267 5.01 9.19667C5.22067 8.67067 5.47467 8.162 5.71 7.64667L5.76333 7.50867C5.57533 7.50867 5.41067 7.51333 5.246 7.50867C5.112 7.51067 4.978 7.498 4.84733 7.472C4.72481 7.45524 4.61384 7.39079 4.53857 7.29267C4.46329 7.19455 4.42979 7.07069 4.44533 6.948C4.45125 6.89312 4.46658 6.83967 4.49067 6.79C4.77267 6.11267 5.08867 5.44867 5.39333 4.78133C5.49267 4.56267 5.59667 4.34733 5.70867 4.13467C5.73733 4.07933 5.804 4.00867 5.85533 4.00667C6.29067 3.996 6.72733 4.00133 7.202 4.00133C7.16067 4.10733 7.13733 4.17933 7.106 4.24667C6.83933 4.80467 6.572 5.362 6.30333 5.918C6.24933 6.03067 6.18333 6.148 6.386 6.234C6.43933 5.944 6.658 5.99667 6.84867 5.99667H7.94867C7.90267 6.10667 7.87267 6.18333 7.83933 6.256C7.49933 6.966 7.154 7.67067 6.81933 8.38C6.682 8.66867 6.728 8.73933 7.048 8.742C7.21267 8.73733 7.37933 8.73667 7.59933 8.73667ZM7.00067 10.4847C6.74267 11.002 6.512 11.4673 6.276 11.93C6.2622 11.9493 6.24427 11.9653 6.22351 11.9769C6.20276 11.9884 6.1797 11.9952 6.156 11.9967C5.52333 11.99 4.88933 11.978 4.25467 11.9613C4.16765 11.9482 4.08228 11.9259 4 11.8947L4.35467 11.1773C4.47 10.94 4.58267 10.704 4.70733 10.4787C4.72373 10.4518 4.74586 10.4289 4.77214 10.4116C4.79842 10.3944 4.82819 10.3831 4.85933 10.3787C5.44067 10.4073 6.022 10.448 6.604 10.4833C6.72 10.4893 6.83067 10.4847 7.00067 10.4847Z" fill="white"/>
-              </g>
-              <defs>
-                <clipPath id="clip0_20_102">
-                  <rect width="16" height="16" fill="white"/>
-                </clipPath>
-              </defs>
-            </svg>
-          </a>
+          <span class="footer-credit">
+            By Artgineer
+          </span>
+          <!-- Social icons group -->
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <!-- GitHub icon (97:7657) -->
+            <a class="info-link" href="https://github.com/amasun/web-to-design-plus" target="_blank" rel="noopener noreferrer" title="View on GitHub">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 0.5C4.30556 0.5 0.5 4.30556 0.5 9C0.5 12.7467 2.87889 15.9383 6.23111 17.0994C6.65611 17.1756 6.80889 16.9211 6.80889 16.7003C6.80889 16.5017 6.80111 15.9317 6.79778 15.1717C4.56444 15.6822 4.07 14.1544 4.07 14.1544C3.68222 13.1356 3.11556 12.8822 3.11556 12.8822C2.33222 12.3578 3.17333 12.3678 3.17333 12.3678C4.03556 12.4278 4.48889 13.2567 4.48889 13.2567C5.26 14.595 6.51111 14.2067 6.82667 13.9939C6.90333 13.4444 7.12444 13.0578 7.36778 12.8383C5.63556 12.6167 3.81556 11.9417 3.81556 8.97222C3.81556 8.00444 4.14778 7.21222 4.50667 6.59C4.41667 6.36556 4.12222 5.46556 4.57 4.25556C4.57 4.25556 5.29667 4.01667 6.78333 5.16111C7.40222 4.96222 8.07333 4.86444 8.74111 4.86111C9.40778 4.86444 10.0789 4.96222 10.6978 5.16111C12.1822 4.01667 12.9078 4.25556 12.9078 4.25556C13.3567 5.46556 13.0622 6.36556 12.9722 6.59C13.3322 7.21222 13.6633 8.00444 13.6633 8.97222C13.6633 11.9506 11.84 12.6133 10.1011 12.8306C10.4 13.0989 10.6633 13.6256 10.6633 14.4267C10.6633 15.5756 10.6522 16.5067 10.6522 16.7003C10.6522 16.9228 10.8011 17.1789 11.2322 17.0983C14.5822 15.935 16.9567 12.7444 16.9567 9C16.9567 4.30556 13.1511 0.5 8.45667 0.5H9Z" fill="rgba(255,255,255,0.9)"/>
+              </svg>
+            </a>
+            <!-- Xiaohongshu logo brand icon (20:102) -->
+            <a class="info-link" href="https://www.xiaohongshu.com/user/profile/5c094b50f7e8b948da476607" target="_blank" rel="noopener noreferrer" title="Follow on Xiaohongshu">
+              <svg class="info-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_20_102)">
+                  <path d="M4 0H12C14.6667 0 16 1.33333 16 4V12C16 14.6667 14.6667 16 12 16H4C1.33333 16 0 14.6667 0 12V4C0 1.33333 1.33333 0 4 0Z" fill="#F24E1E"/>
+                  <path d="M6.966 11.9733C7.03134 11.8307 7.086 11.7067 7.14534 11.586C7.28001 11.3362 7.40129 11.0794 7.50867 10.8167C7.53628 10.7 7.60884 10.5988 7.71057 10.5353C7.81231 10.4718 7.935 10.4509 8.052 10.4773C8.39534 10.502 8.74 10.484 9.09867 10.484V6.01334C8.85734 6.01334 8.61934 6.00468 8.38334 6.01334C8.21867 6.02201 8.16067 5.96801 8.166 5.79201C8.17734 5.36868 8.166 4.94401 8.166 4.50134H11.5133V5.52801C11.5133 6.01068 11.5133 6.01068 11.0453 6.01068H10.5747V10.4787H11.5907C12 10.4787 12 10.4787 12 10.9087V11.8093C12 11.934 11.9693 11.9973 11.834 11.9973C10.2453 11.9947 8.656 11.9927 7.06734 11.994C7.033 11.9899 6.99909 11.9827 6.966 11.9727" fill="white"/>
+                  <path d="M7.59933 8.73667C7.39 9.168 7.206 9.55333 7.01267 9.932C6.99611 9.95351 6.97493 9.97102 6.9507 9.98325C6.92647 9.99548 6.8998 10.0021 6.87267 10.0027C6.40733 10.0027 5.93933 10.0207 5.47533 9.986C5.01067 9.95133 4.82467 9.65267 5.01 9.19667C5.22067 8.67067 5.47467 8.162 5.71 7.64667L5.76333 7.50867C5.57533 7.50867 5.41067 7.51333 5.246 7.50867C5.112 7.51067 4.978 7.498 4.84733 7.472C4.72481 7.45524 4.61384 7.39079 4.53857 7.29267C4.46329 7.19455 4.42979 7.07069 4.44533 6.948C4.45125 6.89312 4.46658 6.83967 4.49067 6.79C4.77267 6.11267 5.08867 5.44867 5.39333 4.78133C5.49267 4.56267 5.59667 4.34733 5.70867 4.13467C5.73733 4.07933 5.804 4.00867 5.85533 4.00667C6.29067 3.996 6.72733 4.00133 7.202 4.00133C7.16067 4.10733 7.13733 4.17933 7.106 4.24667C6.83933 4.80467 6.572 5.362 6.30333 5.918C6.24933 6.03067 6.18333 6.148 6.386 6.234C6.43933 5.944 6.658 5.99667 6.84867 5.99667H7.94867C7.90267 6.10667 7.87267 6.18333 7.83933 6.256C7.49933 6.966 7.154 7.67067 6.81933 8.38C6.682 8.66867 6.728 8.73933 7.048 8.742C7.21267 8.73733 7.37933 8.73667 7.59933 8.73667ZM7.00067 10.4847C6.74267 11.002 6.512 11.4673 6.276 11.93C6.2622 11.9493 6.24427 11.9653 6.22351 11.9769C6.20276 11.9884 6.1797 11.9952 6.156 11.9967C5.52333 11.99 4.88933 11.978 4.25467 11.9613C4.16765 11.9482 4.08228 11.9259 4 11.8947L4.35467 11.1773C4.47 10.94 4.58267 10.704 4.70733 10.4787C4.72373 10.4518 4.74586 10.4289 4.77214 10.4116C4.79842 10.3944 4.82819 10.3831 4.85933 10.3787C5.44067 10.4073 6.022 10.448 6.604 10.4833C6.72 10.4893 6.83067 10.4847 7.00067 10.4847Z" fill="white"/>
+                </g>
+                <defs>
+                  <clipPath id="clip0_20_102">
+                    <rect width="16" height="16" fill="white"/>
+                  </clipPath>
+                </defs>
+              </svg>
+            </a>
+          </div>
         </footer>
       </div>
     `);
@@ -617,9 +981,108 @@
     const btnGrabSvg = shadowRoot.querySelector("#btnGrabSvg");
     const btnClose = shadowRoot.querySelector("#figmaBtnClose");
 
+    const customFields = shadowRoot.querySelector("#figmaCustomFields");
+    const customWidthInput = shadowRoot.querySelector("#figmaCustomWidth");
+    const customHeightInput = shadowRoot.querySelector("#figmaCustomHeight");
+
+    const trigger = shadowRoot.querySelector("#figmaViewportTrigger");
+    const popover = shadowRoot.querySelector("#figmaViewportPopover");
+    const items = shadowRoot.querySelectorAll(".custom-select-item");
+
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = popover.style.display === "block";
+      if (isOpen) {
+        popover.style.display = "none";
+        trigger.classList.remove("open");
+      } else {
+        popover.style.display = "block";
+        trigger.classList.add("open");
+      }
+    });
+
+    const closePopover = () => {
+      if (popover) popover.style.display = "none";
+      if (trigger) trigger.classList.remove("open");
+    };
+
+    document.addEventListener("click", closePopover);
+    shadowRoot.addEventListener("click", closePopover);
+
+    items.forEach(item => {
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const value = item.getAttribute("data-value");
+        lastSelectedResolution = value;
+
+        let displayName = item.textContent;
+        if (value !== "auto" && value !== "custom" && value.includes("x")) {
+          const parts = value.split("x");
+          displayName = `${parts[0]} × ${parts[1]}`;
+        }
+        shadowRoot.querySelector("#figmaViewportValue").textContent = displayName;
+        items.forEach(i => i.classList.remove("selected"));
+        item.classList.add("selected");
+
+        closePopover();
+
+        const customFieldsWrapper = shadowRoot.querySelector("#figmaCustomFieldsWrapper");
+        if (lastSelectedResolution === "custom") {
+          customFieldsWrapper.classList.add("expanded");
+        } else {
+          customFieldsWrapper.classList.remove("expanded");
+        }
+      });
+    });
+
+    const autoScrollToggle = shadowRoot.querySelector("#figmaAutoScrollToggle");
+
+    customWidthInput.addEventListener("input", () => {
+      lastCustomWidth = parseInt(customWidthInput.value) || 1920;
+    });
+
+    customHeightInput.addEventListener("input", () => {
+      lastCustomHeight = parseInt(customHeightInput.value) || 1080;
+    });
+
+    autoScrollToggle.addEventListener("change", () => {
+      lastAutoScrollActive = autoScrollToggle.checked;
+    });
+
+    const advancedTrigger = shadowRoot.querySelector("#figmaAdvancedTrigger");
+    const advancedWrapper = shadowRoot.querySelector("#figmaAdvancedWrapper");
+
+    advancedTrigger.addEventListener("click", () => {
+      lastAdvancedExpanded = !lastAdvancedExpanded;
+
+      if (lastAdvancedExpanded) {
+        advancedWrapper.classList.add("expanded");
+        advancedTrigger.classList.add("expanded");
+      } else {
+        advancedWrapper.classList.remove("expanded");
+        advancedTrigger.classList.remove("expanded");
+        closePopover();
+      }
+    });
+
     btnEntire.addEventListener("click", () => {
       showCapturingIndicator();
-      chrome.runtime.sendMessage({ type: "FIGMA_RUN_ENTIRE_SCREEN_CAPTURE" });
+
+      let viewport = null;
+      if (lastSelectedResolution === "auto") {
+        viewport = null;
+      } else if (lastSelectedResolution === "custom") {
+        viewport = { width: lastCustomWidth, height: lastCustomHeight };
+      } else {
+        const [w, h] = lastSelectedResolution.split("x").map(Number);
+        viewport = { width: w, height: h };
+      }
+
+      chrome.runtime.sendMessage({
+        type: "FIGMA_RUN_ENTIRE_SCREEN_CAPTURE",
+        viewport: viewport,
+        autoScroll: lastAutoScrollActive
+      });
     });
 
     btnElement.addEventListener("click", () => {
@@ -681,10 +1144,10 @@
 
   function showSuccessIndicator(label = "Copied to clipboard") {
     const { shadowRoot, wrapper } = getOrCreateHost();
-    
+
     const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
     const keyName = isMac ? "⌘V" : "Ctrl+V";
-    
+
     let labelHtml;
     if (label === "Copied to clipboard") {
       labelHtml = `
@@ -716,7 +1179,7 @@
     });
 
     showIndicator();
-    
+
     setTimeout(() => {
       const currentHost = document.getElementById(HOST_ID);
       if (currentHost && shadowRoot.querySelector(".success-capsule")) {
@@ -727,7 +1190,7 @@
 
   function showErrorIndicator() {
     const { shadowRoot, wrapper } = getOrCreateHost();
-    
+
     setWrapperContent(wrapper, `
       <div class="capsule-container error-capsule">
         <div class="capsule-left-group">
@@ -751,7 +1214,7 @@
     });
 
     showIndicator();
-    
+
     setTimeout(() => {
       const currentHost = document.getElementById(HOST_ID);
       if (currentHost && shadowRoot.querySelector(".error-capsule")) {
@@ -931,7 +1394,7 @@
       // Confirm selection — same as clicking
       e.preventDefault();
       e.stopPropagation();
-      handleClick({ preventDefault() {}, stopPropagation() {}, composedPath: () => [currentHighlightedEl] });
+      handleClick({ preventDefault() { }, stopPropagation() { }, composedPath: () => [currentHighlightedEl] });
     }
   }
 

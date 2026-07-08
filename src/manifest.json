@@ -9,7 +9,8 @@
     "storage",
     "clipboardWrite",
     "clipboardRead",
-    "offscreen"
+    "offscreen",
+    "debugger"
   ],
   "background": {
     "service_worker": "background.js",

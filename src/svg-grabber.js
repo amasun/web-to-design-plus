@@ -274,7 +274,7 @@
 
     const previewInner = item.isFallback
       ? `<img class="sg-fallback-img" src="${escapeAttr(item.originalUrl)}" alt="" />`
-      : `<div class="sg-svg-preview">${item.markup}</div>`;
+      : `<div class="sg-svg-preview" data-lazy-id="${escapeAttr(item.id)}"><div class="sg-preview-placeholder"></div></div>`;
 
     const actions = item.isFallback
       ? `<a class="sg-action-btn" href="${escapeAttr(item.originalUrl)}" target="_blank" rel="noopener noreferrer" title="Open original">${ICON_LINK}</a>`
@@ -318,6 +318,7 @@
 
     wireCardActions(shadowRoot);
     updateSelectionUI(shadowRoot, items);
+    setupLazyLoading(shadowRoot);
   }
 
   function updateSelectionUI(shadowRoot, items) {
@@ -342,6 +343,35 @@
   }
 
   let toastHideTimer = null;
+  let observer = null;
+
+  function setupLazyLoading(shadowRoot) {
+    if (observer) {
+      observer.disconnect();
+    }
+    const previews = shadowRoot.querySelectorAll(".sg-svg-preview[data-lazy-id]");
+    if (!previews.length) return;
+
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const container = entry.target;
+          const id = container.getAttribute("data-lazy-id");
+          const item = iconsByHash.get(id);
+          if (item) {
+            container.innerHTML = item.markup;
+            container.classList.add("loaded");
+          }
+          observer.unobserve(container);
+        }
+      });
+    }, {
+      root: shadowRoot.querySelector("#sgGrid"),
+      rootMargin: "100px 0px"
+    });
+
+    previews.forEach(p => observer.observe(p));
+  }
 
   function getCopyToastText() {
     const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
@@ -1031,7 +1061,22 @@
       .sg-preview-box:not(.sg-preview-box-fallback) { cursor: pointer; }
 
       .sg-svg-preview { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
-      .sg-svg-preview svg { max-width: 100%; max-height: 100%; width: auto; height: auto; }
+      .sg-svg-preview svg { max-width: 100%; max-height: 100%; width: auto; height: auto; opacity: 0; transition: opacity 0.2s ease; }
+      .sg-svg-preview.loaded svg { opacity: 1; }
+      .sg-preview-placeholder {
+        width: 32px;
+        height: 32px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+        animation: sg-pulse 1.5s infinite ease-in-out;
+      }
+      .sg-theme-dark .sg-preview-placeholder {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      @keyframes sg-pulse {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 0.3; }
+      }
 
       .sg-fallback-img { max-width: 36px; max-height: 36px; }
 
@@ -1157,6 +1202,10 @@
       if (e.key === "Escape") cleanupAndClose();
     }
     function cleanupAndClose() {
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
       document.removeEventListener("keydown", onKeyDown, true);
       backdrop.classList.add("sg-closing");
       panel.classList.add("sg-closing");

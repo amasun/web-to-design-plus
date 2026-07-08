@@ -37,15 +37,15 @@ async function injectScriptFile(tabId, file) {
 // a moment to attach `window.figma` before running the capture. No "is it
 // already loaded" probe — that extra round-trip was the source of capture
 // failures when its detection didn't match reality.
-async function runCapture(tabId, selector = "body") {
+async function runCapture(tabId, selector = "body", autoScroll = true) {
   await injectScriptFile(tabId, CAPTURE_FILE);
   await sleep(300);
 
   const [{ result }] = await chrome.scripting.executeScript({
     target: { tabId },
     world: WORLD,
-    args: [selector],
-    func: async (sel) => {
+    args: [selector, autoScroll],
+    func: async (sel, shouldScroll) => {
       const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
       if (!window.figma?.captureForDesign) {
@@ -54,9 +54,16 @@ async function runCapture(tabId, selector = "body") {
         );
       }
 
-      if (sel === "body") {
+      // Inject temporary CSS to hide scrollbars so layout width matches viewport width exactly (Figma DevTools style)
+      const hideScrollbarStyle = document.createElement("style");
+      hideScrollbarStyle.id = "__figma_hide_scrollbar_temp__";
+      hideScrollbarStyle.textContent = "::-webkit-scrollbar { width: 0px !important; height: 0px !important; display: none !important; }";
+      document.documentElement.appendChild(hideScrollbarStyle);
+
+      if (sel === "body" && shouldScroll) {
         const scrollStep = Math.max(400, Math.floor(window.innerHeight * 0.8));
-        for (let y = 0; y < document.body.scrollHeight; y += scrollStep) {
+        const maxScrollLimit = 30000; // Cap to prevent infinite scrolling pages
+        for (let y = 0; y < Math.min(document.body.scrollHeight, maxScrollLimit); y += scrollStep) {
           window.scrollTo(0, y);
           await delay(400);
         }
@@ -140,8 +147,44 @@ async function runCapture(tabId, selector = "body") {
       lightObserver.observe(document.documentElement, { childList: true, subtree: true });
       const sweepInterval = setInterval(removeLightDomUi, 120);
 
+      // If auto scroll is OFF, hide elements below the fold to only capture the current screen/viewport
+      const hiddenElements = [];
+      if (sel === "body" && !shouldScroll) {
+        const hostId = "__figma_capture_toolbar_host__";
+        const allElements = document.body.querySelectorAll('*');
+        const viewportHeight = window.innerHeight;
+        
+        for (const el of allElements) {
+          // Skip the toolbar host itself and its children
+          if (el.id === hostId || el.closest(`#${hostId}`)) {
+            continue;
+          }
+          
+          try {
+            const rect = el.getBoundingClientRect();
+            // If the element starts completely below the fold, hide it
+            if (rect.top >= viewportHeight) {
+              hiddenElements.push({
+                el: el,
+                originalDisplay: el.style.display
+              });
+              el.style.setProperty('display', 'none', 'important');
+            }
+          } catch (e) {}
+        }
+        // Give a tiny moment for layout reflow after hiding elements
+        await delay(50);
+      }
+
       // silent: true skips clipboard write and success UI inside capture.js.
       const res = await window.figma.captureForDesign({ selector: sel, silent: true });
+
+      // Restore hidden elements immediately
+      for (const item of hiddenElements) {
+        try {
+          item.el.style.display = item.originalDisplay;
+        } catch (e) {}
+      }
 
       // Allow async DOM mutations to settle, then stop all cleanup machinery
       await new Promise(r => setTimeout(r, 200));
@@ -149,6 +192,10 @@ async function runCapture(tabId, selector = "body") {
       clearInterval(sweepInterval);
       lightObserver.disconnect();
       removeLightDomUi(); // final sweep
+
+      // Cleanup temporary scrollbar styles
+      const tempStyle = document.getElementById("__figma_hide_scrollbar_temp__");
+      if (tempStyle) tempStyle.remove();
 
       if (sel !== "body") {
         try {
@@ -464,26 +511,72 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
   if (!msg || (msg.type !== "FIGMA_RUN_ENTIRE_SCREEN_CAPTURE" && msg.type !== "FIGMA_RUN_ELEMENT_CAPTURE")) return;
   (async () => {
     const tabId = sender.tab?.id || msg.tabId;
+    let debuggerAttached = false;
     try {
       if (!tabId) {
         throw new Error("No tab context for message");
       }
 
-      // This message can only arrive from the toolbar's own click handler,
-      // so the toolbar is already loaded and listening - no need to ping it
-      // first. Fire the "capturing" indicator without waiting for it: master
-      // starts the inject+scroll sequence the instant the click is handled,
-      // and every round-trip awaited here before that is added latency the
-      // old version never had.
       chrome.tabs.sendMessage(tabId, { type: "FIGMA_CAPTURE_STATE", state: "capturing" }).catch(() => {});
 
       const isEntireScreen = msg.type === "FIGMA_RUN_ENTIRE_SCREEN_CAPTURE";
-      const selector = isEntireScreen ? "body" : msg.selector;
-      // Clipboard write happens in the page context (runCapture) to avoid
-      // passing potentially huge JSON through sendMessage.
-      const result = await runCapture(tabId, selector);
-      if (!result?.ok) {
-        throw new Error("Capture or clipboard write failed in page context");
+      
+      if (isEntireScreen && msg.viewport) {
+        // Reset zoom to 100% to guarantee layout accuracy
+        try {
+          await chrome.tabs.setZoom(tabId, 1.0);
+        } catch (zoomErr) {
+          console.warn("Failed to reset zoom level:", zoomErr);
+        }
+
+        // Preemptively try detaching to clear any stale connections
+        try {
+          await new Promise((resolve) => chrome.debugger.detach({ tabId }, () => resolve()));
+        } catch (e) {}
+
+        // Attach debugger
+        await new Promise((resolve, reject) => {
+          chrome.debugger.attach({ tabId }, "1.3", () => {
+            if (chrome.runtime.lastError) {
+              reject(new Error("Another debugger is already attached to this tab. Please close DevTools before capturing."));
+            } else {
+              resolve();
+            }
+          });
+        });
+        debuggerAttached = true;
+
+        // Set device metrics emulation override via Chrome DevTools Protocol
+        const isMobile = msg.viewport.width < 600;
+        await new Promise((resolve, reject) => {
+          chrome.debugger.sendCommand({ tabId }, "Emulation.setDeviceMetricsOverride", {
+            width: msg.viewport.width,
+            height: msg.viewport.height,
+            deviceScaleFactor: 1,
+            mobile: isMobile
+          }, () => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            } else {
+              resolve();
+            }
+          });
+        });
+
+        // Wait for CSS layout rules and media queries to reflow
+        await sleep(500);
+
+        // Perform capture in emulator context
+        const captureResult = await runCapture(tabId, "body", msg.autoScroll !== false);
+        if (!captureResult?.ok) {
+          throw new Error("Capture or clipboard write failed in emulator mode");
+        }
+      } else {
+        const selector = isEntireScreen ? "body" : msg.selector;
+        const result = await runCapture(tabId, selector, msg.autoScroll !== false);
+        if (!result?.ok) {
+          throw new Error("Capture or clipboard write failed in page context");
+        }
       }
 
       await chrome.tabs.sendMessage(tabId, { type: "FIGMA_CAPTURE_STATE", state: "success", delivery: "clipboard" }).catch(() => {});
@@ -491,6 +584,19 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
       console.error("Capture failed:", error);
       if (tabId) {
         await chrome.tabs.sendMessage(tabId, { type: "FIGMA_CAPTURE_STATE", state: "error" }).catch(() => {});
+      }
+    } finally {
+      if (debuggerAttached && tabId) {
+        try {
+          await new Promise((resolve) => {
+            chrome.debugger.sendCommand({ tabId }, "Emulation.clearDeviceMetricsOverride", {}, () => resolve());
+          });
+        } catch (e) {}
+        try {
+          await new Promise((resolve) => {
+            chrome.debugger.detach({ tabId }, () => resolve());
+          });
+        } catch (e) {}
       }
     }
   })();
