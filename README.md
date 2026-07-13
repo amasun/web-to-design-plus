@@ -25,7 +25,7 @@
 
 - **Minimal Floating Toolbar**: Premium glassmorphism design with smooth transition animations, draggable anywhere on the screen.
 - **Dual Capture Modes**: Support full-page capture (Entire Screen) and interactive local element selection (Select Element).
-- **SVG Vector Extraction (Grab SVG)**: Extract and copy SVG vectors/icons independently from the webpage into Figma editable layers.
+- **Smart SVG Deep Extraction (Grab SVG)**: Recursively penetrates same-origin `iframes` and Shadow DOMs to capture vector assets; features a multi-layer semantic detection engine that intelligently infers accurate icon names from CSS classes (Lucide/FontAwesome), internal SVG tree IDs (`<mask id="...">`), and adjacent sibling text context.
 - **Instant Copy & Paste**: **No JSON file downloads**. Data is directly formatted and written to your clipboard — paste with `Ctrl/Cmd + V` directly in Figma to generate editable layers.
 - **Auto Image Proxy**: Automatically resolves CORS-restricted images via Service Worker background fetching with an 8-concurrency limit.
 

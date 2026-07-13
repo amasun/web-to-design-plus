@@ -91,11 +91,111 @@
     }
   }
 
+  const GENERIC_ID_PATTERN = /^(?:mask|clip|paint|filter|grad|gradient|path|layer|svg|icon|group|g|def|defs|symbol|image|pattern|marker)[0-9a-z_-]*$/i;
+
+  function extractSemanticName(str) {
+    if (!str || typeof str !== "string") return null;
+    const parts = str.split(/__|::|:/);
+    for (const part of parts) {
+      let cleaned = part.trim();
+      cleaned = cleaned.replace(/[_-]?(?:mask|clip|paint|filter|grad|gradient|path|layer)[0-9a-f_-]*$/i, "");
+      if (cleaned.length >= 3 && cleaned.length <= 40 && !GENERIC_ID_PATTERN.test(cleaned) && !/^[0-9a-f_-]+$/i.test(cleaned)) {
+        return cleaned;
+      }
+    }
+    return null;
+  }
+
+  function extractAdjacentTextLabel(el) {
+    if (!el) return null;
+
+    function isValidTextLabel(txt) {
+      if (!txt || typeof txt !== "string") return false;
+      const cleaned = txt.replace(/\s+/g, " ").trim();
+      if (cleaned.length < 2 || cleaned.length > 28) return false;
+      const words = cleaned.split(" ");
+      if (words.length > 5) return false;
+      if (!/[a-zA-Z0-9\u4e00-\u9fa5]/.test(cleaned)) return false;
+      return cleaned;
+    }
+
+    // 1. Check parent interactive wrapper (<button>, <a>, <label>, <li>, or role="button")
+    const interactiveParent = el.closest && el.closest("button, a, label, li, [role='button'], [role='menuitem'], [role='tab'], [role='link']");
+    if (interactiveParent && interactiveParent !== el) {
+      const valid = isValidTextLabel(interactiveParent.textContent);
+      if (valid) return valid;
+    }
+
+    // 2. Check direct parent element textContent if parent only has a few children (e.g. badge, chip, flex row)
+    const parent = el.parentElement;
+    if (parent && parent.children.length <= 3) {
+      const valid = isValidTextLabel(parent.textContent);
+      if (valid) return valid;
+    }
+
+    // 3. Check immediately next sibling element (e.g. <svg /> <span>Skill</span>)
+    if (el.nextElementSibling) {
+      const valid = isValidTextLabel(el.nextElementSibling.textContent);
+      if (valid) return valid;
+    }
+
+    // 4. Check immediately previous sibling element (e.g. <span>Skill</span> <svg />)
+    if (el.previousElementSibling) {
+      const valid = isValidTextLabel(el.previousElementSibling.textContent);
+      if (valid) return valid;
+    }
+
+    return null;
+  }
+
   function elementLabel(el) {
-    const aria = el.getAttribute && (el.getAttribute("aria-label") || el.getAttribute("title"));
+    if (!el || !el.getAttribute) return "";
+
+    // 1. Explicit accessibility or data attributes on the SVG element
+    const aria = el.getAttribute("aria-label") || el.getAttribute("title") || el.getAttribute("data-icon") || el.getAttribute("data-lucide") || el.getAttribute("data-name");
     if (aria && aria.trim()) return aria.trim();
+
+    // 2. <title> tag inside the SVG
     const titleEl = el.querySelector && el.querySelector("title");
     if (titleEl && titleEl.textContent.trim()) return titleEl.textContent.trim();
+
+    // 3. Known icon framework class patterns (e.g., lucide-brain, fa-user, bi-search, tabler-icon-heart, icon-settings)
+    const clsAttr = el.getAttribute("class");
+    if (clsAttr && typeof clsAttr === "string") {
+      const classes = clsAttr.split(/\s+/);
+      for (const cls of classes) {
+        const match = /^(?:lucide|tabler-icon|bi|fa|icon|i)-([a-z0-9_-]+)$/i.exec(cls);
+        if (match && match[1] && match[1] !== "icon" && match[1] !== "svg") {
+          return cls; // e.g., "lucide-brain", "fa-user", "icon-search"
+        }
+      }
+    }
+
+    // 4. Check internal semantic IDs / data-name inside the SVG tree (e.g. <mask id="nextjs_icon_dark__:r8:mask0..."> or <g id="Logo_Nextjs">)
+    const selfName = extractSemanticName(el.getAttribute("data-name")) || extractSemanticName(el.getAttribute("id"));
+    if (selfName) return selfName;
+
+    if (el.querySelectorAll) {
+      const innerNodes = el.querySelectorAll("[id], [data-name]");
+      for (const node of innerNodes) {
+        const found = extractSemanticName(node.getAttribute("data-name")) || extractSemanticName(node.getAttribute("id"));
+        if (found) return found;
+      }
+    }
+
+    // 5. Check parent wrapper / button / link for aria-label or title (e.g., <button aria-label="Copy"> <svg/> </button>)
+    const parent = el.closest && el.closest("button[aria-label], a[aria-label], [title], [data-icon], [data-lucide]");
+    if (parent && parent !== el) {
+      const parentLabel = parent.getAttribute("aria-label") || parent.getAttribute("title") || parent.getAttribute("data-icon") || parent.getAttribute("data-lucide");
+      if (parentLabel && parentLabel.trim().length <= 36) {
+        return parentLabel.trim();
+      }
+    }
+
+    // 6. Check adjacent sibling or small wrapper text context (e.g., <button><svg /> Skill</button> or <div><svg /><span>Skill</span></div>)
+    const adjacentText = extractAdjacentTextLabel(el);
+    if (adjacentText) return adjacentText;
+
     return "";
   }
 
@@ -152,44 +252,116 @@
     fallbacksByUrl.set(key, { id: `f_${fallbacksByUrl.size}`, count: 1, isFallback: true, source: meta.source, originalUrl: key, label });
   }
 
-  // Inline <svg> elements. Sprite-sheet containers (holding <symbol> defs
-  // but never rendered themselves) are skipped here and handled by
-  // collectSpriteIcons instead.
-  function collectInlineSvgs() {
-    document.querySelectorAll("svg").forEach((svg) => {
-      if (svg.querySelector("symbol")) return;
-      const rect = svg.getBoundingClientRect();
-      if (rect.width < 1 || rect.height < 1) return;
-      const markup = serializeSvg(svg);
-      if (markup) registerIcon(markup, { source: "inline", label: elementLabel(svg) }, svg);
+  function isIgnoredElement(el) {
+    if (!el) return false;
+    let curr = el;
+    while (curr) {
+      if (curr.id === HOST_ID || curr.id === TOOLBAR_HOST_ID) return true;
+      if (curr.getAttribute && curr.getAttribute("data-figma-capture-ignore")) return true;
+      if (curr.classList && (curr.classList.contains("wrapper-outer") || curr.classList.contains("sg-wrapper") || curr.classList.contains("sg-panel"))) return true;
+      if (curr.getRootNode) {
+        const rootNode = curr.getRootNode();
+        if (rootNode && rootNode.host) {
+          if (rootNode.host.id === HOST_ID || rootNode.host.id === TOOLBAR_HOST_ID || rootNode.host.getAttribute("data-figma-capture-ignore")) {
+            return true;
+          }
+        }
+      }
+      curr = curr.parentElement;
+    }
+    return false;
+  }
+
+  // Recursively collect the main document, all same-origin iframe contentDocuments,
+  // and open shadow roots so SVG Grabber can penetrate iframe-embedded demos and custom elements.
+  function getScanRoots(rootDoc = document) {
+    const roots = [];
+    const visitedDocs = new Set();
+    const visitedRoots = new Set();
+
+    function traverseDoc(doc) {
+      if (!doc || visitedDocs.has(doc)) return;
+      visitedDocs.add(doc);
+      if (!visitedRoots.has(doc)) {
+        visitedRoots.add(doc);
+        roots.push(doc);
+      }
+
+      const iframes = doc.querySelectorAll ? doc.querySelectorAll("iframe, frame") : [];
+      iframes.forEach((ifr) => {
+        try {
+          if (ifr.contentDocument) {
+            traverseDoc(ifr.contentDocument);
+          }
+        } catch (e) {
+          // Cross-origin iframe security restrictions
+        }
+      });
+
+      const allEls = doc.querySelectorAll ? doc.querySelectorAll("*") : [];
+      allEls.forEach((el) => {
+        if (el.id === HOST_ID || el.id === TOOLBAR_HOST_ID || (el.hasAttribute && el.hasAttribute("data-figma-capture-ignore"))) return;
+        if (el.classList && el.classList.contains("wrapper-outer")) return;
+        if (el.shadowRoot && !visitedRoots.has(el.shadowRoot)) {
+          visitedRoots.add(el.shadowRoot);
+          roots.push(el.shadowRoot);
+        }
+      });
+    }
+
+    traverseDoc(rootDoc);
+    return roots;
+  }
+
+  // Inline <svg> elements across all documents/roots.
+  function collectInlineSvgs(roots) {
+    roots.forEach((root) => {
+      root.querySelectorAll("svg").forEach((svg) => {
+        if (isIgnoredElement(svg)) return;
+        if (svg.querySelector("symbol")) return;
+        const rect = svg.getBoundingClientRect();
+        if (rect.width < 1 || rect.height < 1) return;
+        const markup = serializeSvg(svg);
+        if (markup) registerIcon(markup, { source: "inline", label: elementLabel(svg) }, svg);
+      });
     });
   }
 
-  function collectSpriteIcons() {
-    document.querySelectorAll("svg use").forEach((use) => {
-      const href = use.getAttribute("href") || use.getAttribute("xlink:href") || "";
-      if (!href.startsWith("#")) return;
-      const target = document.getElementById(href.slice(1));
-      if (!target) return;
-      const parentSvg = use.closest("svg");
-      if (!parentSvg) return;
-      const rect = parentSvg.getBoundingClientRect();
-      if (rect.width < 1 || rect.height < 1) return;
-      const viewBox = target.getAttribute("viewBox") || parentSvg.getAttribute("viewBox") || "0 0 24 24";
-      const inner = target.tagName.toLowerCase() === "symbol" ? target.innerHTML : target.outerHTML;
-      const markup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
-      registerIcon(markup, { source: "sprite", label: elementLabel(parentSvg) || href.slice(1) });
+  function collectSpriteIcons(roots) {
+    roots.forEach((root) => {
+      root.querySelectorAll("svg use").forEach((use) => {
+        if (isIgnoredElement(use)) return;
+        const href = use.getAttribute("href") || use.getAttribute("xlink:href") || "";
+        if (!href.startsWith("#")) return;
+        const targetId = href.slice(1);
+        const target = (root.getElementById ? root.getElementById(targetId) : null) || document.getElementById(targetId);
+        if (!target || isIgnoredElement(target)) return;
+        const parentSvg = use.closest("svg");
+        if (!parentSvg || isIgnoredElement(parentSvg)) return;
+        const rect = parentSvg.getBoundingClientRect();
+        if (rect.width < 1 || rect.height < 1) return;
+        const viewBox = target.getAttribute("viewBox") || parentSvg.getAttribute("viewBox") || "0 0 24 24";
+        const inner = target.tagName.toLowerCase() === "symbol" ? target.innerHTML : target.outerHTML;
+        const markup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
+        registerIcon(markup, { source: "sprite", label: elementLabel(parentSvg) || targetId });
+      });
     });
   }
 
   // Only elements in a small, icon-like size range trigger the (expensive)
   // getComputedStyle lookup, so this stays cheap even on huge pages.
-  async function collectBackgroundImageIcons(onProgress) {
-    const all = document.body ? Array.from(document.body.querySelectorAll("*")) : [];
+  async function collectBackgroundImageIcons(roots, onProgress) {
+    const all = [];
+    roots.forEach((root) => {
+      const elRoot = root.body || root;
+      if (elRoot && elRoot.querySelectorAll) {
+        all.push(...Array.from(elRoot.querySelectorAll("*")));
+      }
+    });
     for (let i = 0; i < all.length; i += BG_SCAN_CHUNK_SIZE) {
       const slice = all.slice(i, i + BG_SCAN_CHUNK_SIZE);
       for (const el of slice) {
-        if (el.id === HOST_ID || el.id === TOOLBAR_HOST_ID) continue;
+        if (isIgnoredElement(el)) continue;
         const rect = el.getBoundingClientRect();
         if (rect.width < 8 || rect.width > 64 || rect.height < 8 || rect.height > 64) continue;
         const bg = getComputedStyle(el).backgroundImage;
@@ -216,6 +388,7 @@
   }
 
   async function processImgIcon(img) {
+    if (isIgnoredElement(img)) return;
     const src = img.currentSrc || img.src;
     const label = (img.alt || "").trim();
     const markup = src.startsWith("data:image/svg+xml") ? decodeDataUriSvg(src) : await fetchSvgText(src);
@@ -239,13 +412,22 @@
     setStatus(shadowRoot, "Scanning page for SVG icons…");
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    collectInlineSvgs();
-    collectSpriteIcons();
-    await collectBackgroundImageIcons((done, total) => {
+    const roots = getScanRoots(document);
+
+    collectInlineSvgs(roots);
+    collectSpriteIcons(roots);
+    await collectBackgroundImageIcons(roots, (done, total) => {
       setStatus(shadowRoot, `Scanning page for SVG icons… (${done}/${total})`);
     });
 
-    const imgCandidates = Array.from(document.querySelectorAll("img")).filter((img) => isSvgSrc(img.currentSrc || img.src));
+    const imgCandidates = [];
+    roots.forEach((root) => {
+      root.querySelectorAll("img").forEach((img) => {
+        if (!isIgnoredElement(img) && isSvgSrc(img.currentSrc || img.src)) {
+          imgCandidates.push(img);
+        }
+      });
+    });
     if (imgCandidates.length) {
       setStatus(shadowRoot, "Resolving image icons…");
       await collectImgIcons(imgCandidates);
