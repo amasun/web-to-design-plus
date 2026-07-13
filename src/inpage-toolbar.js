@@ -33,6 +33,44 @@
 
   function getStyleContent() {
     return `
+      :host {
+        /* Design Tokens - Core Colors */
+        --token-color-accent: #d4fc5d;
+        --token-color-accent-text: #000000;
+        --token-color-bg-panel: rgba(44, 44, 44, 0.87);
+        --token-color-bg-btn: rgba(255, 255, 255, 0.12);
+        --token-color-bg-btn-disabled: rgba(192, 206, 231, 0.08);
+        --token-color-bg-popover: rgba(24, 24, 27, 0.95);
+        --token-color-bg-subtle: rgba(255, 255, 255, 0.05);
+        --token-color-bg-item-hover: rgba(255, 255, 255, 0.1);
+
+        --token-color-text-primary: rgba(255, 255, 255, 0.9);
+        --token-color-text-secondary: rgba(255, 255, 255, 0.6);
+        --token-color-text-muted: rgba(255, 255, 255, 0.45);
+        --token-color-error: #f87171;
+
+        /* Design Tokens - Borders */
+        --token-border-default: rgba(255, 255, 255, 0.1);
+        --token-border-strong: rgba(163, 163, 163, 0.47);
+        --token-border-accent: var(--token-color-accent);
+
+        /* Design Tokens - Shadows */
+        --token-shadow-panel: 0px 8px 32px 0px rgba(0, 0, 0, 0.35), 0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
+        --token-shadow-popover: 0px 10px 25px -5px rgba(0, 0, 0, 0.5);
+        --token-shadow-focus: 0 0 0 2px rgba(212, 252, 93, 0.25);
+
+        /* Design Tokens - Radii */
+        --token-radius-sm: 4px;
+        --token-radius-md: 6px;
+        --token-radius-lg: 8px;
+        --token-radius-xl: 16px;
+        --token-radius-full: 50%;
+
+        /* Design Tokens - Transitions */
+        --token-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        --token-transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
       .wrapper-outer {
         position: fixed;
         top: 16px;
@@ -42,20 +80,18 @@
         z-index: 2147483647;
         pointer-events: auto;
         user-select: none;
-        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity var(--token-transition-normal),
+                    transform var(--token-transition-normal);
         overflow: visible;
         box-sizing: border-box;
 
         /* Shared background card styling */
-        background: rgba(44, 44, 44, 0.87);
+        background: var(--token-color-bg-panel);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 
-          0px 8px 32px 0px rgba(0, 0, 0, 0.35), 
-          0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
+        border-radius: var(--token-radius-xl);
+        border: 1px solid var(--token-border-default);
+        box-shadow: var(--token-shadow-panel);
       }
       
       /* Glassmorphism Container */
@@ -76,8 +112,8 @@
         justify-content: space-between;
         padding-right: 12px;
         height: 44px;
-        border-top-left-radius: 16px;
-        border-top-right-radius: 16px;
+        border-top-left-radius: var(--token-radius-xl);
+        border-top-right-radius: var(--token-radius-xl);
         box-sizing: border-box;
         cursor: grab;
       }
@@ -91,7 +127,7 @@
         font-style: italic;
         font-size: 12px;
         line-height: 16px;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--token-color-text-primary);
         letter-spacing: 0.06px;
         white-space: nowrap;
       }
@@ -108,22 +144,22 @@
       .close-btn {
         border: none;
         background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--token-color-text-primary);
         display: flex;
         align-items: center;
         justify-content: center;
         width: 20px;
         height: 20px;
-        border-radius: 50%;
+        border-radius: var(--token-radius-full);
         cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+        transition: background-color 0.2s ease, transform var(--token-transition-normal), color 0.2s ease;
         flex-shrink: 0;
         box-sizing: border-box;
       }
 
       .close-btn:hover {
         background: rgba(255, 255, 255, 0.2);
-        color: #ffffff;
+        color: var(--token-color-text-bright);
         transform: rotate(90deg);
       }
 
@@ -142,28 +178,28 @@
         position: relative;
         width: 120px;
         height: 72px;
-        background: rgba(255, 255, 255, 0.12);
+        background: var(--token-color-bg-btn);
         border: none;
-        border-radius: 8px;
+        border-radius: var(--token-radius-lg);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         padding: 16px 10px;
         box-sizing: border-box;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--token-color-text-primary);
         font-family: 'Inter', sans-serif;
         cursor: pointer;
         outline: none;
-        transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
-                    color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-                    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background-color var(--token-transition-normal), 
+                    color var(--token-transition-normal),
+                    transform var(--token-transition-fast),
+                    box-shadow var(--token-transition-normal);
       }
 
       .action-btn:not(.disabled):hover {
-        background: #d4fc5d;
-        color: #000000;
+        background: var(--token-color-accent);
+        color: var(--token-color-accent-text);
         transform: translateY(-2px);
       }
 
@@ -178,8 +214,8 @@
       }
 
       .btn-icon path {
-        transition: fill 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                    stroke 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: fill var(--token-transition-normal),
+                    stroke var(--token-transition-normal);
       }
 
       .btn-label {
@@ -195,7 +231,7 @@
 
       /* Disabled/Soon button state */
       .action-btn.disabled {
-        background: rgba(192, 206, 231, 0.08);
+        background: var(--token-color-bg-btn-disabled);
         opacity: 0.5;
         cursor: not-allowed;
         transform: none !important;
@@ -208,8 +244,8 @@
         top: 3px;
         right: 3px;
         height: 16px;
-        border: 1px solid rgba(163, 163, 163, 0.47);
-        border-radius: 4px;
+        border: 1px solid var(--token-border-strong);
+        border-radius: var(--token-radius-sm);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -218,7 +254,7 @@
         font-size: 10px;
         font-weight: 400;
         line-height: 1;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--token-color-text-primary);
         opacity: 0.6;
       }
 
@@ -229,20 +265,19 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom-left-radius: 16px;
-        border-bottom-right-radius: 16px;
+        border-bottom-left-radius: var(--token-radius-xl);
+        border-bottom-right-radius: var(--token-radius-xl);
         background: transparent;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid var(--token-border-default);
         box-sizing: border-box;
       }
 
       .footer-credit {
         font-family: 'Inter', sans-serif;
         font-size: 12px;
-        font-weight: 400;
+        font-weight: 500;
         line-height: 1;
-        color: white;
-        opacity: 0.4;
+        color: var(--token-color-text-secondary);
         letter-spacing: 0.06px;
         display: flex;
         align-items: center;
@@ -292,7 +327,7 @@
         font-size: 12px;
         font-weight: 500;
         line-height: 16px;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--token-color-text-primary);
         letter-spacing: 0.06px;
         white-space: nowrap;
       }
@@ -310,14 +345,14 @@
         align-items: center;
         justify-content: center;
         padding: 4px;
-        border: 1px solid rgba(163, 163, 163, 0.47);
-        border-radius: 4px;
+        border: 1px solid var(--token-border-strong);
+        border-radius: var(--token-radius-sm);
         box-sizing: border-box;
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         font-weight: 500;
         line-height: 16px;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--token-color-text-primary);
         letter-spacing: 0.06px;
         white-space: nowrap;
       }
@@ -328,8 +363,8 @@
         width: 14px;
         height: 14px;
         border: 2px solid rgba(255, 255, 255, 0.2);
-        border-top: 2px solid rgba(255, 255, 255, 0.95);
-        border-radius: 50%;
+        border-top: 2px solid var(--token-color-text-primary);
+        border-radius: var(--token-radius-full);
         animation: spin 0.8s linear infinite;
         box-sizing: border-box;
         margin-left: 6px;
@@ -348,7 +383,7 @@
       }
 
       .icon-error {
-        color: #f87171; /* red-400 */
+        color: var(--token-color-error);
         display: block;
         flex-shrink: 0;
       }
@@ -364,7 +399,7 @@
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.45);
+        color: var(--token-color-text-muted);
         flex-shrink: 0;
       }
       .custom-select {
@@ -375,10 +410,10 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
-        color: rgba(255, 255, 255, 0.9);
+        background: var(--token-color-bg-subtle);
+        border: 1px solid var(--token-border-default);
+        border-radius: var(--token-radius-md);
+        color: var(--token-color-text-primary);
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         font-weight: 500;
@@ -391,12 +426,12 @@
         user-select: none;
       }
       .custom-select-trigger:hover {
-        background: rgba(255, 255, 255, 0.09);
+        background: var(--token-color-bg-subtle-hover);
         border-color: rgba(255, 255, 255, 0.16);
       }
       .custom-select-trigger.open {
-        border-color: #d4fc5d;
-        box-shadow: 0 0 0 2px rgba(212, 252, 93, 0.25);
+        border-color: var(--token-border-accent);
+        box-shadow: var(--token-shadow-focus);
       }
       .custom-select-trigger .chevron-icon {
         opacity: 0.5;
@@ -413,15 +448,15 @@
         right: 0;
         width: max-content;
         min-width: 100%;
-        background: rgba(24, 24, 27, 0.95);
+        background: var(--token-color-bg-popover);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
+        border: 1px solid var(--token-border-default);
+        border-radius: var(--token-radius-lg);
         padding: 4px;
         box-sizing: border-box;
         z-index: 2147483647;
-        box-shadow: 0px 10px 25px -5px rgba(0, 0, 0, 0.5);
+        box-shadow: var(--token-shadow-popover);
         max-height: 240px;
         overflow-y: auto;
       }
@@ -434,7 +469,7 @@
       }
       .custom-select-item {
         padding: 6px 8px;
-        border-radius: 4px;
+        border-radius: var(--token-radius-sm);
         color: rgba(255, 255, 255, 0.8);
         font-family: 'Inter', sans-serif;
         font-size: 12px;
@@ -446,12 +481,12 @@
         white-space: nowrap;
       }
       .custom-select-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
+        background: var(--token-color-bg-item-hover);
+        color: var(--token-color-text-bright);
       }
       .custom-select-item.selected {
-        background: #d4fc5d;
-        color: #000000;
+        background: var(--token-color-accent);
+        color: var(--token-color-accent-text);
       }
       .viewport-custom-fields {
         padding: 0 12px 10px 12px;
@@ -460,9 +495,9 @@
       .input-group {
         display: flex;
         align-items: center;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 6px;
+        background: var(--token-color-bg-subtle);
+        border: 1px solid var(--token-border-default);
+        border-radius: var(--token-radius-md);
         padding: 4px 8px;
         box-sizing: border-box;
         gap: 6px;
@@ -486,7 +521,7 @@
         margin: 0;
       }
       .input-separator {
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--token-color-text-muted);
         font-size: 14px;
         font-weight: 500;
         user-select: none;
@@ -503,7 +538,7 @@
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         font-weight: 500;
-        color: rgba(255, 255, 255, 0.45);
+        color: var(--token-color-text-muted);
         flex-shrink: 0;
       }
       .switch-container {
@@ -526,7 +561,7 @@
         right: 0;
         bottom: 0;
         background-color: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--token-border-default);
         transition: .2s cubic-bezier(0.4, 0, 0.2, 1);
         border-radius: 9px;
       }
@@ -537,18 +572,18 @@
         width: 12px;
         left: 2.5px;
         bottom: 2px;
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: var(--token-color-text-primary);
         transition: .2s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 50%;
+        border-radius: var(--token-radius-full);
         box-shadow: 0 1px 3px rgba(0,0,0,0.4);
       }
       .switch-container input:checked + .switch-slider {
-        background-color: #d4fc5d;
-        border-color: #d4fc5d;
+        background-color: var(--token-color-accent);
+        border-color: var(--token-border-accent);
       }
       .switch-container input:checked + .switch-slider:before {
         transform: translateX(14px);
-        background-color: #000000;
+        background-color: var(--token-color-accent-text);
       }
 
       .advanced-trigger {
@@ -557,7 +592,7 @@
         justify-content: space-between;
         padding: 12px;
         margin: 0;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid var(--token-border-default);
         cursor: pointer;
         user-select: none;
         box-sizing: border-box;
@@ -569,7 +604,7 @@
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--token-color-text-secondary);
         display: flex;
         align-items: center;
       }
@@ -628,10 +663,15 @@
   function getHighlightStyleContent() {
     return `
       #${HIGHLIGHT_ID} {
+        --token-highlight-border: #0BDC00;
+        --token-highlight-bg: rgba(21, 255, 0, 0.12);
+        --token-highlight-text: #000000;
+        --token-radius-md: 4px;
+
         position: absolute;
         pointer-events: none;
-        border: 2px solid #0BDC00;
-        background: rgba(21, 255, 0, 0.12);
+        border: 2px solid var(--token-highlight-border);
+        background: var(--token-highlight-bg);
         z-index: 2147483646;
         border-radius: 8px 0 8px 8px;
         display: none;
@@ -645,10 +685,10 @@
         position: absolute;
         bottom: 100%;
         right: -2px;
-        background: #0BDC00;
-        color: #000000;
+        background: var(--token-highlight-border);
+        color: var(--token-highlight-text);
         padding: 3px 8px;
-        border-radius: 4px 4px 0 4px;
+        border-radius: var(--token-radius-md) var(--token-radius-md) 0 var(--token-radius-md);
         font-size: 11px;
         font-weight: 700;
         font-family: 'Inter', sans-serif;
@@ -819,7 +859,7 @@
             <span class="logo-text">Web to Design</span>
             <!-- plus icon (20:87) -->
             <svg class="plus-icon" width="12.83" height="12.83" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M11.61 7.2452H9.38615C8.11941 7.24552 6.86104 8.24623 6.57601 9.48049L6.07576 11.6473H4.54669L5.04695 9.48049C5.52199 7.4232 7.6187 5.75565 9.73012 5.75532H11.9539L11.61 7.2452ZM7.95209 3.52003C7.47687 5.57732 5.38038 7.24511 3.26891 7.2452H1.04509L1.38906 5.75532H3.61288C4.87967 5.75524 6.13781 4.7543 6.42302 3.52003L6.92328 1.35321H8.45234L7.95209 3.52003Z" fill="#FF5E2F"/>
+              <path d="M11.61 7.2452H9.38615C8.11941 7.24552 6.86104 8.24623 6.57601 9.48049L6.07576 11.6473H4.54669L5.04695 9.48049C5.52199 7.4232 7.6187 5.75565 9.73012 5.75532H11.9539L11.61 7.2452ZM7.95209 3.52003C7.47687 5.57732 5.38038 7.24511 3.26891 7.2452H1.04509L1.38906 5.75532H3.61288C4.87967 5.75524 6.13781 4.7543 6.42302 3.52003L6.92328 1.35321H8.45234L7.95209 3.52003Z" fill="#d4fc5d"/>
             </svg>
           </div>
           <!-- close button (20:88) -->
@@ -859,9 +899,8 @@
             <span class="btn-label">Grab SVG</span>
           </button>
 
-          <!-- What's the Font (Disabled) -->
-          <button class="action-btn disabled" id="btnWhatsFont" type="button" disabled>
-            <div class="soon-badge">Soon</div>
+          <!-- What's the Font -->
+          <button class="action-btn" id="btnWhatsFont" type="button">
             <!-- ci:font icon -->
             <svg class="btn-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M13 18L8 6L3 18M11 14H5M21 18V15M21 15V12M21 15C21 15.7956 20.6839 16.5587 20.1213 17.1213C19.5587 17.6839 18.7956 18 18 18C17.2044 18 16.4413 17.6839 15.8787 17.1213C15.3161 16.5587 15 15.7956 15 15C15 14.2044 15.3161 13.4413 15.8787 12.8787C16.4413 12.3161 17.2044 12 18 12C18.7956 12 19.5587 12.3161 20.1213 12.8787C20.6839 13.4413 21 14.2044 21 15Z" stroke="currentColor" stroke-opacity="0.9" stroke-linecap="round" stroke-linejoin="round"/>
@@ -945,7 +984,7 @@
  
         <!-- Footer -->
         <footer class="footer-section">
-          <span class="footer-credit">
+          <span class="footer-credit" title="AKA S.CX">
             By Artgineer
           </span>
           <!-- Social icons group -->
@@ -1093,6 +1132,13 @@
     btnGrabSvg.addEventListener("click", () => {
       chrome.runtime.sendMessage({ type: "FIGMA_RUN_SVG_GRABBER" });
     });
+
+    const btnWhatsFont = shadowRoot.querySelector("#btnWhatsFont");
+    if (btnWhatsFont) {
+      btnWhatsFont.addEventListener("click", () => {
+        chrome.runtime.sendMessage({ type: "FIGMA_RUN_FONT_INSPECTOR" });
+      });
+    }
 
     btnClose.addEventListener("click", () => {
       removeExisting();

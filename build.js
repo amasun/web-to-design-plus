@@ -53,7 +53,7 @@ async function build() {
   fs.copyFileSync(path.join(SRC_DIR, 'offscreen.html'), path.join(DIST_DIR, 'offscreen.html'));
 
   // 4. Minify JS files
-  const jsFiles = ['background.js', 'capture.js', 'inpage-toolbar.js', 'offscreen.js', 'svg-grabber.js'];
+  const jsFiles = ['background.js', 'capture.js', 'inpage-toolbar.js', 'offscreen.js', 'svg-grabber.js', 'font-inspector.js'];
   for (const file of jsFiles) {
     console.log(`Minifying ${file}...`);
     const srcFilePath = path.join(SRC_DIR, file);

@@ -1019,7 +1019,15 @@
 
   function getStyleContent() {
     return `
-      :host { all: initial; }
+      :host {
+        all: initial;
+        --token-radius-sm: 4px;
+        --token-radius-md: 6px;
+        --token-radius-lg: 10px;
+        --token-radius-xl: 16px;
+        --token-radius-full: 50%;
+        --token-transition-normal: 0.2s ease;
+      }
       * { box-sizing: border-box; }
 
       .sg-backdrop {
@@ -1045,25 +1053,44 @@
         to   { opacity: 0; }
       }
 
-      /* Light theme is the default (matches the "Light" toggle being active
-         on open); .sg-theme-dark below restores the original all-dark look
-         for the whole panel, not just the card previews. */
+      /* Token definitions for Light theme (default) and Dark theme */
       .sg-panel {
         --sg-accent: #7ee100;
+        --token-bg-panel: #ededed;
+        --token-border-panel: rgba(0, 0, 0, 0.08);
+        --token-shadow-panel: 0px 8px 32px 0px rgba(0, 0, 0, 0.25), 0px 0px 1px 0px rgba(255, 255, 255, 0.4) inset;
+        --token-text-primary: #1a1a1a;
+        --token-text-secondary: rgba(0, 0, 0, 0.65);
+        --token-text-muted: rgba(0, 0, 0, 0.55);
+        --token-text-faint: rgba(0, 0, 0, 0.4);
+        --token-border-default: rgba(0, 0, 0, 0.08);
+        --token-border-input: rgba(0, 0, 0, 0.12);
+        --token-bg-input: #ffffff;
+        --token-bg-btn: rgba(0, 0, 0, 0.04);
+        --token-bg-btn-hover: rgba(0, 0, 0, 0.08);
+        --token-bg-toggle: rgba(0, 0, 0, 0.02);
+        --token-bg-toggle-active: rgba(0, 0, 0, 0.08);
+        --token-text-toggle-active: rgba(0, 0, 0, 0.9);
+        --token-bg-card: #ffffff;
+        --token-bg-preview: rgba(237, 237, 237, 0.5);
+        --token-bg-placeholder: rgba(0, 0, 0, 0.05);
+        --token-scrollbar-thumb: rgba(0, 0, 0, 0.2);
+        --token-scrollbar-thumb-hover: rgba(0, 0, 0, 0.35);
+
         position: relative;
         width: min(1040px, 92vw);
         height: min(720px, 88vh);
-        background: #ededed;
+        background: var(--token-bg-panel);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border-radius: 16px;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.25), 0px 0px 1px 0px rgba(255, 255, 255, 0.4) inset;
+        border-radius: var(--token-radius-xl);
+        border: 1px solid var(--token-border-panel);
+        box-shadow: var(--token-shadow-panel);
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        color: #1a1a1a;
-        transition: background-color 0.2s ease, color 0.2s ease;
+        color: var(--token-text-primary);
+        transition: background-color var(--token-transition-normal), color var(--token-transition-normal);
         animation: sg-panel-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
       }
       .sg-panel.sg-closing {
@@ -1079,10 +1106,26 @@
       }
       .sg-panel.sg-theme-dark {
         --sg-accent: #D4FC5D;
-        background: rgba(30, 30, 30, 0.96);
-        border-color: rgba(255, 255, 255, 0.08);
-        box-shadow: 0px 8px 32px 0px rgba(0, 0, 0, 0.45), 0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
-        color: rgba(255, 255, 255, 0.9);
+        --token-bg-panel: rgba(30, 30, 30, 0.96);
+        --token-border-panel: rgba(255, 255, 255, 0.08);
+        --token-shadow-panel: 0px 8px 32px 0px rgba(0, 0, 0, 0.45), 0px 0px 1px 0px rgba(255, 255, 255, 0.15) inset;
+        --token-text-primary: rgba(255, 255, 255, 0.9);
+        --token-text-secondary: rgba(255, 255, 255, 0.8);
+        --token-text-muted: rgba(255, 255, 255, 0.6);
+        --token-text-faint: rgba(255, 255, 255, 0.4);
+        --token-border-default: rgba(255, 255, 255, 0.08);
+        --token-border-input: rgba(255, 255, 255, 0.12);
+        --token-bg-input: rgba(255, 255, 255, 0.08);
+        --token-bg-btn: rgba(255, 255, 255, 0.08);
+        --token-bg-btn-hover: rgba(255, 255, 255, 0.15);
+        --token-bg-toggle: rgba(255, 255, 255, 0.02);
+        --token-bg-toggle-active: rgba(255, 255, 255, 0.15);
+        --token-text-toggle-active: #ffffff;
+        --token-bg-card: rgba(255, 255, 255, 0.05);
+        --token-bg-preview: #1c1c1c;
+        --token-bg-placeholder: rgba(255, 255, 255, 0.05);
+        --token-scrollbar-thumb: rgba(255, 255, 255, 0.25);
+        --token-scrollbar-thumb-hover: rgba(255, 255, 255, 0.4);
       }
 
       .sg-header {
@@ -1090,10 +1133,9 @@
         align-items: center;
         justify-content: space-between;
         padding: 14px 16px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        border-bottom: 1px solid var(--token-border-default);
         flex-shrink: 0;
       }
-      .sg-theme-dark .sg-header { border-bottom-color: rgba(255, 255, 255, 0.08); }
 
       .sg-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
       .sg-title-icon {
@@ -1102,7 +1144,7 @@
         justify-content: center;
         width: 28px;
         height: 28px;
-        border-radius: 8px;
+        border-radius: var(--token-radius-md);
         background: var(--sg-accent);
         flex-shrink: 0;
       }
@@ -1110,85 +1152,74 @@
 
       .sg-close-btn {
         border: none;
-        background: rgba(0, 0, 0, 0.06);
-        color: rgba(0, 0, 0, 0.65);
+        background: var(--token-bg-btn);
+        color: var(--token-text-secondary);
         display: flex;
         align-items: center;
         justify-content: center;
         width: 24px;
         height: 24px;
-        border-radius: 50%;
+        border-radius: var(--token-radius-full);
         cursor: pointer;
-        transition: background-color 0.2s ease, color 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background-color var(--token-transition-normal), color var(--token-transition-normal), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         flex-shrink: 0;
       }
-      .sg-close-btn:hover { background: rgba(0, 0, 0, 0.12); transform: rotate(90deg); }
-      .sg-theme-dark .sg-close-btn { background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9); }
-      .sg-theme-dark .sg-close-btn:hover { background: rgba(255, 255, 255, 0.2); }
+      .sg-close-btn:hover { background: var(--token-bg-btn-hover); transform: rotate(90deg); }
 
       .sg-controls {
         display: flex;
         align-items: center;
         gap: 8px;
         padding: 10px 16px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        border-bottom: 1px solid var(--token-border-default);
         flex-wrap: wrap;
         flex-shrink: 0;
       }
-      .sg-theme-dark .sg-controls { border-bottom-color: rgba(255, 255, 255, 0.08); }
 
       .sg-search {
         flex: 1 1 160px;
         min-width: 120px;
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        border-radius: 6px;
-        color: #1a1a1a;
+        background: var(--token-bg-input);
+        border: 1px solid var(--token-border-input);
+        border-radius: var(--token-radius-md);
+        color: var(--token-text-primary);
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         padding: 6px 10px;
         outline: none;
       }
-      .sg-search::placeholder { color: rgba(0, 0, 0, 0.4); }
+      .sg-search::placeholder { color: var(--token-text-faint); }
       .sg-search:focus { border-color: var(--sg-accent); box-shadow: 0 0 0 1px var(--sg-accent); }
-      .sg-theme-dark .sg-search { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.9); }
-      .sg-theme-dark .sg-search::placeholder { color: rgba(255, 255, 255, 0.4); }
 
       .sg-control-btn {
-        background: rgba(0, 0, 0, 0.04);
-        border: 1px solid rgba(0, 0, 0, 0.12);
-        border-radius: 6px;
-        color: #1a1a1a;
+        background: var(--token-bg-btn);
+        border: 1px solid var(--token-border-input);
+        border-radius: var(--token-radius-md);
+        color: var(--token-text-primary);
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         padding: 6px 10px;
         cursor: pointer;
         white-space: nowrap;
       }
-      .sg-control-btn:hover { background: rgba(0, 0, 0, 0.08); }
+      .sg-control-btn:hover { background: var(--token-bg-btn-hover); }
       .sg-control-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-      .sg-theme-dark .sg-control-btn { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.9); }
-      .sg-theme-dark .sg-control-btn:hover { background: rgba(255, 255, 255, 0.15); }
 
-      .sg-bg-toggle { display: flex; border: 1px solid rgba(0, 0, 0, 0.12); border-radius: 6px; overflow: hidden; background: rgba(0, 0, 0, 0.02); }
+      .sg-bg-toggle { display: flex; border: 1px solid var(--token-border-input); border-radius: var(--token-radius-md); overflow: hidden; background: var(--token-bg-toggle); }
       .sg-bg-toggle button {
         background: transparent;
         border: none;
-        color: rgba(0, 0, 0, 0.45);
+        color: var(--token-text-faint);
         padding: 6px 8px;
         cursor: pointer;
         display: flex;
         align-items: center;
-        transition: all 0.2s ease;
+        transition: all var(--token-transition-normal);
       }
       .sg-bg-toggle button svg { width: 14px; height: 14px; display: block; }
-      .sg-bg-toggle button.active { background: rgba(0, 0, 0, 0.08); color: rgba(0, 0, 0, 0.9); }
-      .sg-theme-dark .sg-bg-toggle { border-color: rgba(255, 255, 255, 0.12); background: rgba(255, 255, 255, 0.02); }
-      .sg-theme-dark .sg-bg-toggle button { color: rgba(255, 255, 255, 0.45); }
-      .sg-theme-dark .sg-bg-toggle button.active { background: rgba(255, 255, 255, 0.15); color: #ffffff; }
+      .sg-bg-toggle button.active { background: var(--token-bg-toggle-active); color: var(--token-text-toggle-active); }
 
-      .sg-status { padding: 8px 16px 0; font-size: 12px; color: rgba(0, 0, 0, 0.55); min-height: 18px; flex-shrink: 0; }
-      .sg-theme-dark .sg-status { color: rgba(255, 255, 255, 0.6); }
+      .sg-status { padding: 8px 16px 0; font-size: 12px; color: var(--token-text-muted); min-height: 18px; flex-shrink: 0; }
 
       .sg-grid {
         flex: 1;
@@ -1199,61 +1230,51 @@
         padding: 16px;
         align-content: start;
         scrollbar-width: thin;
-        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+        scrollbar-color: var(--token-scrollbar-thumb) transparent;
       }
       .sg-grid::-webkit-scrollbar { width: 8px; }
       .sg-grid::-webkit-scrollbar-track { background: transparent; }
-      .sg-grid::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
-      .sg-grid::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.35); }
-      .sg-theme-dark .sg-grid { scrollbar-color: rgba(255, 255, 255, 0.25) transparent; }
-      .sg-theme-dark .sg-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); }
-      .sg-theme-dark .sg-grid::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+      .sg-grid::-webkit-scrollbar-thumb { background: var(--token-scrollbar-thumb); border-radius: var(--token-radius-sm); }
+      .sg-grid::-webkit-scrollbar-thumb:hover { background: var(--token-scrollbar-thumb-hover); }
 
-      .sg-empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: rgba(0, 0, 0, 0.45); font-size: 13px; }
-      .sg-theme-dark .sg-empty { color: rgba(255, 255, 255, 0.5); }
+      .sg-empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: var(--token-text-muted); font-size: 13px; }
 
       .sg-card {
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        color: #1a1a1a;
-        border-radius: 10px;
+        background: var(--token-bg-card);
+        border: 1px solid var(--token-border-default);
+        color: var(--token-text-primary);
+        border-radius: var(--token-radius-lg);
         padding: 10px;
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 8px;
-        /* Instant response, no transition to prevent lag on switch */
       }
-      .sg-theme-dark .sg-card { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); }
       .sg-card:hover, .sg-card:active, .sg-card.sg-card-active { border-color: var(--sg-accent); box-shadow: 0 0 0 2px var(--sg-accent) inset; }
 
       .sg-preview-box {
         position: relative;
         width: 100%;
         height: 80px;
-        border-radius: 6px;
-        background: rgba(237, 237, 237, 0.5);
+        border-radius: var(--token-radius-md);
+        background: var(--token-bg-preview);
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        transition: background-color 0.2s ease;
+        transition: background-color var(--token-transition-normal);
       }
-      .sg-theme-dark .sg-preview-box { background: #1c1c1c; }
       .sg-preview-box:not(.sg-preview-box-fallback) { cursor: pointer; }
 
       .sg-svg-preview { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
-      .sg-svg-preview svg { max-width: 100%; max-height: 100%; width: auto; height: auto; opacity: 0; transition: opacity 0.2s ease; }
+      .sg-svg-preview svg { max-width: 100%; max-height: 100%; width: auto; height: auto; opacity: 0; transition: opacity var(--token-transition-normal); }
       .sg-svg-preview.loaded svg { opacity: 1; }
       .sg-preview-placeholder {
         width: 32px;
         height: 32px;
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 4px;
+        background: var(--token-bg-placeholder);
+        border-radius: var(--token-radius-sm);
         animation: sg-pulse 1.5s infinite ease-in-out;
-      }
-      .sg-theme-dark .sg-preview-placeholder {
-        background: rgba(255, 255, 255, 0.05);
       }
       @keyframes sg-pulse {
         0%, 100% { opacity: 0.6; }
@@ -1287,39 +1308,34 @@
       .sg-action-btn {
         border: none;
         background: transparent;
-        color: rgba(0, 0, 0, 0.65);
+        color: var(--token-text-secondary);
         width: 30px;
         height: 30px;
-        border-radius: 6px;
+        border-radius: var(--token-radius-md);
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         text-decoration: none;
-        transition: background-color 0.2s ease, color 0.2s ease;
+        transition: background-color var(--token-transition-normal), color var(--token-transition-normal);
       }
-      .sg-theme-dark .sg-action-btn { background: transparent; color: rgba(255, 255, 255, 0.8); }
       .sg-action-btn:hover { background: var(--sg-accent); color: #000000; }
       .sg-action-btn-success { background: var(--sg-accent) !important; color: #000000 !important; }
       .sg-action-btn svg { width: 16px; height: 16px; display: block; }
 
       .sg-footer {
         padding: 8px 16px;
-        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        border-top: 1px solid var(--token-border-default);
         font-size: 11px;
-        color: rgba(0, 0, 0, 0.5);
+        color: var(--token-text-muted);
         flex-shrink: 0;
         display: flex;
         align-items: center;
         justify-content: space-between;
       }
-      .sg-theme-dark .sg-footer { border-top-color: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.5); }
       .sg-compat-info {
-        color: rgba(0, 0, 0, 0.4);
+        color: var(--token-text-faint);
         font-weight: 500;
-      }
-      .sg-theme-dark .sg-compat-info {
-        color: rgba(255, 255, 255, 0.4);
       }
 
       .sg-toast {
@@ -1338,7 +1354,7 @@
         white-space: nowrap;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.2s ease, transform 0.2s ease;
+        transition: opacity var(--token-transition-normal), transform var(--token-transition-normal);
         z-index: 1000;
         border: 1px solid rgba(255, 255, 255, 0.08);
       }
@@ -1360,7 +1376,7 @@
         justify-content: center;
         padding: 2px 5px;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 4px;
+        border-radius: var(--token-radius-sm);
         font-size: 11px;
         font-weight: 600;
         color: rgba(255, 255, 255, 0.95);

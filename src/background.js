@@ -3,6 +3,7 @@ const CAPTURE_FILE = "capture.js";
 const RUNNER_FILE = "runner.js";
 const TOOLBAR_FILE = "inpage-toolbar.js";
 const SVG_GRABBER_FILE = "svg-grabber.js";
+const FONT_INSPECTOR_FILE = "font-inspector.js";
 
 const FIGMA_CAPTURE_CONCURRENCY_KEY = "proxyFetchConcurrency";
 const FIGMA_CAPTURE_ALLOWED_CONCURRENCY = new Set([4, 6, 8, 10, 12, 16, 20]);
@@ -504,6 +505,21 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
   if (!tabId) return;
   injectScriptFile(tabId, SVG_GRABBER_FILE).catch((error) => {
     console.error("SVG grabber inject failed:", error);
+  });
+});
+
+chrome.runtime.onMessage.addListener((msg, sender) => {
+  if (!msg || msg.type !== "FIGMA_RUN_FONT_INSPECTOR") return;
+  const tabId = sender.tab?.id || msg.tabId;
+  if (!tabId) return;
+  injectScriptFile(tabId, FONT_INSPECTOR_FILE).then(() => {
+    chrome.scripting.executeScript({
+      target: { tabId },
+      world: WORLD,
+      func: () => window.figmaFontInspector?.toggle()
+    });
+  }).catch((error) => {
+    console.error("Font inspector inject failed:", error);
   });
 });
 
