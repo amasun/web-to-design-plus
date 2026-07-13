@@ -8,3 +8,7 @@ dist/
 chrome-profile/
 CLAUDE.md
 preview
+preview/
+.*/
+.vscode/
+.claude/
