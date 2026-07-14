@@ -25,6 +25,7 @@
 - **极简悬浮工具栏**：采用毛玻璃质感与动效设计，支持网页内自由拖拽，交互丝滑。
 - **双重抓取模式**：支持“整页抓取（Entire Screen）”与“特定元素选择抓取（Select Element）”。
 - **SVG 智能深度提取 (Grab SVG)**：支持递归穿透同源 `iframe` 及 Shadow DOM 深度捕获矢量图标；内置多重语义探测引擎，智能解析 Class 命名规范（Lucide / FontAwesome 等）、SVG 内部 ID/ Mask 结构及相邻文本上下文，自动精准命名每个图标。
+- **全站字体深度探查 (Font Audit)**：鼠标悬停即刻透视任何文字的字体家族、字重、尺寸、行高、字距与颜色，并支持一键复制精确的 CSS 样式规则。内置全局 `Fonts List` 字体分布审计功能，并支持自动嗅探网页加载的字体文件，支持一键下载本地（woff2, woff, ttf）及无缝整合 Google Fonts 库查阅。
 - **复制粘贴即用**：**无需下载/导入任何 JSON 配置文件**，数据直接写入剪贴板，在 Figma 中一键 `Ctrl/Cmd + V` 粘贴即刻还原为图层。
 - **自动跨域代理**：内置 Service Worker 自动处理跨域图片解析，结合 8 并发限制，确保图片资源不丢失。
 
@@ -38,11 +39,11 @@
 2. 点击 **Entire screen**（整页）或 **Select element**（悬停选择特定 DOM 元素）。
 3. 提示 `Copied to clipboard` 后，直接在 Figma 中按 `Ctrl/Cmd + V` 粘贴，即刻还原为可编辑设计稿。
 
-## 🗺️ 后续规划 (Roadmap)
+## 🗺️ 后续规划 (Roadmap v1.1+)
 
 在接下来的版本中，我们计划陆续开发并补充以下功能：
-1. **React/Vue/Tailwind 代码组件导出**：支持将捕获的网页元素直接复制为结构化的 React (JSX) 或 Vue 组件代码，并将内联 CSS 样式自动转换为 Tailwind 类。
-2. **字体识别与下载 (What's the Font)**：智能识别网页所使用的特殊 Web 字体，并在抓取成功后提供 Google Fonts 下载安装链接。
+1. **Icon Font 到真实 SVG 转换**：在前端直接解析网页加载的字体文件（TTF/WOFF），通过数学方法提取 Icon Font（如 FontAwesome 等）的字形轮廓，将其转化为 100% 真实的 SVG 矢量导出。（查看 [v1.1 实施计划](./docs/v1.1-icon-font-plan.md)）。
+2. **React/Vue/Tailwind 代码组件导出**：支持将捕获的网页元素直接复制为结构化的 React (JSX) 或 Vue 组件代码，并将内联 CSS 样式自动转换为 Tailwind 类。
 3. **资产压缩与元数据清洗**：自动将小图 (<100KB) 转换为 Base64 编码以绕过代理限制，并过滤非标准 SVG 标签 (如 sketch/Adobe 标签) 以减小剪贴板大小。
 4. **快捷键与热键支持**：支持全局自定义快捷键（如 `Alt+Shift+D`）唤起/隐藏工具栏，并在面板激活时支持单键触发（如 `A` / `E` / `S`）。
 

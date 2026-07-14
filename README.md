@@ -26,6 +26,7 @@
 - **Minimal Floating Toolbar**: Premium glassmorphism design with smooth transition animations, draggable anywhere on the screen.
 - **Dual Capture Modes**: Support full-page capture (Entire Screen) and interactive local element selection (Select Element).
 - **Smart SVG Deep Extraction (Grab SVG)**: Recursively penetrates same-origin `iframes` and Shadow DOMs to capture vector assets; features a multi-layer semantic detection engine that intelligently infers accurate icon names from CSS classes (Lucide/FontAwesome), internal SVG tree IDs (`<mask id="...">`), and adjacent sibling text context.
+- **Ultimate Font Inspector (Font Audit)**: Hover over any text to reveal its typography (Font Family, weight, size, line-height, letter-spacing, and color) and copy precise CSS rules. Includes a global `Fonts List` to audit page typography and supports automatic font file sniffing for one-click local downloads (woff2, woff, ttf) with Google Fonts integration.
 - **Instant Copy & Paste**: **No JSON file downloads**. Data is directly formatted and written to your clipboard — paste with `Ctrl/Cmd + V` directly in Figma to generate editable layers.
 - **Auto Image Proxy**: Automatically resolves CORS-restricted images via Service Worker background fetching with an 8-concurrency limit.
 
@@ -39,11 +40,11 @@ Download the latest `web-to-design-plus.zip` from [GitHub Releases](https://gith
 2. Select **Entire screen** or **Select element** (hover and click on your target DOM element).
 3. Once the `Copied to clipboard` success indicator appears, press `Ctrl/Cmd + V` in Figma to paste and edit layers immediately.
 
-## 🗺️ Future Roadmap
+## 🗺️ Future Roadmap (v1.1+)
 
-We plan to introduce the following features in upcoming updates:
-1. **React/Vue/Tailwind Code Export**: Copy captured elements directly as structured React (JSX) or Vue component code, converting inline CSS styles into Tailwind utility classes.
-2. **Font Detection & Download (What's the Font)**: Identify custom web fonts used on the page and provide Google Fonts installer links on success.
+We plan to introduce the following features in upcoming updates (v1.1 and beyond):
+1. **True Icon Font to SVG Conversion**: Deep parsing of loaded web fonts (TTF/WOFF) to extract glyph vectors for icon fonts (like FontAwesome), allowing you to grab them as real SVGs. (See [v1.1 Plan](./docs/v1.1-icon-font-plan.md)).
+2. **React/Vue/Tailwind Code Export**: Copy captured elements directly as structured React (JSX) or Vue component code, converting inline CSS styles into Tailwind utility classes.
 3. **Asset Compression & Metadata Cleaning**: Automatically convert small images (<100KB) to Base64 to bypass proxy restrictions, and filter out sketch/Adobe tags to reduce clipboard size.
 4. **Keyboard Shortcuts & Hotkeys**: Support customizable global shortcut (`Alt+Shift+D`) to toggle the toolbar, and single-key navigation triggers inside the panel (`A` / `E` / `S`).
 

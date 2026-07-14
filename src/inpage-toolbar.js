@@ -1136,7 +1136,23 @@
     const btnWhatsFont = shadowRoot.querySelector("#btnWhatsFont");
     if (btnWhatsFont) {
       btnWhatsFont.addEventListener("click", () => {
+        // Hide main toolbar wrapper completely
+        const wrapperEl = shadowRoot.querySelector(".wrapper-outer");
+        if (wrapperEl) {
+          wrapperEl.style.display = "none";
+        }
+
+        // Inject font inspector if not loaded, then toggle
         chrome.runtime.sendMessage({ type: "FIGMA_RUN_FONT_INSPECTOR" });
+
+        // Listen for fi-panel close → close toolbar completely
+        const onFiClose = (e) => {
+          if (e.detail && e.detail.type === "FI_PANEL_CLOSED") {
+            removeExisting();
+            document.removeEventListener("__figmaFiPanelEvent__", onFiClose);
+          }
+        };
+        document.addEventListener("__figmaFiPanelEvent__", onFiClose);
       });
     }
 
@@ -1281,6 +1297,7 @@
         wrapper.offsetHeight; // force reflow
       }
       wrapper.style.opacity = "1";
+      wrapper.style.pointerEvents = "auto";
       wrapper.style.transform = "translateY(0) scale(1)";
     }
   }
@@ -1291,6 +1308,7 @@
       const wrapper = host.shadowRoot.querySelector(".wrapper-outer");
       if (wrapper) {
         wrapper.style.opacity = "0";
+        wrapper.style.pointerEvents = "none";
         wrapper.style.transform = "translateY(-20px)";
       }
       setTimeout(() => {
