@@ -1,4 +1,5 @@
 (() => {
+  const t = (key) => chrome.i18n ? chrome.i18n.getMessage(key) || key : key;
   const HOST_ID = "__figma_svg_grabber_host__";
   const TOOLBAR_HOST_ID = "__figma_capture_toolbar_host__";
   const MAX_ICONS = 300;
@@ -460,7 +461,7 @@
   async function runScan(shadowRoot) {
     resetState();
     updateSelectionUI(shadowRoot, []);
-    setStatus(shadowRoot, "Scanning page for SVG icons…");
+    setStatus(shadowRoot, t('scanningSvg'));
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     const roots = getScanRoots(document);
@@ -468,7 +469,7 @@
     collectInlineSvgs(roots);
     await collectSpriteIcons(roots);
     await collectBackgroundImageIcons(roots, (done, total) => {
-      setStatus(shadowRoot, `Scanning page for SVG icons… (${done}/${total})`);
+      setStatus(shadowRoot, t('scanningSvgProgress').replace('{done}', done).replace('{total}', total));
     });
 
     const imgCandidates = [];
@@ -480,7 +481,7 @@
       });
     });
     if (imgCandidates.length) {
-      setStatus(shadowRoot, "Resolving image icons…");
+      setStatus(shadowRoot, t('resolvingImages'));
       await collectImgIcons(imgCandidates);
     }
 
@@ -503,19 +504,19 @@
     const label = item.label || "icon";
     const checkbox = item.isFallback
       ? ""
-      : `<label class="sg-card-checkbox" title="Select"><input type="checkbox" data-select-id="${escapeAttr(item.id)}" ${selectedIds.has(item.id) ? "checked" : ""} /></label>`;
+      : `<label class="sg-card-checkbox" title="${t('select')}"><input type="checkbox" data-select-id="${escapeAttr(item.id)}" ${selectedIds.has(item.id) ? "checked" : ""} /></label>`;
 
     const previewInner = item.isFallback
       ? `<img class="sg-fallback-img" src="${escapeAttr(item.originalUrl)}" alt="" />`
       : `<div class="sg-svg-preview" data-lazy-id="${escapeAttr(item.id)}"><div class="sg-preview-placeholder"></div></div>`;
 
     const actions = item.isFallback
-      ? `<a class="sg-action-btn" href="${escapeAttr(item.originalUrl)}" target="_blank" rel="noopener noreferrer" title="Open original">${ICON_LINK}</a>`
-      : `<button class="sg-action-btn" data-action="copy" data-icon-id="${escapeAttr(item.id)}" title="Copy SVG code">${ICON_COPY}</button>
-         <button class="sg-action-btn" data-action="download" data-icon-id="${escapeAttr(item.id)}" title="Download as .svg">${ICON_DOWNLOAD}</button>`;
+      ? `<a class="sg-action-btn" href="${escapeAttr(item.originalUrl)}" target="_blank" rel="noopener noreferrer" title="${t('openOriginal')}">${ICON_LINK}</a>`
+      : `<button class="sg-action-btn" data-action="copy" data-icon-id="${escapeAttr(item.id)}" title="${t('copySvgCode')}">${ICON_COPY}</button>
+         <button class="sg-action-btn" data-action="download" data-icon-id="${escapeAttr(item.id)}" title="${t('downloadAsSvg')}">${ICON_DOWNLOAD}</button>`;
 
     const previewBoxClass = item.isFallback ? "sg-preview-box sg-preview-box-fallback" : "sg-preview-box";
-    const previewTitle = item.isFallback ? "" : ` title="Click to copy"`;
+    const previewTitle = item.isFallback ? "" : ` title="${t('clickToCopy')}"`;
     const activeClass = item.id === activeCardId ? " sg-card-active" : "";
 
     return `
@@ -542,12 +543,12 @@
     const countEl = shadowRoot.querySelector("#sgCount");
     const items = getFilteredItems();
 
-    grid.innerHTML = items.length ? items.map(cardHtml).join("") : `<div class="sg-empty">No SVG icons found on this page.</div>`;
+    grid.innerHTML = items.length ? items.map(cardHtml).join("") : `<div class="sg-empty">${t('noSvgFound')}</div>`;
 
     const totalFound = allIcons.length + allFallbacks.length + truncatedCount;
     countEl.textContent = truncatedCount > 0
-      ? `Showing ${items.length} of ${totalFound}+ icons found`
-      : `${items.length} icon${items.length === 1 ? "" : "s"} found`;
+      ? t('showingIcons').replace('{count}', items.length).replace('{total}', totalFound)
+      : items.length === 1 ? t('oneIconFound') : t('iconsFound').replace('{count}', items.length);
 
     wireCardActions(shadowRoot);
     updateSelectionUI(shadowRoot, items);
@@ -559,7 +560,7 @@
     if (selectAllBtn) {
       const selectable = items.filter((it) => !it.isFallback);
       const allSelected = selectable.length > 0 && selectable.every((it) => selectedIds.has(it.id));
-      selectAllBtn.textContent = allSelected ? "Deselect All" : "Select All";
+      selectAllBtn.textContent = allSelected ? t('deselectAll') : t('selectAll');
       selectAllBtn.disabled = selectable.length === 0;
     }
     updateBatchButton(shadowRoot);
@@ -614,7 +615,7 @@
         <svg class="sg-toast-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; flex-shrink:0;">
           <path d="M16 5.07193C17.2067 5.76862 18.2104 6.76837 18.9119 7.9722C19.6134 9.17604 19.9884 10.5422 19.9996 11.9355C20.0109 13.3288 19.658 14.7008 18.9761 15.9158C18.2941 17.1308 17.3066 18.1467 16.1114 18.8628C14.9162 19.5788 13.5547 19.9704 12.1617 19.9986C10.7686 20.0268 9.39238 19.6906 8.16917 19.0235C6.94596 18.3563 5.9182 17.3813 5.18763 16.1949C4.45705 15.0085 4.04901 13.6518 4.00388 12.2592L3.99988 12L4.00388 11.7408C4.04868 10.3592 4.45072 9.01274 5.1708 7.83276C5.89089 6.65277 6.90444 5.6795 8.11264 5.00783C9.32085 4.33617 10.6825 3.98903 12.0648 4.00026C13.4471 4.0115 14.8029 4.38072 16 5.07193ZM14.9656 9.83439C14.8279 9.69664 14.6446 9.6139 14.4502 9.60167C14.2557 9.58945 14.0635 9.64858 13.9096 9.76799L13.8344 9.83439L11.2 12.468L10.1656 11.4344L10.0904 11.368C9.93642 11.2487 9.74425 11.1896 9.54987 11.2019C9.35549 11.2141 9.17227 11.2969 9.03455 11.4346C8.89683 11.5723 8.81408 11.7556 8.80182 11.9499C8.78956 12.1443 8.84862 12.3365 8.96794 12.4904L9.03434 12.5656L10.6344 14.1656L10.7096 14.232C10.8499 14.3409 11.0224 14.4 11.2 14.4C11.3775 14.4 11.5501 14.3409 11.6904 14.232L11.7656 14.1656L14.9656 10.9656L15.032 10.8904C15.1514 10.7365 15.2106 10.5443 15.1983 10.3498C15.1861 10.1554 15.1034 9.97214 14.9656 9.83439Z" fill="#D4FC5D"/>
         </svg>
-        <span class="sg-toast-label sg-toast-label-dim">Copied! Press</span>
+        <span class="sg-toast-label sg-toast-label-dim">${t('copied')} Press</span>
         <span class="sg-shortcut-key">${key}</span>
         <span class="sg-toast-label">to paste</span>
       </div>
@@ -901,7 +902,7 @@
   function updateBatchButton(shadowRoot) {
     const btn = shadowRoot.querySelector("#sgBatchDownload");
     if (!btn) return;
-    btn.textContent = `Download ZIP (${selectedIds.size})`;
+    btn.textContent = `${t('downloadZip')} (${selectedIds.size})`;
     btn.disabled = selectedIds.size === 0;
   }
 
@@ -1042,26 +1043,26 @@
   function getShellHtml() {
     return `
       <div class="sg-backdrop">
-        <div class="sg-panel" role="dialog" aria-label="Grab SVG icons">
+        <div class="sg-panel" role="dialog" aria-label="${t('grabSvgIcons')}">
           <div class="sg-header">
-            <div class="sg-title"><span class="sg-title-icon">${ICON_TITLE}</span><span>Grab SVG</span></div>
-            <button class="sg-close-btn" id="sgClose" type="button" title="Close">${ICON_CLOSE}</button>
+            <div class="sg-title"><span class="sg-title-icon">${ICON_TITLE}</span><span>${t('grabSvg')}</span></div>
+            <button class="sg-close-btn" id="sgClose" type="button" title="${t('close')}">${ICON_CLOSE}</button>
           </div>
           <div class="sg-controls">
-            <input class="sg-search" id="sgSearch" type="text" placeholder="Filter icons…" title="Filter by name" />
-            <button class="sg-control-btn" id="sgSort" type="button" title="Sort alphabetically">A–Z</button>
+            <input class="sg-search" id="sgSearch" type="text" placeholder="${t('filterIcons')}" title="${t('filterByName')}" />
+            <button class="sg-control-btn" id="sgSort" type="button" title="${t('sortAlphabetically')}">A–Z</button>
             <div class="sg-bg-toggle" id="sgBgToggle">
-              <button data-bg="light" class="active" type="button" title="Light preview">${ICON_SUN}</button>
-              <button data-bg="dark" type="button" title="Dark preview">${ICON_MOON}</button>
+              <button data-bg="light" class="active" type="button" title="${t('lightPreview')}">${ICON_SUN}</button>
+              <button data-bg="dark" type="button" title="${t('darkPreview')}">${ICON_MOON}</button>
             </div>
-            <button class="sg-control-btn" id="sgSelectAll" type="button" title="Select or deselect all icons" disabled>Select All</button>
-            <button class="sg-control-btn" id="sgBatchDownload" type="button" title="Download selected icons as a .zip" disabled>Download ZIP (0)</button>
+            <button class="sg-control-btn" id="sgSelectAll" type="button" title="${t('selectOrDeselectAll')}" disabled>${t('selectAll')}</button>
+            <button class="sg-control-btn" id="sgBatchDownload" type="button" title="${t('downloadSelectedZip')}" disabled>${t('downloadZip')} (0)</button>
           </div>
           <div class="sg-status" id="sgStatus"></div>
           <div class="sg-grid" id="sgGrid"></div>
           <div class="sg-footer">
             <span id="sgCount"></span>
-            <span class="sg-compat-info">Compatible with Figma / Sketch / XD / Illustrator</span>
+            <span class="sg-compat-info">${t('compatibleWith')}</span>
           </div>
         </div>
       </div>

@@ -57,6 +57,11 @@ async function build() {
     copyDirSync(path.join(SRC_DIR, 'lib'), path.join(DIST_DIR, 'lib'));
   }
 
+  console.log('Copying _locales directory...');
+  if (fs.existsSync(path.join(SRC_DIR, '_locales'))) {
+    copyDirSync(path.join(SRC_DIR, '_locales'), path.join(DIST_DIR, '_locales'));
+  }
+
   // 4. Minify JS files
   const jsFiles = ['background.js', 'capture.js', 'inpage-toolbar.js', 'offscreen.js', 'svg-grabber.js', 'font-inspector.js', 'svg-sanitizer.js'];
   for (const file of jsFiles) {

@@ -856,14 +856,14 @@
         <!-- Header -->
         <header class="logo-section">
           <div>
-            <span class="logo-text">Web to Design</span>
+            <span class="logo-text">${t('extName')}</span>
             <!-- plus icon (20:87) -->
             <svg class="plus-icon" width="12.83" height="12.83" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M11.61 7.2452H9.38615C8.11941 7.24552 6.86104 8.24623 6.57601 9.48049L6.07576 11.6473H4.54669L5.04695 9.48049C5.52199 7.4232 7.6187 5.75565 9.73012 5.75532H11.9539L11.61 7.2452ZM7.95209 3.52003C7.47687 5.57732 5.38038 7.24511 3.26891 7.2452H1.04509L1.38906 5.75532H3.61288C4.87967 5.75524 6.13781 4.7543 6.42302 3.52003L6.92328 1.35321H8.45234L7.95209 3.52003Z" fill="#d4fc5d"/>
             </svg>
           </div>
           <!-- close button (20:88) -->
-          <button class="close-btn" id="figmaBtnClose" type="button" title="Close">
+          <button class="close-btn" id="figmaBtnClose" type="button" title="${t('btnClose')}">
             <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
               <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -878,7 +878,7 @@
             <svg class="btn-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M17 6C17.5304 6 18.0391 6.21071 18.4142 6.58579C18.7893 6.96086 19 7.46957 19 8V16L18.99 16.204C18.9429 16.6615 18.7396 17.0889 18.4143 17.414C18.089 17.7391 17.6616 17.9422 17.204 17.989L17 18H7L6.796 17.99C6.33847 17.9429 5.91115 17.7396 5.58601 17.414C5.26087 17.089 5.0578 16.6616 5.011 16.204L5 16V8C5 7.46957 5.21071 6.96086 5.58579 6.58579C5.96086 6.21071 6.46957 6 7 6H17ZM6 16C6 16.2652 6.10536 16.5196 6.29289 16.7071C6.48043 16.8946 6.73478 17 7 17H17C17.2652 17 17.5196 16.8946 17.7071 16.7071C17.8946 16.5196 18 16.2652 18 16V11H6V16ZM7 7C6.75256 6.99992 6.51388 7.09158 6.3301 7.25726C6.14632 7.42294 6.03049 7.65088 6.005 7.897L6 8V10H18V8C18 7.73478 17.8946 7.48043 17.7071 7.29289C17.5196 7.10536 17.2652 7 17 7H7ZM7.5 8C7.63261 8 7.75979 8.05268 7.85355 8.14645C7.94732 8.24021 8 8.36739 8 8.5C8 8.63261 7.94732 8.75979 7.85355 8.85355C7.75979 8.94732 7.63261 9 7.5 9C7.36739 9 7.24021 8.94732 7.14645 8.85355C7.05268 8.75979 7 8.63261 7 8.5C7 8.36739 7.05268 8.24021 7.14645 8.14645C7.24021 8.05268 7.36739 8 7.5 8ZM9.5 8C9.63261 8 9.75979 8.05268 9.85355 8.14645C9.94732 8.24021 10 8.36739 10 8.5C10 8.63261 9.94732 8.75979 9.85355 8.85355C9.75979 8.94732 9.63261 9 9.5 9C9.36739 9 9.24021 8.94732 9.14645 8.85355C9.05268 8.75979 9 8.63261 9 8.5C9 8.36739 9.05268 8.24021 9.14645 8.14645C9.24021 8.05268 9.36739 8 9.5 8Z" fill="currentColor"/>
             </svg>
-            <span class="btn-label">Entire screen</span>
+            <span class="btn-label">${t('btnEntire')}</span>
           </button>
 
           <!-- Select element -->
@@ -887,7 +887,7 @@
             <svg class="btn-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M9.321 5.53202C9.44341 5.48133 9.58093 5.48129 9.70337 5.53192C9.8258 5.58254 9.92314 5.67969 9.974 5.80202L10.751 7.67802C10.853 7.92302 10.712 8.20202 10.466 8.30402C10.22 8.40602 9.929 8.30602 9.827 8.06002L9.05 6.18602C9.02477 6.1253 9.01177 6.06019 9.01175 5.99443C9.01172 5.92867 9.02466 5.86356 9.04983 5.80281C9.075 5.74206 9.11191 5.68687 9.15844 5.64041C9.20498 5.59394 9.26022 5.55711 9.321 5.53202ZM8.061 9.82702L6.186 9.05002C6.06347 8.99924 5.92578 8.9992 5.803 9.04993C5.68067 9.10066 5.58329 9.19799 5.5325 9.32052C5.48171 9.44305 5.48168 9.58074 5.53241 9.7033C5.58314 9.82585 5.68047 9.92324 5.803 9.97402L7.678 10.751C7.924 10.852 8.202 10.711 8.304 10.466C8.406 10.22 8.307 9.93002 8.061 9.82702ZM7.678 13.248L5.803 14.024C5.68047 14.0748 5.58314 14.1722 5.53241 14.2948C5.48168 14.4173 5.48171 14.555 5.5325 14.6775C5.58329 14.8001 5.68067 14.8974 5.80323 14.9481C5.92578 14.9988 6.06347 14.9988 6.186 14.948L8.061 14.171C8.307 14.069 8.406 13.778 8.304 13.532C8.202 13.286 7.924 13.146 7.678 13.248ZM9.827 15.938L9.05 17.812C9.02485 17.8727 9.0119 17.9377 9.01188 18.0034C9.01187 18.0691 9.02479 18.1341 9.04991 18.1948C9.07503 18.2555 9.11185 18.3106 9.15828 18.3571C9.20471 18.4035 9.25983 18.4404 9.3205 18.4655C9.38117 18.4907 9.4462 18.5036 9.51188 18.5036C9.57755 18.5037 9.64259 18.4907 9.70327 18.4656C9.76396 18.4405 9.8191 18.4037 9.86555 18.3572C9.912 18.3108 9.94885 18.2557 9.974 18.195L10.751 16.32C10.853 16.075 10.711 15.796 10.466 15.694C10.221 15.592 9.929 15.692 9.827 15.938ZM16.322 10.75L18.196 9.97302C18.2578 9.94873 18.3141 9.91237 18.3617 9.86607C18.4093 9.81977 18.4472 9.76446 18.4731 9.70336C18.4991 9.64227 18.5127 9.57661 18.513 9.51022C18.5133 9.44383 18.5004 9.37804 18.4751 9.31669C18.4497 9.25533 18.4124 9.19965 18.3653 9.15287C18.3181 9.1061 18.2622 9.06918 18.2007 9.04426C18.1391 9.01935 18.0732 9.00694 18.0068 9.00775C17.9405 9.00857 17.8749 9.0226 17.814 9.04902L15.939 9.82602C15.693 9.92702 15.593 10.219 15.695 10.465C15.797 10.711 16.076 10.851 16.322 10.75ZM14.172 8.06002L14.949 6.18502C14.9998 6.06249 14.9998 5.92481 14.9491 5.80225C14.8984 5.6797 14.801 5.58231 14.6785 5.53152C14.556 5.48074 14.4183 5.4807 14.2957 5.53143C14.1732 5.58216 14.0758 5.67949 14.025 5.80202L13.249 7.67702C13.147 7.92202 13.288 8.20102 13.533 8.30302C13.779 8.40502 14.071 8.30502 14.173 8.05902M12.353 11.061C12.1731 10.9934 11.9776 10.979 11.7898 11.0196C11.6019 11.0602 11.4298 11.154 11.2939 11.2899C11.158 11.4258 11.0642 11.598 11.0236 11.7858C10.983 11.9736 10.9974 12.1692 11.065 12.349L13.315 18.349C13.39 18.5485 13.5269 18.7188 13.7055 18.8351C13.8842 18.9514 14.0953 19.0075 14.3081 18.9954C14.5209 18.9832 14.7242 18.9033 14.8885 18.7675C15.0527 18.6316 15.1692 18.4468 15.221 18.24L15.826 15.822L18.244 15.218C18.4511 15.1664 18.6362 15.0498 18.7723 14.8854C18.9084 14.721 18.9883 14.5174 19.0004 14.3043C19.0124 14.0912 18.956 13.8799 18.8394 13.7012C18.7227 13.5224 18.5519 13.3857 18.352 13.311L12.353 11.061ZM16.293 14.675L15 15L14.677 16.29L14.25 18L13.632 16.35L12.466 13.242L12 12L13.243 12.466L16.351 13.631L18 14.25L16.293 14.675Z" fill="currentColor"/>
             </svg>
-            <span class="btn-label">Select element</span>
+            <span class="btn-label">${t('btnElement')}</span>
           </button>
 
           <!-- Grab SVG -->
@@ -896,7 +896,7 @@
             <svg class="btn-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M10.2887 9.00525C9.1505 9.19475 8.10931 9.76218 7.33312 10.616C6.55693 11.4698 6.09101 12.5602 6.01052 13.7113M13.7113 9.00525C14.8495 9.19475 15.8907 9.76218 16.6669 10.616C17.4431 11.4698 17.909 12.5602 17.9895 13.7113M10.2887 8.57743H5.15488M5.15488 8.57743C5.15488 8.80436 5.06474 9.02199 4.90427 9.18246C4.74381 9.34292 4.52617 9.43307 4.29924 9.43307C4.07231 9.43307 3.85468 9.34292 3.69421 9.18246C3.53375 9.02199 3.4436 8.80436 3.4436 8.57743C3.4436 8.3505 3.53375 8.13286 3.69421 7.9724C3.85468 7.81194 4.07231 7.72179 4.29924 7.72179C4.52617 7.72179 4.74381 7.81194 4.90427 7.9724C5.06474 8.13286 5.15488 8.3505 5.15488 8.57743ZM18.8451 8.57743H13.7113M18.8451 8.57743C18.8451 8.80436 18.9353 9.02199 19.0957 9.18246C19.2562 9.34292 19.4738 9.43307 19.7008 9.43307C19.9277 9.43307 20.1453 9.34292 20.3058 9.18246C20.4662 9.02199 20.5564 8.80436 20.5564 8.57743C20.5564 8.3505 20.4662 8.13286 20.3058 7.9724C20.1453 7.81194 19.9277 7.72179 19.7008 7.72179C19.4738 7.72179 19.2562 7.81194 19.0957 7.9724C18.9353 8.13286 18.8451 8.3505 18.8451 8.57743ZM4.29924 14.5669C4.29924 14.34 4.38939 14.1223 4.54985 13.9619C4.71032 13.8014 4.92795 13.7113 5.15488 13.7113H6.86616C7.09309 13.7113 7.31073 13.8014 7.47119 13.9619C7.63165 14.1223 7.7218 14.34 7.7218 14.5669V16.2782C7.7218 16.5051 7.63165 16.7228 7.47119 16.8832C7.31073 17.0437 7.09309 17.1338 6.86616 17.1338H5.15488C4.92795 17.1338 4.71032 17.0437 4.54985 16.8832C4.38939 16.7228 4.29924 16.5051 4.29924 16.2782V14.5669ZM16.2782 14.5669C16.2782 14.34 16.3683 14.1223 16.5288 13.9619C16.6893 13.8014 16.9069 13.7113 17.1338 13.7113H18.8451C19.072 13.7113 19.2897 13.8014 19.4501 13.9619C19.6106 14.1223 19.7008 14.34 19.7008 14.5669V16.2782C19.7008 16.5051 19.6106 16.7228 19.4501 16.8832C19.2897 17.0437 19.072 17.1338 18.8451 17.1338H17.1338C16.9069 17.1338 16.6893 17.0437 16.5288 16.8832C16.3683 16.7228 16.2782 16.5051 16.2782 16.2782V14.5669ZM10.2887 7.72179C10.2887 7.49486 10.3789 7.27722 10.5393 7.11676C10.6998 6.9563 10.9174 6.86615 11.1444 6.86615H12.8556C13.0826 6.86615 13.3002 6.9563 13.4607 7.11676C13.6211 7.27722 13.7113 7.49486 13.7113 7.72179V9.43307C13.7113 9.66 13.6211 9.87763 13.4607 10.0381C13.3002 10.1986 13.0826 10.2887 12.8556 10.2887H11.1444C10.9174 10.2887 10.6998 10.1986 10.5393 10.0381C10.3789 9.87763 10.2887 9.66 10.2887 9.43307V7.72179Z" stroke="currentColor" stroke-opacity="0.9" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="btn-label">Grab SVG</span>
+            <span class="btn-label">${t('btnGrabSvg')}</span>
           </button>
 
           <!-- What's the Font -->
@@ -905,7 +905,7 @@
             <svg class="btn-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M13 18L8 6L3 18M11 14H5M21 18V15M21 15V12M21 15C21 15.7956 20.6839 16.5587 20.1213 17.1213C19.5587 17.6839 18.7956 18 18 18C17.2044 18 16.4413 17.6839 15.8787 17.1213C15.3161 16.5587 15 15.7956 15 15C15 14.2044 15.3161 13.4413 15.8787 12.8787C16.4413 12.3161 17.2044 12 18 12C18.7956 12 19.5587 12.3161 20.1213 12.8787C20.6839 13.4413 21 14.2044 21 15Z" stroke="currentColor" stroke-opacity="0.9" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="btn-label">What's the Font</span>
+            <span class="btn-label">${t('btnWhatsFont')}</span>
           </button>
         </main>
 
@@ -920,7 +920,7 @@
                 <path d="M6.99996 9.33342C8.28866 9.33342 9.33329 8.28878 9.33329 7.00008C9.33329 5.71138 8.28866 4.66675 6.99996 4.66675C5.71126 4.66675 4.66663 5.71138 4.66663 7.00008C4.66663 8.28878 5.71126 9.33342 6.99996 9.33342ZM6.99996 8.40008C6.62866 8.40008 6.27256 8.25258 6.01001 7.99003C5.74746 7.72748 5.59996 7.37138 5.59996 7.00008C5.59996 6.62878 5.74746 6.27268 6.01001 6.01013C6.27256 5.74758 6.62866 5.60008 6.99996 5.60008C7.37126 5.60008 7.72736 5.74758 7.98991 6.01013C8.25246 6.27268 8.39996 6.62878 8.39996 7.00008C8.39996 7.37138 8.25246 7.72748 7.98991 7.99003C7.72736 8.25258 7.37126 8.40008 6.99996 8.40008Z" fill="white"/>
               </g>
             </svg>
-            Advanced Options
+            ${t('advancedOptions')}
           </span>
           <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
         </div>
@@ -930,28 +930,28 @@
           <div class="advanced-content">
             <!-- Viewport Selection -->
             <div class="viewport-section">
-              <span class="viewport-label">Canvas Size</span>
+              <span class="viewport-label">${t('canvasSize')}</span>
               <div class="custom-select" id="figmaViewportSelectContainer">
                 <div class="custom-select-trigger" id="figmaViewportTrigger">
                   <span id="figmaViewportValue">${
-                    lastSelectedResolution === "auto" ? "Default" :
-                    lastSelectedResolution === "custom" ? "Custom..." :
+                    lastSelectedResolution === "auto" ? t('sizeDefault') :
+                    lastSelectedResolution === "custom" ? t('sizeCustom') :
                     lastSelectedResolution.includes("x") ? `${lastSelectedResolution.split("x")[0]} × ${lastSelectedResolution.split("x")[1]}` :
-                    "Default"
+                    t('sizeDefault')
                   }</span>
                   <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </div>
                 <div class="custom-select-popover" id="figmaViewportPopover" style="display: none;">
-                  <div class="custom-select-item ${lastSelectedResolution === "auto" ? "selected" : ""}" data-value="auto">Default</div>
-                  <div class="custom-select-item ${lastSelectedResolution === "1920x1080" ? "selected" : ""}" data-value="1920x1080">Desktop FHD (1920 × 1080)</div>
-                  <div class="custom-select-item ${lastSelectedResolution === "1440x900" ? "selected" : ""}" data-value="1440x900">MacBook Pro (1440 × 900)</div>
-                  <div class="custom-select-item ${lastSelectedResolution === "1024x1366" ? "selected" : ""}" data-value="1024x1366">iPad Pro 12.9" (1024 × 1366)</div>
-                  <div class="custom-select-item ${lastSelectedResolution === "834x1194" ? "selected" : ""}" data-value="834x1194">iPad Pro 11" (834 × 1194)</div>
-                  <div class="custom-select-item ${lastSelectedResolution === "744x1133" ? "selected" : ""}" data-value="744x1133">iPad mini (744 × 1133)</div>
-                  <div class="custom-select-item ${lastSelectedResolution === "440x956" ? "selected" : ""}" data-value="440x956">iPhone Pro Max (440 × 956)</div>
-                  <div class="custom-select-item ${lastSelectedResolution === "402x874" ? "selected" : ""}" data-value="402x874">iPhone 16/17 Pro (402 × 874)</div>
-                  <div class="custom-select-item ${lastSelectedResolution === "390x844" ? "selected" : ""}" data-value="390x844">iPhone 13/14 (390 × 844)</div>
-                  <div class="custom-select-item ${lastSelectedResolution === "custom" ? "selected" : ""}" data-value="custom">Custom...</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "auto" ? "selected" : ""}" data-value="auto">${t('sizeDefault')}</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "1920x1080" ? "selected" : ""}" data-value="1920x1080">${t('sizeDesktop')} (1920 × 1080)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "1440x900" ? "selected" : ""}" data-value="1440x900">${t('sizeMacBook')} (1440 × 900)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "1024x1366" ? "selected" : ""}" data-value="1024x1366">${t('sizeIpad12')} (1024 × 1366)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "834x1194" ? "selected" : ""}" data-value="834x1194">${t('sizeIpad11')} (834 × 1194)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "744x1133" ? "selected" : ""}" data-value="744x1133">${t('sizeIpadMini')} (744 × 1133)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "440x956" ? "selected" : ""}" data-value="440x956">${t('sizeIphoneMax')} (440 × 956)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "402x874" ? "selected" : ""}" data-value="402x874">${t('sizeIphonePro')} (402 × 874)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "390x844" ? "selected" : ""}" data-value="390x844">${t('sizeIphone')} (390 × 844)</div>
+                  <div class="custom-select-item ${lastSelectedResolution === "custom" ? "selected" : ""}" data-value="custom">${t('sizeCustom')}</div>
                 </div>
               </div>
             </div>
@@ -971,7 +971,7 @@
 
             <!-- Scroll Toggle -->
             <div class="toggle-section">
-              <span class="toggle-label">Auto Scroll</span>
+              <span class="toggle-label">${t('autoScroll')}</span>
               <label class="switch-container">
                 <input type="checkbox" id="figmaAutoScrollToggle" ${lastAutoScrollActive ? "checked" : ""} />
                 <span class="switch-slider"></span>
@@ -985,7 +985,7 @@
         <!-- Footer -->
         <footer class="footer-section">
           <span class="footer-credit" title="AKA S.CX">
-            By Artgineer
+            ${t('byAuthor')}
           </span>
           <!-- Social icons group -->
           <div style="display: flex; align-items: center; gap: 10px;">
@@ -1205,16 +1205,16 @@
     showIndicator();
   }
 
-  function showSuccessIndicator(label = "Copied to clipboard") {
+  function showSuccessIndicator(label = t('copiedToClipboard')) {
     const { shadowRoot, wrapper } = getOrCreateHost();
 
     const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
     const keyName = isMac ? "⌘V" : "Ctrl+V";
 
     let labelHtml;
-    if (label === "Copied to clipboard") {
+    if (label === t('copiedToClipboard')) {
       labelHtml = `
-          <span class="capsule-label capsule-label-dim">Copied! Press</span>
+          <span class="capsule-label capsule-label-dim">${t('copied')} Press</span>
           <span class="shortcut-key">${keyName}</span>
           <span class="capsule-label capsule-label-dim-secondary">to paste in Figma</span>`;
     } else {
@@ -1487,7 +1487,7 @@
       if (msg.state === "capturing") {
         showCapturingIndicator();
       } else if (msg.state === "success") {
-        showSuccessIndicator(msg.delivery === "download" ? "Saved as file" : "Copied to clipboard");
+        showSuccessIndicator(msg.delivery === "download" ? "Saved as file" : t('copiedToClipboard'));
       } else if (msg.state === "error") {
         showErrorIndicator();
       }

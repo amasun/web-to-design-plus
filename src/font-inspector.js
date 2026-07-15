@@ -2,6 +2,7 @@
  * Web to Design Plus - What's the Font Inspector
  */
 (() => {
+  const t = (key) => chrome.i18n ? chrome.i18n.getMessage(key) || key : key;
   if (window.figmaFontInspector) return;
 
   const HOST_ID = "__figma_font_inspector_host__";
@@ -528,7 +529,7 @@
   }
 
   function closeHtml() {
-    return `<button class="fi-close-btn" id="fiBtnClose" title="Close">
+    return `<button class="fi-close-btn" id="fiBtnClose" title="${t('close')}">
       <svg width="12" height="12" viewBox="0 0 8 8" fill="none" style="display:block; pointer-events:none;">
         <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
@@ -568,14 +569,14 @@
       <div class="fi-header">
         <div class="fi-title">
           <div class="fi-title-icon">Aa</div>
-          Typography
+          ${t('typography')}
         </div>
           <div class="fi-header-actions">
             <button class="fi-btn" id="fiBtnAudit">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M4 6h16M4 12h16M4 18h16"/>
               </svg>
-              Fonts list
+              ${t('fontsList')}
             </button>
             ${closeHtml()}
           </div>
@@ -587,32 +588,32 @@
           <div class="fi-specimen-text" id="fiSpecimenText" contenteditable="true" spellcheck="false"
             style="font-family:${safeFamily}; font-weight:${weight}; font-style:${fontStyle}; letter-spacing:${letterSp}; text-transform:${textTransform}; text-decoration:${textDecoration}; text-align:${textAlign};"
           >${currentSpecimenText}</div>
-          <button class="fi-reset-btn" id="fiResetBtn">Reset</button>
+          <button class="fi-reset-btn" id="fiResetBtn">${t('reset')}</button>
         </div>
 
         <!-- Font Family -->
         <div class="fi-cell" style="width:100%">
-          <div class="fi-label">Font Family</div>
+          <div class="fi-label">${t('fontFamily')}</div>
           <div class="fi-val" id="fiCopyFamily">
             <span class="spacer">${cleanFamily}</span>
-            <span class="fi-copy-hint">Copy</span>
+            <span class="fi-copy-hint">${t('copy')}</span>
           </div>
         </div>
 
         <!-- Weight & Size -->
         <div class="fi-row">
           <div class="fi-cell">
-            <div class="fi-label">Weight</div>
+            <div class="fi-label">${t('weight')}</div>
             <div class="fi-val" id="fiCopyWeight">
               <span class="spacer">${weightLabel}</span>
-              <span class="fi-copy-hint">Copy</span>
+              <span class="fi-copy-hint">${t('copy')}</span>
             </div>
           </div>
           <div class="fi-cell">
-            <div class="fi-label">Size</div>
+            <div class="fi-label">${t('size')}</div>
             <div class="fi-val" id="fiCopySize">
               <span class="spacer">${size}</span>
-              <span class="fi-copy-hint">Copy</span>
+              <span class="fi-copy-hint">${t('copy')}</span>
             </div>
           </div>
         </div>
@@ -620,34 +621,34 @@
         <!-- Line Height & Letter Spacing -->
         <div class="fi-row">
           <div class="fi-cell">
-            <div class="fi-label">Line Height</div>
+            <div class="fi-label">${t('lineHeight')}</div>
             <div class="fi-val" id="fiCopyLineHt">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 8l4-4 4 4M7 4v16M13 6h8M13 12h8M13 18h8"/>
               </svg>
               <span class="spacer">${lineHt}</span>
-              <span class="fi-copy-hint">Copy</span>
+              <span class="fi-copy-hint">${t('copy')}</span>
             </div>
           </div>
           <div class="fi-cell">
-            <div class="fi-label">Letter Spacing</div>
+            <div class="fi-label">${t('letterSpacing')}</div>
             <div class="fi-val" id="fiCopyLetterSp">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M2 12h20M6 8l-4 4 4 4M18 8l4 4-4 4"/>
               </svg>
               <span class="spacer">${letterSp}</span>
-              <span class="fi-copy-hint">Copy</span>
+              <span class="fi-copy-hint">${t('copy')}</span>
             </div>
           </div>
         </div>
 
         <!-- Fill Color -->
         <div class="fi-cell" style="width:100%">
-          <div class="fi-label">Fill</div>
+          <div class="fi-label">${t('fill')}</div>
           <div class="fi-val" id="fiCopyColor">
             <span class="fi-swatch" style="background:${color};"></span>
             <span class="spacer" style="font-size:10px;">${color}</span>
-            <span class="fi-copy-hint">Copy</span>
+            <span class="fi-copy-hint">${t('copy')}</span>
           </div>
         </div>
 
@@ -658,7 +659,7 @@
         </div>
         <div style="display:flex; gap:6px; align-items:center;">
           ${isGF ? `<a class="fi-btn" style="padding: 4px 7px; display: flex; align-items: center;" href="https://fonts.google.com/specimen/${encodeURIComponent(cleanFamily)}" target="_blank" title="View on Google Fonts"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 28 28"><g><path fill="#fbbc04" d="m14.217 3.647-.542-.651L0 23.833h9.442l4.244-6.467.53-1.15z"></path><path fill="#1a73e8" d="M22.14 2.996h-8.465v20.837h8.465z"></path><path fill="#ea4335" d="M4.558 10.81a3.907 3.907 0 1 0 0-7.814 3.907 3.907 0 0 0 0 7.814"></path><path fill="#0d652d" d="M22.79 17.973c0 3.236 2.586 5.86-.65 5.86a5.861 5.861 0 0 1 0-11.72c3.236 0 .65 2.623.65 5.86"></path><path fill="#174ea6" d="M17.582 7.554a4.56 4.56 0 0 1 4.558-4.558c2.517 0 .814 2.041.814 4.558s1.703 4.558-.814 4.558a4.56 4.56 0 0 1-4.558-4.558"></path><path fill="#1a73e8" d="M22.14 2.996a4.559 4.559 0 0 1 0 9.116"></path><path fill="#34a853" d="M22.14 12.112a5.861 5.861 0 0 1 0 11.721"></path></g></svg></a>` : ""}
-          <button class="fi-btn" id="fiBtnCopyCss">Copy CSS</button>
+          <button class="fi-btn" id="fiBtnCopyCss">${t('copyCss')}</button>
           ${bestFile ? `<button class="fi-btn accent" id="fiBtnDl">↓ ${bestFile.ext.toUpperCase()}</button>` : ""}
         </div>
       </div>
@@ -666,7 +667,7 @@
       `;
 
     bindPanel();
-    panelEl.querySelector("#fiBtnCopyCss").onmousedown = () => copyText(cssText, "Copied CSS!");
+    panelEl.querySelector("#fiBtnCopyCss").onmousedown = () => copyText(cssText, t('copiedCss'));
     panelEl.querySelector("#fiBtnAudit").onmousedown = () => switchMode("audit");
     panelEl.querySelector("#fiCopyFamily").onmousedown = () => copyText(cleanFamily);
     panelEl.querySelector("#fiCopyWeight").onmousedown = () => copyText(weight);
@@ -709,7 +710,7 @@
           Fonts List (${list.length})
         </div>
         <div class="fi-header-actions">
-          <button class="fi-btn" id="fiBtnBack">← Back</button>
+          <button class="fi-btn" id="fiBtnBack">${t('back')}</button>
           ${closeHtml()}
         </div>
       </div>
@@ -723,11 +724,11 @@
               <span class="fi-audit-count">${item.count}</span>
             </div>
             <div class="fi-audit-meta">
-              <span>Weight ${item.weight}</span>
+              <span>${t('weightValue').replace('{value}', item.weight)}</span>
                 <div class="fi-audit-actions">
                   ${gf ? `<a class="fi-btn" style="padding: 2px 4px; display: flex; align-items: center;" href="https://fonts.google.com/specimen/${encodeURIComponent(item.family)}" target="_blank" title="View on Google Fonts"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 28 28"><g><path fill="#fbbc04" d="m14.217 3.647-.542-.651L0 23.833h9.442l4.244-6.467.53-1.15z"></path><path fill="#1a73e8" d="M22.14 2.996h-8.465v20.837h8.465z"></path><path fill="#ea4335" d="M4.558 10.81a3.907 3.907 0 1 0 0-7.814 3.907 3.907 0 0 0 0 7.814"></path><path fill="#0d652d" d="M22.79 17.973c0 3.236 2.586 5.86-.65 5.86a5.861 5.861 0 0 1 0-11.72c3.236 0 .65 2.623.65 5.86"></path><path fill="#174ea6" d="M17.582 7.554a4.56 4.56 0 0 1 4.558-4.558c2.517 0 .814 2.041.814 4.558s1.703 4.558-.814 4.558a4.56 4.56 0 0 1-4.558-4.558"></path><path fill="#1a73e8" d="M22.14 2.996a4.559 4.559 0 0 1 0 9.116"></path><path fill="#34a853" d="M22.14 12.112a5.861 5.861 0 0 1 0 11.721"></path></g></svg></a>` : ""}
                   ${file ? `<button class="fi-btn accent fi-audit-dl" data-url="${file.url}" data-name="${item.family}.${file.ext.toLowerCase()}">↓ ${file.ext}</button>` : ""}
-                  <button class="fi-btn fi-audit-copy" data-family="${item.family}">Copy</button>
+                  <button class="fi-btn fi-audit-copy" data-family="${item.family}">${t('copy')}</button>
                 </div>
             </div>
           </div>`;

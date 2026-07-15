@@ -1,0 +1,206 @@
+{
+  "extName": {
+    "message": "Web to Design Plus"
+  },
+  "extDesc": {
+    "message": "Convert any website into an editable Figma design. Features powerful SVG extraction and typography inspection tools."
+  },
+  "actionTitle": {
+    "message": "Capture page for Figma"
+  },
+  "btnEntire": {
+    "message": "Entire screen"
+  },
+  "btnElement": {
+    "message": "Select element"
+  },
+  "btnGrabSvg": {
+    "message": "Grab SVG"
+  },
+  "btnWhatsFont": {
+    "message": "What's the Font"
+  },
+  "advancedOptions": {
+    "message": "Advanced Options"
+  },
+  "canvasSize": {
+    "message": "Canvas Size"
+  },
+  "sizeDefault": {
+    "message": "Default"
+  },
+  "sizeCustom": {
+    "message": "Custom..."
+  },
+  "sizeDesktop": {
+    "message": "Desktop FHD"
+  },
+  "sizeMacBook": {
+    "message": "MacBook Pro"
+  },
+  "sizeIpad12": {
+    "message": "iPad Pro 12.9\""
+  },
+  "sizeIpad11": {
+    "message": "iPad Pro 11\""
+  },
+  "sizeIpadMini": {
+    "message": "iPad mini"
+  },
+  "sizeIphoneMax": {
+    "message": "iPhone Pro Max"
+  },
+  "sizeIphonePro": {
+    "message": "iPhone 16/17 Pro"
+  },
+  "sizeIphone": {
+    "message": "iPhone 13/14"
+  },
+  "autoScroll": {
+    "message": "Auto Scroll"
+  },
+  "byAuthor": {
+    "message": "By Artgineer"
+  },
+  "copiedToClipboard": {
+    "message": "Copied to clipboard"
+  },
+  "svgGrabberTitle": {
+    "message": "Web to Design - SVG Grabber"
+  },
+  "btnClose": {
+    "message": "Close"
+  },
+  "svgCode": {
+    "message": "SVG Code"
+  },
+  "file": {
+    "message": "File"
+  },
+  "copied": {
+    "message": "Copied!"
+  },
+  "downloadAll": {
+    "message": "Download All"
+  },
+  "fontInspectorTitle": {
+    "message": "What's the Font Inspector"
+  },
+  "copiedCss": {
+    "message": "Copied CSS!"
+  },
+  "noSvgFound": {
+    "message": "No SVG icons found on this page."
+  },
+  "grabSvgIcons": {
+    "message": "Grab SVG icons"
+  },
+  "grabSvg": {
+    "message": "Grab SVG"
+  },
+  "filterIcons": {
+    "message": "Filter icons…"
+  },
+  "filterByName": {
+    "message": "Filter by name"
+  },
+  "sortAlphabetically": {
+    "message": "Sort alphabetically"
+  },
+  "lightPreview": {
+    "message": "Light preview"
+  },
+  "darkPreview": {
+    "message": "Dark preview"
+  },
+  "selectOrDeselectAll": {
+    "message": "Select or deselect all icons"
+  },
+  "selectAll": {
+    "message": "Select All"
+  },
+  "deselectAll": {
+    "message": "Deselect All"
+  },
+  "downloadSelectedZip": {
+    "message": "Download selected icons as a .zip"
+  },
+  "downloadZip": {
+    "message": "Download ZIP"
+  },
+  "compatibleWith": {
+    "message": "Compatible with Figma / Sketch / XD / Illustrator"
+  },
+  "scanningSvg": {
+    "message": "Scanning page for SVG icons…"
+  },
+  "scanningSvgProgress": {
+    "message": "Scanning page for SVG icons… ({done}/{total})"
+  },
+  "resolvingImages": {
+    "message": "Resolving image icons…"
+  },
+  "showingIcons": {
+    "message": "Showing {count} of {total}+ icons found"
+  },
+  "iconsFound": {
+    "message": "{count} icons found"
+  },
+  "oneIconFound": {
+    "message": "1 icon found"
+  },
+  "select": {
+    "message": "Select"
+  },
+  "openOriginal": {
+    "message": "Open original"
+  },
+  "copySvgCode": {
+    "message": "Copy SVG code"
+  },
+  "downloadAsSvg": {
+    "message": "Download as .svg"
+  },
+  "clickToCopy": {
+    "message": "Click to copy"
+  },
+  "reset": {
+    "message": "Reset"
+  },
+  "typography": {
+    "message": "Typography"
+  },
+  "fontsList": {
+    "message": "Fonts list"
+  },
+  "fontFamily": {
+    "message": "Font Family"
+  },
+  "weight": {
+    "message": "Weight"
+  },
+  "size": {
+    "message": "Size"
+  },
+  "lineHeight": {
+    "message": "Line Height"
+  },
+  "letterSpacing": {
+    "message": "Letter Spacing"
+  },
+  "fill": {
+    "message": "Fill"
+  },
+  "copyCss": {
+    "message": "Copy CSS"
+  },
+  "back": {
+    "message": "← Back"
+  },
+  "weightValue": {
+    "message": "Weight {value}"
+  },
+  "copy": {
+    "message": "Copy"
+  }
+}

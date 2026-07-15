@@ -1,0 +1,206 @@
+{
+  "extName": {
+    "message": "Web to Design Plus"
+  },
+  "extDesc": {
+    "message": "一键将网页转换为可编辑的 Figma 设计稿。提供强大的 SVG 提取和全站字体分析工具。"
+  },
+  "actionTitle": {
+    "message": "提取网页到 Figma"
+  },
+  "btnEntire": {
+    "message": "整页抓取"
+  },
+  "btnElement": {
+    "message": "选择元素"
+  },
+  "btnGrabSvg": {
+    "message": "抓取 SVG"
+  },
+  "btnWhatsFont": {
+    "message": "分析字体"
+  },
+  "advancedOptions": {
+    "message": "高级选项"
+  },
+  "canvasSize": {
+    "message": "画布尺寸"
+  },
+  "sizeDefault": {
+    "message": "默认"
+  },
+  "sizeCustom": {
+    "message": "自定义..."
+  },
+  "sizeDesktop": {
+    "message": "桌面 FHD"
+  },
+  "sizeMacBook": {
+    "message": "MacBook Pro"
+  },
+  "sizeIpad12": {
+    "message": "iPad Pro 12.9\""
+  },
+  "sizeIpad11": {
+    "message": "iPad Pro 11\""
+  },
+  "sizeIpadMini": {
+    "message": "iPad mini"
+  },
+  "sizeIphoneMax": {
+    "message": "iPhone Pro Max"
+  },
+  "sizeIphonePro": {
+    "message": "iPhone 16/17 Pro"
+  },
+  "sizeIphone": {
+    "message": "iPhone 13/14"
+  },
+  "autoScroll": {
+    "message": "自动滚动"
+  },
+  "byAuthor": {
+    "message": "作者: Artgineer"
+  },
+  "copiedToClipboard": {
+    "message": "已复制到剪贴板"
+  },
+  "svgGrabberTitle": {
+    "message": "Web to Design - SVG 提取器"
+  },
+  "btnClose": {
+    "message": "关闭"
+  },
+  "svgCode": {
+    "message": "SVG 代码"
+  },
+  "file": {
+    "message": "文件"
+  },
+  "copied": {
+    "message": "已复制！"
+  },
+  "downloadAll": {
+    "message": "全部下载"
+  },
+  "fontInspectorTitle": {
+    "message": "What's the Font 字体分析"
+  },
+  "copiedCss": {
+    "message": "已复制 CSS！"
+  },
+  "noSvgFound": {
+    "message": "此页面上未找到 SVG 图标。"
+  },
+  "grabSvgIcons": {
+    "message": "抓取 SVG 图标"
+  },
+  "grabSvg": {
+    "message": "抓取 SVG"
+  },
+  "filterIcons": {
+    "message": "过滤图标…"
+  },
+  "filterByName": {
+    "message": "按名称过滤"
+  },
+  "sortAlphabetically": {
+    "message": "按字母顺序排序"
+  },
+  "lightPreview": {
+    "message": "浅色预览"
+  },
+  "darkPreview": {
+    "message": "深色预览"
+  },
+  "selectOrDeselectAll": {
+    "message": "全选或取消全选"
+  },
+  "selectAll": {
+    "message": "全选"
+  },
+  "deselectAll": {
+    "message": "取消全选"
+  },
+  "downloadSelectedZip": {
+    "message": "将选中的图标下载为 .zip"
+  },
+  "downloadZip": {
+    "message": "下载 ZIP"
+  },
+  "compatibleWith": {
+    "message": "兼容 Figma / Sketch / XD / Illustrator"
+  },
+  "scanningSvg": {
+    "message": "正在扫描页面上的 SVG 图标…"
+  },
+  "scanningSvgProgress": {
+    "message": "正在扫描页面上的 SVG 图标… ({done}/{total})"
+  },
+  "resolvingImages": {
+    "message": "正在解析图片图标…"
+  },
+  "showingIcons": {
+    "message": "显示 {count} 个图标，共找到 {total}+ 个"
+  },
+  "iconsFound": {
+    "message": "找到 {count} 个图标"
+  },
+  "oneIconFound": {
+    "message": "找到 1 个图标"
+  },
+  "select": {
+    "message": "选择"
+  },
+  "openOriginal": {
+    "message": "打开原图"
+  },
+  "copySvgCode": {
+    "message": "复制 SVG 代码"
+  },
+  "downloadAsSvg": {
+    "message": "下载为 .svg"
+  },
+  "clickToCopy": {
+    "message": "点击复制"
+  },
+  "reset": {
+    "message": "重置"
+  },
+  "typography": {
+    "message": "排版"
+  },
+  "fontsList": {
+    "message": "字体列表"
+  },
+  "fontFamily": {
+    "message": "字体系列"
+  },
+  "weight": {
+    "message": "字重"
+  },
+  "size": {
+    "message": "大小"
+  },
+  "lineHeight": {
+    "message": "行高"
+  },
+  "letterSpacing": {
+    "message": "字间距"
+  },
+  "fill": {
+    "message": "填充"
+  },
+  "copyCss": {
+    "message": "复制 CSS"
+  },
+  "back": {
+    "message": "← 返回"
+  },
+  "weightValue": {
+    "message": "字重 {value}"
+  },
+  "copy": {
+    "message": "复制"
+  }
+}
