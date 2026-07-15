@@ -202,5 +202,8 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "extNameShort": {
+    "message": "Web to Design"
   }
 }

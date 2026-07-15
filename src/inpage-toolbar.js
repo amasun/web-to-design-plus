@@ -857,7 +857,7 @@
         <!-- Header -->
         <header class="logo-section">
           <div>
-            <span class="logo-text">${t('extName')}</span>
+            <span class="logo-text">${t('extNameShort')}</span>
             <!-- plus icon (20:87) -->
             <svg class="plus-icon" width="12.83" height="12.83" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M11.61 7.2452H9.38615C8.11941 7.24552 6.86104 8.24623 6.57601 9.48049L6.07576 11.6473H4.54669L5.04695 9.48049C5.52199 7.4232 7.6187 5.75565 9.73012 5.75532H11.9539L11.61 7.2452ZM7.95209 3.52003C7.47687 5.57732 5.38038 7.24511 3.26891 7.2452H1.04509L1.38906 5.75532H3.61288C4.87967 5.75524 6.13781 4.7543 6.42302 3.52003L6.92328 1.35321H8.45234L7.95209 3.52003Z" fill="#d4fc5d"/>
