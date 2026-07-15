@@ -36,9 +36,9 @@ Web to Design Plus 是专为 UI/UX 设计师、前端开发者和产品经理打
 - 📊 全站字体审计（Fonts List）：全局扫描并统计当前网页所有的字体使用频率与分布。
 - 📥 免费字体极速下载：自动嗅探网页加载的字体文件，支持一键下载至本地（woff2, woff, ttf 等），并深度整合 Google Fonts 库以便查阅。
 
-3️⃣ SVG 矢量资产提取 (SVG Grabber)
-- 一键捕获网页中所有内联和外部链接的 SVG 矢量图标及插画。
-- 提供可视化的 SVG 资产面板，支持按需拷贝代码或直接下载源文件。
+3️⃣ SVG 究极矢量还原 (Global SVG Sanitizer) [🔥 v1.1 全新重磅]
+- 独创网页预处理“偷天换日”机制，在抓取前瞬间将网页中极难解析的复杂图标强制转化为标准 SVG 矢量节点。
+- 完美支持 5 种高级提取模式：标准内联 SVG、雪碧图 (`<use>`)、图片/背景图、CSS 遮罩 (`mask-image`)，更内置 `opentype.js` 引擎在前端直接运算转换 Icon Font (如 FontAwesome) 为真实精确的矢量路径！
 
 🛡️ 隐私与安全：
 Web to Design Plus 坚持「本地优先」原则。您的所有抓取动作和数据解析均在您当前的浏览器本地完成。我们不收集、不存储、不上传您的任何网页浏览数据及个人隐私，请放心使用。
@@ -83,9 +83,9 @@ Web to Design Plus is a powerful browser extension built for UI/UX designers, fr
 - 📊 Fonts List (Audit): Scan the entire page to see a summarized list of all fonts used and their occurrence frequencies.
 - 📥 Direct Font Download: Automatically sniff font files loaded by the webpage and download them locally (woff2, woff, ttf), with deep Google Fonts integration.
 
-3️⃣ SVG Grabber
-- Capture all inline and external SVG vector icons and illustrations from the current page.
-- View them in a visual panel, copy the SVG code, or download the original files instantly.
+3️⃣ Global SVG Sanitizer & Restoration [🔥 New in v1.1]
+- Employs an innovative pre-capture mutation engine to instantly convert complex web icons into standard SVG nodes.
+- Fully supports 5 advanced extraction modes: Standard Inline SVGs, Sprites (`<use>`), Images/Backgrounds, CSS Masks, and features a built-in `opentype.js` engine for true on-the-fly Icon Font (e.g., FontAwesome) vectorization into perfect paths!
 
 🛡️ Privacy & Security:
 Web to Design Plus is built with a "Local First" philosophy. All parsing and extraction happen entirely within your local browser. We do NOT collect, store, or upload any of your browsing data or personal information. 
