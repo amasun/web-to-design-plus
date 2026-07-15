@@ -17,6 +17,7 @@
 
   const iconsByHash = new Map();
   const fallbacksByUrl = new Map();
+  const spriteCache = new Map();
   const selectedIds = new Set();
   let activeCardId = null;
   let allIcons = [];
@@ -327,25 +328,74 @@
     });
   }
 
-  function collectSpriteIcons(roots) {
+  async function collectSpriteIcons(roots) {
+    const useElements = [];
     roots.forEach((root) => {
       root.querySelectorAll("svg use").forEach((use) => {
-        if (isIgnoredElement(use)) return;
-        const href = use.getAttribute("href") || use.getAttribute("xlink:href") || "";
-        if (!href.startsWith("#")) return;
-        const targetId = href.slice(1);
-        const target = (root.getElementById ? root.getElementById(targetId) : null) || document.getElementById(targetId);
-        if (!target || isIgnoredElement(target)) return;
-        const parentSvg = use.closest("svg");
-        if (!parentSvg || isIgnoredElement(parentSvg)) return;
-        const rect = parentSvg.getBoundingClientRect();
-        if (rect.width < 1 || rect.height < 1) return;
-        const viewBox = target.getAttribute("viewBox") || parentSvg.getAttribute("viewBox") || "0 0 24 24";
-        const inner = target.tagName.toLowerCase() === "symbol" ? target.innerHTML : target.outerHTML;
-        const markup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
-        registerIcon(markup, { source: "sprite", label: elementLabel(parentSvg) || targetId });
+        if (!isIgnoredElement(use)) useElements.push(use);
       });
     });
+
+    for (const use of useElements) {
+      const href = use.getAttribute("href") || use.getAttribute("xlink:href") || "";
+      if (!href) continue;
+
+      const parentSvg = use.closest("svg");
+      if (!parentSvg || isIgnoredElement(parentSvg)) continue;
+      const rect = parentSvg.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) continue;
+
+      let target = null;
+      let targetId = "";
+
+      if (href.startsWith("#")) {
+        targetId = href.slice(1);
+        const rootNode = use.getRootNode();
+        target = (rootNode.getElementById ? rootNode.getElementById(targetId) : null) || document.getElementById(targetId);
+      } else {
+        // External SVG reference
+        const [url, hash] = href.split("#");
+        if (!url || !hash) continue;
+        targetId = hash;
+        
+        // Resolve absolute URL
+        const absoluteUrl = new URL(url, location.href).href;
+
+        let externalDoc = spriteCache.get(absoluteUrl);
+        if (externalDoc === undefined) {
+           try {
+             const res = await fetch(absoluteUrl, { credentials: "omit" });
+             if (res.ok) {
+               const text = await res.text();
+               const parser = new DOMParser();
+               externalDoc = parser.parseFromString(text, "image/svg+xml");
+             } else {
+               externalDoc = null;
+             }
+           } catch (e) {
+             externalDoc = null;
+           }
+           spriteCache.set(absoluteUrl, externalDoc);
+        }
+
+        if (externalDoc) {
+           target = externalDoc.getElementById(targetId);
+        }
+      }
+
+      if (!target || isIgnoredElement(target)) continue;
+      const viewBox = target.getAttribute("viewBox") || parentSvg.getAttribute("viewBox") || "0 0 24 24";
+      
+      let inner = "";
+      if (target.tagName.toLowerCase() === "symbol") {
+        inner = target.innerHTML !== undefined ? target.innerHTML : Array.from(target.childNodes).map(n => new XMLSerializer().serializeToString(n)).join("");
+      } else {
+        inner = target.outerHTML !== undefined ? target.outerHTML : new XMLSerializer().serializeToString(target);
+      }
+
+      const markup = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${inner}</svg>`;
+      registerIcon(markup, { source: "sprite", label: elementLabel(parentSvg) || targetId });
+    }
   }
 
   // Only elements in a small, icon-like size range trigger the (expensive)
@@ -399,6 +449,7 @@
   function resetState() {
     iconsByHash.clear();
     fallbacksByUrl.clear();
+    spriteCache.clear();
     selectedIds.clear();
     allIcons = [];
     allFallbacks = [];
@@ -415,7 +466,7 @@
     const roots = getScanRoots(document);
 
     collectInlineSvgs(roots);
-    collectSpriteIcons(roots);
+    await collectSpriteIcons(roots);
     await collectBackgroundImageIcons(roots, (done, total) => {
       setStatus(shadowRoot, `Scanning page for SVG icons… (${done}/${total})`);
     });
