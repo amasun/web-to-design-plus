@@ -44,6 +44,10 @@ Web to Design Plus 是专为 UI/UX 设计师、前端开发者和产品经理打
 Web to Design Plus 坚持「本地优先」原则。您的所有抓取动作和数据解析均在您当前的浏览器本地完成。我们不收集、不存储、不上传您的任何网页浏览数据及个人隐私，请放心使用。
 
 立刻安装 Web to Design Plus，让全网每一个优秀的网页设计都成为你的灵感资产库！
+
+🐙 开源与支持：
+欢迎访问我们的 GitHub 仓库查看源码、提交反馈或点亮 Star：
+https://github.com/amasun/web-to-design-plus
 ```
 
 ### 4. 搜索关键字 (Search Keywords)
@@ -91,6 +95,10 @@ Web to Design Plus is a powerful browser extension built for UI/UX designers, fr
 Web to Design Plus is built with a "Local First" philosophy. All parsing and extraction happen entirely within your local browser. We do NOT collect, store, or upload any of your browsing data or personal information. 
 
 Install Web to Design Plus today and turn the entire web into your personal design asset library!
+
+🐙 Open Source & Support:
+Visit our GitHub repository for source code, feedback, or to give us a Star:
+https://github.com/amasun/web-to-design-plus
 ```
 
 ### 4. Search Keywords
