@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Web to Design Plus (Dev)",
   "version": "1.0.1",
-  "description": "Web to Design Plus 一键抓取网页并转换为可编辑设计稿及功能增强",
+  "description": "Convert any website into an editable Figma design. Features powerful SVG extraction and typography inspection tools.",
   "permissions": [
     "activeTab",
     "scripting",
