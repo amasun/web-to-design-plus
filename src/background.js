@@ -4,6 +4,7 @@ const RUNNER_FILE = "runner.js";
 const TOOLBAR_FILE = "inpage-toolbar.js";
 const SVG_GRABBER_FILE = "svg-grabber.js";
 const FONT_INSPECTOR_FILE = "font-inspector.js";
+const SVG_SANITIZER_FILE = "svg-sanitizer.js";
 
 const FIGMA_CAPTURE_CONCURRENCY_KEY = "proxyFetchConcurrency";
 const FIGMA_CAPTURE_ALLOWED_CONCURRENCY = new Set([4, 6, 8, 10, 12, 16, 20]);
@@ -39,6 +40,7 @@ async function injectScriptFile(tabId, file) {
 // already loaded" probe — that extra round-trip was the source of capture
 // failures when its detection didn't match reality.
 async function runCapture(tabId, selector = "body", autoScroll = true) {
+  await injectScriptFile(tabId, SVG_SANITIZER_FILE);
   await injectScriptFile(tabId, CAPTURE_FILE);
   await sleep(300);
 
@@ -177,8 +179,25 @@ async function runCapture(tabId, selector = "body", autoScroll = true) {
         await delay(50);
       }
 
+      // Allow DOM mutations to settle before capture
+      let cleanupSanitizer = null;
+      if (typeof window.figmaRunSVGSanitizer === "function") {
+        try {
+          cleanupSanitizer = await window.figmaRunSVGSanitizer();
+        } catch(e) {
+          console.error("Sanitizer failed:", e);
+        }
+      }
+
       // silent: true skips clipboard write and success UI inside capture.js.
       const res = await window.figma.captureForDesign({ selector: sel, silent: true });
+
+      // Run cleanup from sanitizer
+      if (cleanupSanitizer) {
+        try {
+          cleanupSanitizer();
+        } catch(e) {}
+      }
 
       // Restore hidden elements immediately
       for (const item of hiddenElements) {
