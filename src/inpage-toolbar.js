@@ -81,8 +81,13 @@
         z-index: 2147483647;
         pointer-events: auto;
         user-select: none;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
         transition: opacity var(--token-transition-normal),
-                    transform var(--token-transition-normal);
+                    transform var(--token-transition-normal),
+                    width var(--token-transition-normal),
+                    height var(--token-transition-normal);
         overflow: visible;
         box-sizing: border-box;
 
