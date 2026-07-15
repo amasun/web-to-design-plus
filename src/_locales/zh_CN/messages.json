@@ -1,9 +1,9 @@
 {
   "extName": {
-    "message": "Web to Design Plus"
+    "message": "Web to Design Plus - 一键抓取网页到 Figma"
   },
   "extDesc": {
-    "message": "一键将网页转换为可编辑的 Figma 设计稿。提供强大的 SVG 提取和全站字体分析工具。"
+    "message": "设计师和开发者的终极网页抓取利器。一键将任意网页完美转换为可编辑的 Figma 设计稿，并提供强大的 SVG 提取和全站字体分析与下载功能。"
   },
   "actionTitle": {
     "message": "提取网页到 Figma"

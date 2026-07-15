@@ -1,9 +1,9 @@
 {
   "extName": {
-    "message": "Web to Design Plus"
+    "message": "Web to Design Plus - Web to Figma & Assets"
   },
   "extDesc": {
-    "message": "Convert any website into an editable Figma design. Features powerful SVG extraction and typography inspection tools."
+    "message": "The ultimate tool for designers & developers. Convert any website into an editable Figma design, extract SVGs, and inspect/download fonts."
   },
   "actionTitle": {
     "message": "Capture page for Figma"
