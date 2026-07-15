@@ -109,3 +109,77 @@ https://github.com/amasun/web-to-design-plus
 ```text
 Figma, Web to Figma, HTML to Figma, Font inspector, SVG grabber, UI design, typography, developer tools
 ```
+
+---
+
+## Chrome Web Store 隐私申报 (Privacy)
+
+### Single Purpose Description
+```text
+This extension captures the current webpage's DOM structure and assets (SVGs, fonts) and converts them into editable design files for use in Figma. All functionality is scoped to on-demand, user-initiated actions on the current active tab.
+```
+
+### Permission Justifications
+
+**activeTab**
+```text
+Required to access the content of the current tab only when the user explicitly clicks the extension action button. The extension reads DOM structure and asset URLs to perform the capture. No background tab access is performed.
+```
+
+**scripting**
+```text
+Required to inject content scripts (capture.js, inpage-toolbar.js, svg-grabber.js, font-inspector.js) into the active tab upon user request. These scripts read DOM structure, compute styles, and extract assets for conversion to Figma format.
+```
+
+**storage**
+```text
+Used to persist user preferences (e.g., last selected capture mode) locally in the browser. No personal data or browsing history is stored. All data remains on the user's device.
+```
+
+**clipboardWrite**
+```text
+Used to copy CSS typography values (font family, size, weight, line-height, color) to the clipboard when the user clicks the "Copy CSS" button in the Font Inspector panel. This is a direct, user-initiated action.
+```
+
+**clipboardRead**
+```text
+Required as a paired permission with clipboardWrite to ensure reliable clipboard operations across different browser security contexts during the copy action.
+```
+
+**offscreen**
+```text
+Used to create an offscreen document that runs the opentype.js library to parse font binary files (woff2, ttf) entirely within the browser, converting Icon Font glyphs into SVG path data. No data leaves the device.
+```
+
+**debugger**
+```text
+Used solely to temporarily apply Emulation.setDeviceMetricsOverride via the Chrome DevTools Protocol to capture full-page screenshots at the correct pixel ratio. The debugger is attached only during the capture operation and immediately detached upon completion. It is not used to inspect, intercept, or monitor any network traffic or user data.
+```
+
+**Host Permission Justification**
+```text
+The extension operates on the currently active tab when explicitly triggered by the user. Host permissions are required to inject content scripts into arbitrary user-visited pages, as the extension is designed to work on any website the user chooses to capture. No data from visited pages is stored or transmitted externally.
+```
+
+### Remote Code
+**选择: No, I am not using remote code**
+
+所有 JS 逻辑（包括 opentype.js 库）均已在打包时本地内置到扩展包中，不从任何外部 URL 动态加载代码。
+
+### Data Usage
+**所有选项均不勾选（不收集任何用户数据）**
+
+勾选以下三条声明（必须全部勾选）：
+- I do not sell or transfer user data to third parties
+- I do not use or transfer user data for purposes unrelated to the extension's single purpose
+- I do not use or transfer user data to determine creditworthiness or for lending purposes
+
+### Privacy Policy URL
+如果 Chrome 要求填写，可以直接使用 GitHub 仓库的 README 链接：
+```text
+https://github.com/amasun/web-to-design-plus#readme
+```
+或者在 GitHub 上新建一个 `PRIVACY.md` 文件，链接填：
+```text
+https://github.com/amasun/web-to-design-plus/blob/master/PRIVACY.md
+```
