@@ -25,18 +25,22 @@ Web to Design Plus 是专为 UI/UX 设计师、前端开发者和产品经理打
 
 ✨ 核心功能亮点：
 
-1️⃣ 一键转 Figma (Web to Figma)
+1️⃣ 一键整页转 Figma (Capture Entire Page)
 - 无缝抓取当前网页的真实 DOM 结构。
 - 将复杂的 HTML/CSS 布局自动映射为原生的 Figma 图层与 Auto Layout（自动布局）。
-- 告别繁琐的截图与手动临摹，直接基于现有优秀的网页产品进行二次设计与重构。
+- 告别繁琐的截图与手动临摹，直接基于现有网页进行重构。
 
-2️⃣ 全站字体深度探查 (Font Inspector & Audit)
+2️⃣ 精准区域抓取 (Capture Selection)
+- 按需框选网页中的特定元素、组件或区块进行精准提取。
+- 过滤无关干扰，仅将你想要的局部模块转换为高质量的 Figma 资产。
+
+3️⃣ 全站字体深度探查 (Font Inspector & Audit)
 - 鼠标悬停即刻透视网页中任何文字的字体家族（Font Family）、字重、行高、字距与颜色。
 - 一键生成并复制包含精准数值的 CSS 样式代码。
-- 📊 全站字体审计（Fonts List）：全局扫描并统计当前网页所有的字体使用频率与分布。
-- 📥 免费字体极速下载：自动嗅探网页加载的字体文件，支持一键下载至本地（woff2, woff, ttf 等），并深度整合 Google Fonts 库以便查阅。
+- 📊 全站字体审计（Fonts List）：全局扫描并统计当前网页所有的字体使用频率。
+- 📥 免费字体极速下载：自动嗅探网页加载的字体文件，支持一键下载至本地（woff2, ttf 等）。
 
-3️⃣ SVG 究极矢量还原 (Global SVG Sanitizer) [🔥 v1.1 全新重磅]
+4️⃣ SVG 究极矢量还原 (Global SVG Sanitizer) [🔥 v1.1 全新重磅]
 - 独创网页预处理“偷天换日”机制，在抓取前瞬间将网页中极难解析的复杂图标强制转化为标准 SVG 矢量节点。
 - 完美支持 5 种高级提取模式：标准内联 SVG、雪碧图 (`<use>`)、图片/背景图、CSS 遮罩 (`mask-image`)，更内置 `opentype.js` 引擎在前端直接运算转换 Icon Font (如 FontAwesome) 为真实精确的矢量路径！
 
@@ -76,18 +80,22 @@ Web to Design Plus is a powerful browser extension built for UI/UX designers, fr
 
 ✨ Key Features:
 
-1️⃣ Web to Figma (HTML to Figma)
+1️⃣ Capture Entire Page (Web to Figma)
 - Seamlessly capture the real DOM structure of any webpage.
 - Automatically map complex HTML/CSS layouts into native Figma layers and Auto Layout properties.
-- Say goodbye to flat screenshots and manual tracing. Start redesigning or auditing directly from live products.
+- Say goodbye to flat screenshots and manual tracing. Start redesigning directly from live products.
 
-2️⃣ Ultimate Font Inspector & Audit
+2️⃣ Capture Selection
+- Selectively highlight and capture specific elements, components, or sections of a webpage.
+- Filter out irrelevant noise and extract only the exact modules you want into high-quality Figma assets.
+
+3️⃣ Ultimate Font Inspector & Audit
 - Hover over any text to reveal its Font Family, weight, size, line-height, letter-spacing, and color.
 - Copy precise CSS typography rules with a single click.
 - 📊 Fonts List (Audit): Scan the entire page to see a summarized list of all fonts used and their occurrence frequencies.
-- 📥 Direct Font Download: Automatically sniff font files loaded by the webpage and download them locally (woff2, woff, ttf), with deep Google Fonts integration.
+- 📥 Direct Font Download: Automatically sniff font files loaded by the webpage and download them locally (woff2, ttf).
 
-3️⃣ Global SVG Sanitizer & Restoration [🔥 New in v1.1]
+4️⃣ Global SVG Sanitizer & Restoration [🔥 New in v1.1]
 - Employs an innovative pre-capture mutation engine to instantly convert complex web icons into standard SVG nodes.
 - Fully supports 5 advanced extraction modes: Standard Inline SVGs, Sprites (`<use>`), Images/Backgrounds, CSS Masks, and features a built-in `opentype.js` engine for true on-the-fly Icon Font (e.g., FontAwesome) vectorization into perfect paths!
 
