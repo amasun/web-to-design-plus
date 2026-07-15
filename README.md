@@ -25,7 +25,12 @@
 
 - **Minimal Floating Toolbar**: Premium glassmorphism design with smooth transition animations, draggable anywhere on the screen.
 - **Dual Capture Modes**: Support full-page capture (Entire Screen) and interactive local element selection (Select Element).
-- **Smart SVG Deep Extraction (Grab SVG)**: Recursively penetrates same-origin `iframes` and Shadow DOMs to capture vector assets; features a multi-layer semantic detection engine that intelligently infers accurate icon names from CSS classes (Lucide/FontAwesome), internal SVG tree IDs (`<mask id="...">`), and adjacent sibling text context.
+- **Ultimate Vector Restoration (Global SVG Sanitizer & Grabber)**: Employs a pre-capture DOM mutation strategy to instantly convert complex vector icons into standard inline SVGs right before capture. Fully supports the following **5 SVG Capture Modes**:
+  1. **Standard Inline SVG (`<svg>`)**: Perfect node and property extraction.
+  2. **Sprite References (`<use href="...">`)**: Automatically resolves and expands internal/external Symbol references.
+  3. **Images & Backgrounds (`<img>` / `background-image`)**: Fetches `.svg` sources and seamlessly overlays them.
+  4. **CSS Mask Icons (`mask-image`)**: Extracts mask sources and intelligently injects the original element's background color as the `fill` property.
+  5. **Icon Fonts**: Features a built-in `opentype.js` engine to probe PUA characters, sniff CSS for cross-origin font files, and generate precise SVG Paths entirely on the frontend.
 - **Ultimate Font Inspector (Font Audit)**: Hover over any text to reveal its typography (Font Family, weight, size, line-height, letter-spacing, and color) and copy precise CSS rules. Includes a global `Fonts List` to audit page typography and supports automatic font file sniffing for one-click local downloads (woff2, woff, ttf) with Google Fonts integration.
 - **Instant Copy & Paste**: **No JSON file downloads**. Data is directly formatted and written to your clipboard — paste with `Ctrl/Cmd + V` directly in Figma to generate editable layers.
 - **Auto Image Proxy**: Automatically resolves CORS-restricted images via Service Worker background fetching with an 8-concurrency limit.
@@ -40,13 +45,18 @@ Download the latest `web-to-design-plus.zip` from [GitHub Releases](https://gith
 2. Select **Entire screen** or **Select element** (hover and click on your target DOM element).
 3. Once the `Copied to clipboard` success indicator appears, press `Ctrl/Cmd + V` in Figma to paste and edit layers immediately.
 
-## 🗺️ Future Roadmap (v1.1+)
+## 🗺️ Future Roadmap
 
-We plan to introduce the following features in upcoming updates (v1.1 and beyond):
-1. **True Icon Font to SVG Conversion**: Deep parsing of loaded web fonts (TTF/WOFF) to extract glyph vectors for icon fonts (like FontAwesome), allowing you to grab them as real SVGs. (See [v1.1 Plan](./docs/v1.1-icon-font-plan.md)).
-2. **React/Vue/Tailwind Code Export**: Copy captured elements directly as structured React (JSX) or Vue component code, converting inline CSS styles into Tailwind utility classes.
-3. **Asset Compression & Metadata Cleaning**: Automatically convert small images (<100KB) to Base64 to bypass proxy restrictions, and filter out sketch/Adobe tags to reduce clipboard size.
-4. **Keyboard Shortcuts & Hotkeys**: Support customizable global shortcut (`Alt+Shift+D`) to toggle the toolbar, and single-key navigation triggers inside the panel (`A` / `E` / `S`).
+We plan to introduce the following features in upcoming updates:
+1. **React/Vue/Tailwind Code Export**: Copy captured elements directly as structured React (JSX) or Vue component code, converting inline CSS styles into Tailwind utility classes.
+2. **Asset Compression & Metadata Cleaning**: Automatically convert small images (<100KB) to Base64 to bypass proxy restrictions, and filter out sketch/Adobe tags to reduce clipboard size.
+3. **Keyboard Shortcuts & Hotkeys**: Support customizable global shortcut (`Alt+Shift+D`) to toggle the toolbar, and single-key navigation triggers inside the panel (`A` / `E` / `S`).
+
+## ⚠️ Known Issues
+
+The `SVG Extraction` and certain advanced features are still being optimized for edge cases, which will be addressed in future updates:
+1. **Iframe Deep Extraction**: Penetrating DOMs in cross-origin or highly secured iframe scenarios may occasionally fail. We are working on perfecting the cross-iframe communication mechanism.
+2. **Icon Font Vectorization**: In cases of extremely poor network conditions, heavy CSS obfuscation, or strict CORS restrictions on fonts, some icons may fail to resolve into perfect paths. Upcoming versions will introduce more resilient fallback rendering strategies.
 
 
 
