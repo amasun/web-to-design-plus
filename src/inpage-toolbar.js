@@ -1131,6 +1131,7 @@
 
     btnGrabSvg.addEventListener("click", () => {
       chrome.runtime.sendMessage({ type: "FIGMA_RUN_SVG_GRABBER" });
+      removeExisting();
     });
 
     const btnWhatsFont = shadowRoot.querySelector("#btnWhatsFont");
