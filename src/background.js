@@ -230,31 +230,11 @@ async function runCapture(tabId, selector = "body", autoScroll = true) {
         }
       }
 
-      // Write to clipboard in page context (avoids large sendMessage limits).
-      //
-      // Figma's paste handler requires text/html with a specific marker format —
-      // it does NOT read plain text JSON. Replicate capture.js's He() function:
-      //   <span data-h2d="<!--(figh2d)BASE64(/figh2d)-->"></span>
-      // where BASE64 is the UTF-8 encoded JSON read as a data URL via FileReader.
+      // Return the captured JSON to background so it can write the clipboard
+      // via the offscreen document — which is not subject to the tab-focus
+      // requirement that navigator.clipboard.write() has in page context.
       const jsonStr = typeof res === "string" ? res : JSON.stringify(res);
-
-      const base64DataUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(
-          new File([new TextEncoder().encode(jsonStr)], "", { type: "application/octet-stream" })
-        );
-      });
-      const base64 = base64DataUrl.slice(base64DataUrl.indexOf(",") + 1);
-      const htmlBlob = new Blob(
-        [`<span data-h2d="<!--(figh2d)${base64}(/figh2d)-->"></span>`],
-        { type: "text/html" }
-      );
-      await navigator.clipboard.write([new ClipboardItem({ "text/html": htmlBlob })]);
-
-      // Return a lightweight sentinel — the full JSON stays in the page.
-      return { ok: true };
+      return { ok: true, json: jsonStr };
     }
   });
   return result;
@@ -288,9 +268,9 @@ async function ensureOffscreenDocument() {
 // focused. Users capture, then switch focus straight to Figma to paste - the
 // tab never regains focus, so that write would fail. An offscreen document
 // is not subject to that focus requirement, so do the write there instead.
-async function copyToClipboard(text) {
+async function copyToClipboard(jsonStr) {
   await ensureOffscreenDocument();
-  const response = await chrome.runtime.sendMessage({ type: "FIGMA_OFFSCREEN_COPY", text });
+  const response = await chrome.runtime.sendMessage({ type: "FIGMA_OFFSCREEN_COPY", json: jsonStr });
   if (!response?.ok) {
     throw new Error(response?.error || "Offscreen clipboard write failed");
   }
@@ -608,12 +588,14 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         if (!captureResult?.ok) {
           throw new Error("Capture or clipboard write failed in emulator mode");
         }
+        await copyToClipboard(captureResult.json);
       } else {
         const selector = isEntireScreen ? "body" : msg.selector;
         const result = await runCapture(tabId, selector, msg.autoScroll !== false);
         if (!result?.ok) {
           throw new Error("Capture or clipboard write failed in page context");
         }
+        await copyToClipboard(result.json);
       }
 
       await chrome.tabs.sendMessage(tabId, { type: "FIGMA_CAPTURE_STATE", state: "success", delivery: "clipboard" }).catch(() => {});
