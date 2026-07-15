@@ -1,80 +1,48 @@
-<p align="center">
-  <img src="src/logo/icon128.png" width="128" height="128" alt="Web to Design Plus Logo" style="border-radius: 20%;" />
-</p>
-
-<h1 align="center">Web to Design Plus</h1>
-
-<p align="center">
-  <strong>One-click web page capture and conversion to editable Figma designs</strong><br>
-  Quickly capture full pages or specific elements on any webpage, perfectly restoring DOM nodes, styles, and layouts for a seamless design recovery experience.
+<p align="right">
+  <strong>English</strong> | <a href="README_CN.md">简体中文</a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Manifest-MV3-black?style=flat-square" alt="Manifest" />
-  <img src="https://img.shields.io/badge/Browser-Chrome-blue?style=flat-square" alt="Browser" />
-  <img src="https://img.shields.io/badge/Language-JavaScript-orange?style=flat-square" alt="Language" />
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
+  <img src="./assets/readme/hero.svg" width="100%" alt="Web to Design Plus: Instantly capture any web page and paste it into Figma. Perfect DOM extraction, editable vectors, zero configs." />
 </p>
 
-<p align="center">
-  English | <a href="README_CN.md">简体中文</a>
-</p>
+Most web-to-design tools require external apps, JSON files, or complex configurations. **Web to Design Plus** is a Chrome extension that captures full web pages or specific DOM elements and instantly writes the structural data to your clipboard.
 
+You simply switch to Figma, press `Ctrl/Cmd + V`, and your web page transforms into a perfect, 100% vector-editable Figma layer tree.
 
-## 🚀 Features
+---
 
-- **Minimal Floating Toolbar**: Premium glassmorphism design with smooth transition animations, draggable anywhere on the screen.
-- **Dual Capture Modes**: Support full-page capture (Entire Screen) and interactive local element selection (Select Element).
-- **Smart SVG Deep Extraction (Grab SVG)**: Recursively penetrates same-origin `iframes` and Shadow DOMs to capture vector assets; features a multi-layer semantic detection engine that intelligently infers accurate icon names from CSS classes (Lucide/FontAwesome), internal SVG tree IDs (`<mask id="...">`), and adjacent sibling text context.
-- **Ultimate Font Inspector (Font Audit)**: Hover over any text to reveal its typography (Font Family, weight, size, line-height, letter-spacing, and color) and copy precise CSS rules. Includes a global `Fonts List` to audit page typography and supports automatic font file sniffing for one-click local downloads (woff2, woff, ttf) with Google Fonts integration.
-- **Instant Copy & Paste**: **No JSON file downloads**. Data is directly formatted and written to your clipboard — paste with `Ctrl/Cmd + V` directly in Figma to generate editable layers.
-- **Auto Image Proxy**: Automatically resolves CORS-restricted images via Service Worker background fetching with an 8-concurrency limit.
+## Why it is different
 
-## 📦 Usage
+- **Deep SVG & Icon Extraction**: It recursively penetrates same-origin `iframes` and Shadow DOMs. A multi-layer semantic engine intelligently parses CSS classes (like Lucide/FontAwesome), internal SVG tree IDs (`<mask id="...">`), and adjacent text context to automatically name your icons.
+- **Font Audit & Sniffing**: Hover over any text to reveal its typography (Font Family, weight, size, line-height, spacing, and color) and copy precise CSS rules. It automatically sniffs loaded font files (woff2, woff, ttf) for one-click local downloads.
+- **Zero Config Workflow**: No `.json` file downloads. No backend server required. Data is directly formatted to the clipboard in real-time.
+- **Auto Image Proxy**: Automatically resolves CORS-restricted images via Service Worker background fetching with an 8-concurrency limit to prevent dropped assets.
 
-### 1. Installation
-Download the latest `web-to-design-plus.zip` from [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases) and extract it. Open Google Chrome, go to `chrome://extensions/`, enable **"Developer mode"** in the top-right corner, click **"Load unpacked"** in the top-left, and select the extracted folder.
+## How to use
 
-### 2. Capture & Restore
-1. Open any webpage and click the **Web to Design Plus** extension icon to reveal the toolbar.
-2. Select **Entire screen** or **Select element** (hover and click on your target DOM element).
-3. Once the `Copied to clipboard` success indicator appears, press `Ctrl/Cmd + V` in Figma to paste and edit layers immediately.
+1. Download the latest `web-to-design-plus.zip` from [GitHub Releases](https://github.com/amasun/web-to-design-plus/releases) and extract it.
+2. Open Google Chrome, go to `chrome://extensions/`, enable **"Developer mode"**, and click **"Load unpacked"** to select the extracted folder.
+3. Open any webpage and click the extension icon to reveal the floating toolbar.
+4. Select **Entire screen** or **Select element**.
+5. Once you see `Copied to clipboard`, press `Ctrl/Cmd + V` in Figma.
 
-## 🗺️ Future Roadmap (v1.1+)
+## Roadmap & Architecture
 
-We plan to introduce the following features in upcoming updates (v1.1 and beyond):
-1. **True Icon Font to SVG Conversion**: Deep parsing of loaded web fonts (TTF/WOFF) to extract glyph vectors for icon fonts (like FontAwesome), allowing you to grab them as real SVGs. (See [v1.1 Plan](./docs/v1.1-icon-font-plan.md)).
-2. **React/Vue/Tailwind Code Export**: Copy captured elements directly as structured React (JSX) or Vue component code, converting inline CSS styles into Tailwind utility classes.
-3. **Asset Compression & Metadata Cleaning**: Automatically convert small images (<100KB) to Base64 to bypass proxy restrictions, and filter out sketch/Adobe tags to reduce clipboard size.
-4. **Keyboard Shortcuts & Hotkeys**: Support customizable global shortcut (`Alt+Shift+D`) to toggle the toolbar, and single-key navigation triggers inside the panel (`A` / `E` / `S`).
+This project is actively maintained. The next major update (**v1.1**) focuses on a **Global SVG Sanitizer**:
+- **True Icon Font Conversion**: Deep parsing of loaded web fonts (TTF/WOFF) to extract glyph vectors for icon fonts, translating them directly into real SVGs. (See [v1.1 Plan](./docs/v1.1-icon-font-plan.md)).
+- **Component Code Export**: Direct export to React (JSX) / Vue components with Tailwind CSS utility classes.
 
+The core runtime uses a reverse-engineered capture engine originally sourced from Figma (`mcp.figma.com`). To preserve readability and future upstream compatibility, `capture.js` remains unobfuscated in the source tree.
 
+## Technical Notes
 
-## ⚙️ Core Runtime
-
-- **`capture.js` Source**: Sourced from Figma's official service: [mcp.figma.com/mcp/html-to-design/capture.js](https://mcp.figma.com/mcp/html-to-design/capture.js). This script is the core engine for HTML-to-design conversion.
-- **Obfuscation Rule**:
-  > [!IMPORTANT]
-  > `capture.js` is the core capture runtime. **If you obfuscate code, do it on a release copy, not on source files (inside the `src/` directory)** to ensure readability and future compatibility with official upstream updates.
-
-## ⚠️ Disclaimer
-
-- This project is provided for learning, research, and productivity use only.
-- You are responsible for complying with website terms, copyright rules, privacy laws, and applicable local regulations.
-- Do not use this tool to capture or distribute unauthorized, sensitive, or illegal content.
-- The authors and contributors are not liable for misuse, data loss, or any direct/indirect damages caused by this project.
-
-## 💖 Acknowledgements
-
-Special thanks to [Paidax01 (派大鑫)](https://github.com/Paidax01) for his original open-source project [web-to-figma](https://github.com/Paidax01/web-to-figma). This project was redesigned and optimized based on the core logic and inspiration of his excellent work. We truly appreciate the author's outstanding contribution to the open-source community!
-
-## 📄 License
-
-This project is open-sourced under the [MIT License](./LICENSE).
-
-## 📈 GitHub Star History
+- **Disclaimer**: Provided for learning and productivity use only. Do not use for unauthorized or sensitive content.
+- **Acknowledgements**: Special thanks to [Paidax01](https://github.com/Paidax01) for his original open-source project [web-to-figma](https://github.com/Paidax01/web-to-figma).
+- **License**: [MIT License](./LICENSE).
 
 <p align="center">
+  <br>
   <a href="https://star-history.com/#amasun/web-to-design-plus&Date">
     <img src="https://api.star-history.com/svg?repos=amasun/web-to-design-plus&type=Date" alt="Star History Chart" />
   </a>
