@@ -1,4 +1,5 @@
 (() => {
+  const t = (key) => chrome.i18n ? chrome.i18n.getMessage(key) || key : key;
   const HOST_ID = "__figma_capture_toolbar_host__";
   const HIGHLIGHT_ID = "__figma_capture_highlight__";
 
