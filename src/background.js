@@ -5,6 +5,7 @@ const TOOLBAR_FILE = "inpage-toolbar.js";
 const SVG_GRABBER_FILE = "svg-grabber.js";
 const FONT_INSPECTOR_FILE = "font-inspector.js";
 const SVG_SANITIZER_FILE = "svg-sanitizer.js";
+const OPENTYPE_FILE = "lib/opentype.min.js";
 
 const FIGMA_CAPTURE_CONCURRENCY_KEY = "proxyFetchConcurrency";
 const FIGMA_CAPTURE_ALLOWED_CONCURRENCY = new Set([4, 6, 8, 10, 12, 16, 20]);
@@ -40,6 +41,7 @@ async function injectScriptFile(tabId, file) {
 // already loaded" probe — that extra round-trip was the source of capture
 // failures when its detection didn't match reality.
 async function runCapture(tabId, selector = "body", autoScroll = true) {
+  await injectScriptFile(tabId, OPENTYPE_FILE);
   await injectScriptFile(tabId, SVG_SANITIZER_FILE);
   await injectScriptFile(tabId, CAPTURE_FILE);
   await sleep(300);

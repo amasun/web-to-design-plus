@@ -248,6 +248,188 @@ window.figmaRunSVGSanitizer = async () => {
 
     console.log(`[SVG Sanitizer] Phase 1 complete. Registered ${cleanups.length} cleanups.`);
 
+    // --- PHASE 2: Icon Font Vectorization ---
+    if (typeof window.opentype !== "undefined") {
+      console.log("[SVG Sanitizer] Phase 2: Starting Icon Font Vectorization...");
+      
+      const isPUA = (char) => {
+        if (!char) return false;
+        const code = char.charCodeAt(0);
+        return code >= 0xE000 && code <= 0xF8FF;
+      };
+
+      const fontFamilyToUrl = new Map();
+      const styleSheets = Array.from(document.styleSheets);
+      
+      for (const sheet of styleSheets) {
+        try {
+          if (sheet.cssRules) {
+            for (const rule of Array.from(sheet.cssRules)) {
+              if (rule.type === CSSRule.FONT_FACE_RULE) {
+                let family = rule.style.fontFamily;
+                if (!family) continue;
+                family = family.replace(/['"]/g, '');
+                const src = rule.style.src;
+                if (src) {
+                  const match = src.match(/url\("?([^"]+)"?\)/) || src.match(/url\('?([^']+)'?\)/);
+                  if (match) {
+                    let url = match[1];
+                    url = url.split('?')[0].split('#')[0];
+                    if (url.endsWith('.woff') || url.endsWith('.ttf') || url.endsWith('.otf') || url.endsWith('.woff2')) {
+                      if (!url.startsWith('http') && !url.startsWith('data:')) {
+                        const base = sheet.href ? sheet.href : window.location.href;
+                        url = new URL(url, base).href;
+                      }
+                      fontFamilyToUrl.set(family, url);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        } catch(e) {
+          // CORS error, ignore for now. We fetch cross-origin sheets below if needed.
+        }
+      }
+
+      const fetchAndParseCss = async (href) => {
+        try {
+          const cssText = await fetch(href).then(r => r.text());
+          const fontFaceRegex = /@font-face\s*{([^}]+)}/g;
+          let match;
+          while ((match = fontFaceRegex.exec(cssText)) !== null) {
+            const block = match[1];
+            const familyMatch = block.match(/font-family\s*:\s*['"]?([^'";]+)['"]?/);
+            const srcMatch = block.match(/src\s*:[^;]*url\(['"]?([^'")]+)['"]?\)/);
+            if (familyMatch && srcMatch) {
+              const family = familyMatch[1].replace(/['"]/g, '');
+              let url = srcMatch[1].split('?')[0].split('#')[0];
+              if (url.endsWith('.woff') || url.endsWith('.ttf') || url.endsWith('.otf') || url.endsWith('.woff2')) {
+                url = new URL(url, href).href;
+                fontFamilyToUrl.set(family, url);
+              }
+            }
+          }
+        } catch (e) {}
+      };
+
+      const iconNodes = [];
+      for (const el of allElements) {
+        if (["script", "style", "svg", "path", "g", "symbol", "use", "defs", "img", "iframe"].includes(el.tagName.toLowerCase())) continue;
+        
+        if (el.childNodes.length === 1 && el.childNodes[0].nodeType === Node.TEXT_NODE) {
+          const text = el.innerText?.trim();
+          if (text?.length === 1 && isPUA(text)) {
+            iconNodes.push({ el, char: text, type: 'text', style: window.getComputedStyle(el) });
+          }
+        }
+        
+        const beforeStyle = window.getComputedStyle(el, '::before');
+        let beforeContent = beforeStyle.content;
+        if (beforeContent && beforeContent !== 'none' && beforeContent !== 'normal') {
+          beforeContent = beforeContent.replace(/^["']|["']$/g, '');
+          if (beforeContent.length === 1 && isPUA(beforeContent)) {
+            iconNodes.push({ el, char: beforeContent, type: 'before', style: beforeStyle });
+          }
+        }
+        
+        const afterStyle = window.getComputedStyle(el, '::after');
+        let afterContent = afterStyle.content;
+        if (afterContent && afterContent !== 'none' && afterContent !== 'normal') {
+          afterContent = afterContent.replace(/^["']|["']$/g, '');
+          if (afterContent.length === 1 && isPUA(afterContent)) {
+            iconNodes.push({ el, char: afterContent, type: 'after', style: afterStyle });
+          }
+        }
+      }
+
+      if (iconNodes.length > 0) {
+        const requiredFamilies = new Set();
+        iconNodes.forEach(node => {
+          const family = node.style.fontFamily.replace(/['"]/g, '').split(',')[0].trim();
+          node.family = family;
+          requiredFamilies.add(family);
+        });
+
+        const missingFamilies = Array.from(requiredFamilies).filter(f => !fontFamilyToUrl.has(f));
+        if (missingFamilies.length > 0) {
+          const crossOriginSheets = styleSheets.filter(s => s.href && !s.cssRules);
+          await Promise.all(crossOriginSheets.map(s => fetchAndParseCss(s.href)));
+        }
+
+        const fontInstances = new Map();
+        
+        const processIcon = async (node) => {
+          const family = node.family;
+          const url = fontFamilyToUrl.get(family);
+          if (!url) return;
+
+          let font = fontInstances.get(url);
+          if (font === undefined) {
+            try {
+              const buffer = await fetch(url).then(r => r.arrayBuffer());
+              font = window.opentype.parse(buffer);
+              fontInstances.set(url, font);
+            } catch(e) {
+              fontInstances.set(url, null);
+              return;
+            }
+          }
+          if (!font) return;
+
+          try {
+            const fontSizePx = parseFloat(node.style.fontSize) || 16;
+            const color = node.style.color;
+            const path = font.getPath(node.char, 0, 0, fontSizePx);
+            const bbox = path.getBoundingBox();
+            const width = bbox.x2 - bbox.x1;
+            const height = bbox.y2 - bbox.y1;
+            
+            if (width === 0 || height === 0 || isNaN(width) || isNaN(height)) return;
+
+            const svgHtml = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${bbox.x1} ${bbox.y1} ${width} ${height}" style="height: 1em; width: auto; vertical-align: middle; fill: ${color};">
+              <path d="${path.toPathData()}"/>
+            </svg>`;
+
+            const wrapper = document.createElement("span");
+            wrapper.innerHTML = svgHtml;
+            const svgNode = wrapper.firstElementChild;
+            svgNode.classList.add("__figma_sanitized_icon");
+
+            if (node.type === 'text') {
+              const originalText = node.el.innerText;
+              node.el.innerText = '';
+              node.el.appendChild(svgNode);
+              cleanups.push(() => {
+                svgNode.remove();
+                node.el.innerText = originalText;
+              });
+            } else if (node.type === 'before' || node.type === 'after') {
+              if (node.type === 'before') node.el.prepend(svgNode);
+              else node.el.append(svgNode);
+              
+              const cname = `hide_${node.type}_${Math.random().toString(36).substring(2)}`;
+              node.el.classList.add(cname);
+              const st = document.createElement("style");
+              st.textContent = `.${cname}::${node.type} { content: none !important; display: none !important; }`;
+              document.head.appendChild(st);
+              
+              cleanups.push(() => {
+                svgNode.remove();
+                st.remove();
+                node.el.classList.remove(cname);
+              });
+            }
+          } catch(e) {
+             console.warn("[SVG Sanitizer] Failed to render glyph for", node.char, e);
+          }
+        };
+
+        await Promise.all(iconNodes.map(processIcon));
+      }
+      console.log(`[SVG Sanitizer] Phase 2 complete.`);
+    }
+
   } catch (err) {
     console.error("[SVG Sanitizer] Unhandled error:", err);
   }

@@ -35,6 +35,7 @@
         "capture.js",
         "runner.js",
         "svg-sanitizer.js",
+        "lib/opentype.min.js",
         "logo/icon16.png"
       ],
       "matches": [
