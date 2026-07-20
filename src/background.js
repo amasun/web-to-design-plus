@@ -94,6 +94,30 @@ async function runCapture(tabId, selector = "body", autoScroll = true) {
 
         await delay(1000);
       }
+
+      try {
+        const MAX_SIZE = 100 * 1024;
+        for (const img of Array.from(document.images || [])) {
+          if (!img.src || img.src.startsWith('data:')) continue;
+          if (img.complete && img.naturalWidth > 0 && (img.naturalWidth * img.naturalHeight * 4 < MAX_SIZE * 3)) {
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth;
+              canvas.height = img.naturalHeight;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              const dataUrl = canvas.toDataURL('image/png');
+              if (dataUrl.length < MAX_SIZE * 1.3) {
+                 img.dataset.originalSrc = img.src;
+                 img.src = dataUrl;
+              }
+            } catch (e) {}
+          }
+        }
+      } catch (e) {
+        console.warn("Base64 conversion failed", e);
+      }
+
       // ROOT CAUSE: capture.js's Te() uses the same HOST_ID constant to locate
       // our shadow DOM host, then replaces our .wrapper-outer content with its own
       // "正在将页面捕获到剪贴板" UI. MutationObserver on document.body doesn't help
@@ -230,11 +254,31 @@ async function runCapture(tabId, selector = "body", autoScroll = true) {
         }
       }
 
-      // Return the captured JSON to background so it can write the clipboard
-      // via the offscreen document — which is not subject to the tab-focus
-      // requirement that navigator.clipboard.write() has in page context.
+      // Write to clipboard in page context (avoids large sendMessage limits).
+      //
+      // Figma's paste handler requires text/html with a specific marker format —
+      // it does NOT read plain text JSON. Replicate capture.js's He() function:
+      //   <span data-h2d="<!--(figh2d)BASE64(/figh2d)-->"></span>
+      // where BASE64 is the UTF-8 encoded JSON read as a data URL via FileReader.
       const jsonStr = typeof res === "string" ? res : JSON.stringify(res);
-      return { ok: true, json: jsonStr };
+
+      const base64DataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(
+          new File([new TextEncoder().encode(jsonStr)], "", { type: "application/octet-stream" })
+        );
+      });
+      const base64 = base64DataUrl.slice(base64DataUrl.indexOf(",") + 1);
+      const htmlBlob = new Blob(
+        [`<span data-h2d="<!--(figh2d)${base64}(/figh2d)-->"></span>`],
+        { type: "text/html" }
+      );
+      await navigator.clipboard.write([new ClipboardItem({ "text/html": htmlBlob })]);
+
+      // Return a lightweight sentinel — the full JSON stays in the page.
+      return { ok: true };
     }
   });
   return result;
@@ -268,9 +312,9 @@ async function ensureOffscreenDocument() {
 // focused. Users capture, then switch focus straight to Figma to paste - the
 // tab never regains focus, so that write would fail. An offscreen document
 // is not subject to that focus requirement, so do the write there instead.
-async function copyToClipboard(jsonStr) {
+async function copyToClipboard(text) {
   await ensureOffscreenDocument();
-  const response = await chrome.runtime.sendMessage({ type: "FIGMA_OFFSCREEN_COPY", json: jsonStr });
+  const response = await chrome.runtime.sendMessage({ type: "FIGMA_OFFSCREEN_COPY", text });
   if (!response?.ok) {
     throw new Error(response?.error || "Offscreen clipboard write failed");
   }
@@ -528,7 +572,8 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
   if (!msg || (msg.type !== "FIGMA_RUN_ENTIRE_SCREEN_CAPTURE" && msg.type !== "FIGMA_RUN_ELEMENT_CAPTURE")) return;
   (async () => {
     const tabId = sender.tab?.id || msg.tabId;
-    let debuggerAttached = false;
+    let originalWindow = null;
+    let windowIdToRestore = null;
     try {
       if (!tabId) {
         throw new Error("No tab context for message");
@@ -546,39 +591,19 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
           console.warn("Failed to reset zoom level:", zoomErr);
         }
 
-        // Preemptively try detaching to clear any stale connections
         try {
-          await new Promise((resolve) => chrome.debugger.detach({ tabId }, () => resolve()));
-        } catch (e) {}
-
-        // Attach debugger
-        await new Promise((resolve, reject) => {
-          chrome.debugger.attach({ tabId }, "1.3", () => {
-            if (chrome.runtime.lastError) {
-              reject(new Error("Another debugger is already attached to this tab. Please close DevTools before capturing."));
-            } else {
-              resolve();
-            }
-          });
-        });
-        debuggerAttached = true;
-
-        // Set device metrics emulation override via Chrome DevTools Protocol
-        const isMobile = msg.viewport.width < 600;
-        await new Promise((resolve, reject) => {
-          chrome.debugger.sendCommand({ tabId }, "Emulation.setDeviceMetricsOverride", {
+          const tab = await chrome.tabs.get(tabId);
+          windowIdToRestore = tab.windowId;
+          originalWindow = await chrome.windows.get(tab.windowId);
+          
+          await chrome.windows.update(tab.windowId, {
+            state: "normal",
             width: msg.viewport.width,
-            height: msg.viewport.height,
-            deviceScaleFactor: 1,
-            mobile: isMobile
-          }, () => {
-            if (chrome.runtime.lastError) {
-              reject(chrome.runtime.lastError);
-            } else {
-              resolve();
-            }
+            height: Math.max(msg.viewport.height, 600)
           });
-        });
+        } catch (e) {
+          console.warn("Failed to resize window:", e);
+        }
 
         // Wait for CSS layout rules and media queries to reflow
         await sleep(500);
@@ -586,16 +611,14 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         // Perform capture in emulator context
         const captureResult = await runCapture(tabId, "body", msg.autoScroll !== false);
         if (!captureResult?.ok) {
-          throw new Error("Capture or clipboard write failed in emulator mode");
+          throw new Error("Capture or clipboard write failed in resized window mode");
         }
-        await copyToClipboard(captureResult.json);
       } else {
         const selector = isEntireScreen ? "body" : msg.selector;
         const result = await runCapture(tabId, selector, msg.autoScroll !== false);
         if (!result?.ok) {
           throw new Error("Capture or clipboard write failed in page context");
         }
-        await copyToClipboard(result.json);
       }
 
       await chrome.tabs.sendMessage(tabId, { type: "FIGMA_CAPTURE_STATE", state: "success", delivery: "clipboard" }).catch(() => {});
@@ -605,17 +628,19 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
         await chrome.tabs.sendMessage(tabId, { type: "FIGMA_CAPTURE_STATE", state: "error" }).catch(() => {});
       }
     } finally {
-      if (debuggerAttached && tabId) {
+      if (originalWindow && windowIdToRestore) {
         try {
-          await new Promise((resolve) => {
-            chrome.debugger.sendCommand({ tabId }, "Emulation.clearDeviceMetricsOverride", {}, () => resolve());
-          });
-        } catch (e) {}
-        try {
-          await new Promise((resolve) => {
-            chrome.debugger.detach({ tabId }, () => resolve());
-          });
-        } catch (e) {}
+          const restoreProps = { state: originalWindow.state };
+          if (originalWindow.state === "normal") {
+            restoreProps.width = originalWindow.width;
+            restoreProps.height = originalWindow.height;
+            restoreProps.top = originalWindow.top;
+            restoreProps.left = originalWindow.left;
+          }
+          await chrome.windows.update(windowIdToRestore, restoreProps);
+        } catch (e) {
+          console.warn("Failed to restore window:", e);
+        }
       }
     }
   })();

@@ -26,6 +26,9 @@
   "canvasSize": {
     "message": "Canvas Size"
   },
+  "canvasSizeTooltip": {
+    "message": "Canvas size function may not be accurate, please adjust manually"
+  },
   "sizeDefault": {
     "message": "Default"
   },

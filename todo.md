@@ -11,7 +11,7 @@ This file tracks proposed feature enhancements and optimizations for future vers
   *   Show font warnings and provide Google Fonts installer links on capture success.
 
 ## ⚡ Performance & Reliability
-- [ ] **Base64 Image Capturing & Compression**
+- [x] **Base64 Image Capturing & Compression**
   *   Auto-encode images (<100KB) to Base64 in DOM converter to guarantee rendering and bypass proxy timeouts when pasting into Figma.
 - [ ] **Clean Metadata & Descriptors**
   *   Filter and strip out non-standard attributes (e.g. `sketch:type`, `<desc>`, Adobe generator tags) from copied SVGs to minimize clipboard size.

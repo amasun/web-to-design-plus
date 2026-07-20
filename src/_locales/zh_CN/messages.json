@@ -26,6 +26,9 @@
   "canvasSize": {
     "message": "画布尺寸"
   },
+  "canvasSizeTooltip": {
+    "message": "画布尺寸功能可能不准确，请手动调整"
+  },
   "sizeDefault": {
     "message": "默认"
   },

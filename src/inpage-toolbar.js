@@ -3,6 +3,77 @@
   const HOST_ID = "__figma_capture_toolbar_host__";
   const HIGHLIGHT_ID = "__figma_capture_highlight__";
 
+  // ── Cuelume Interaction Sounds (inline, zero dependencies) ─────────────────
+  const __cuelume = (() => {
+    const RECIPES = {
+      loading: { masterGain: 0.42, layers: [{ kind: "noise", filterType: "lowpass", filterFrequency: 1400, filterQ: 0.6, attack: 0.035, decay: 0.14, peak: 0.035 }, { kind: "tone", waveform: "sine", frequency: 420, glideTo: 630, glideTime: 0.18, attack: 0.025, decay: 0.18, peak: 0.05 }], shimmer: { delay: 0.11, feedback: 0.18, wet: 0.12, lowpass: 2800 } },
+      success: { masterGain: 0.5, layers: [{ kind: "tone", waveform: "sine", frequency: 880, attack: 0.004, decay: 0.09, peak: 0.06 }, { kind: "tone", waveform: "sine", frequency: 1108.73, offset: 0.06, attack: 0.004, decay: 0.1, peak: 0.06 }, { kind: "tone", waveform: "sine", frequency: 1318.51, offset: 0.12, attack: 0.004, decay: 0.18, peak: 0.07 }], shimmer: { delay: 0.1, feedback: 0.22, wet: 0.16, lowpass: 4500 } },
+      error:   { masterGain: 0.42, layers: [{ kind: "noise", filterType: "bandpass", filterFrequency: 850, filterQ: 1.1, attack: 0.001, decay: 0.035, peak: 0.13 }, { kind: "tone", waveform: "triangle", frequency: 440, offset: 0.025, attack: 0.004, decay: 0.09, peak: 0.045 }, { kind: "tone", waveform: "triangle", frequency: 349.23, offset: 0.1, attack: 0.004, decay: 0.14, peak: 0.04 }] },
+      droplet: { masterGain: 0.55, layers: [{ kind: "tone", waveform: "sine", frequency: 1200, glideTo: 550, glideTime: 0.14, attack: 0.004, decay: 0.2, peak: 0.075 }], shimmer: { delay: 0.09, feedback: 0.2, wet: 0.15, lowpass: 3000 } },
+      toggle:  { masterGain: 0.4, layers: [{ kind: "noise", filterType: "bandpass", filterFrequency: 2200, filterQ: 1.6, attack: 0.001, decay: 0.016, peak: 0.12 }, { kind: "noise", filterType: "bandpass", filterFrequency: 3800, filterQ: 1.6, offset: 0.024, attack: 0.001, decay: 0.02, peak: 0.1 }] },
+      bloom:   { masterGain: 0.5, layers: [{ kind: "tone", waveform: "sine", frequency: 528, attack: 0.06, decay: 0.32, peak: 0.06 }, { kind: "tone", waveform: "sine", frequency: 528, detune: 12, attack: 0.06, decay: 0.34, peak: 0.05 }], shimmer: { delay: 0.15, feedback: 0.2, wet: 0.12, lowpass: 2500 } },
+      tick:    { masterGain: 0.4, layers: [{ kind: "noise", filterType: "bandpass", filterFrequency: 5400, filterQ: 1.8, attack: 0.001, decay: 0.018, peak: 0.14 }, { kind: "tone", waveform: "sine", frequency: 2600, attack: 0.001, decay: 0.012, peak: 0.018 }] },
+      whisper: { masterGain: 0.5, layers: [{ kind: "noise", filterType: "lowpass", filterFrequency: 1200, filterQ: 0.7, attack: 0.04, decay: 0.16, peak: 0.05 }] },
+    };
+    const PAD = 0.05;
+    function tone(ctx, dst, l, t0) {
+      const osc = ctx.createOscillator(); osc.type = l.waveform;
+      osc.frequency.setValueAtTime(l.frequency, t0);
+      if (l.detune) osc.detune.value = l.detune;
+      if (l.glideTo != null) osc.frequency.exponentialRampToValueAtTime(l.glideTo, t0 + (l.glideTime ?? l.attack + l.decay));
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(l.peak, t0 + l.attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + l.attack + l.decay);
+      osc.connect(g).connect(dst); osc.start(t0); osc.stop(t0 + l.attack + l.decay + PAD);
+    }
+    function noise(ctx, dst, l, t0) {
+      const dur = l.attack + l.decay + PAD;
+      const buf = ctx.createBuffer(1, Math.max(1, Math.floor(dur * ctx.sampleRate)), ctx.sampleRate);
+      const d = buf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = 2 * Math.random() - 1;
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const f = ctx.createBiquadFilter(); f.type = l.filterType; f.frequency.value = l.filterFrequency;
+      if (l.filterQ != null) f.Q.value = l.filterQ;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(l.peak, t0 + l.attack);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + l.attack + l.decay);
+      src.connect(f).connect(g).connect(dst); src.start(t0); src.stop(t0 + dur);
+    }
+    function shimmer(ctx, src, dst, s) {
+      const dl = ctx.createDelay(1); dl.delayTime.value = s.delay;
+      const ff = ctx.createBiquadFilter(); ff.type = "lowpass"; ff.frequency.value = s.lowpass;
+      const fg = ctx.createGain(); fg.gain.value = s.feedback;
+      const wg = ctx.createGain(); wg.gain.value = s.wet;
+      src.connect(dl); dl.connect(ff); ff.connect(fg); fg.connect(dl); ff.connect(wg); wg.connect(dst);
+      return [dl, ff, fg, wg];
+    }
+    let ctx = null;
+    function getCtx() {
+      if (ctx) return ctx;
+      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { return null; }
+      return ctx;
+    }
+    function play(name) {
+      if (!name || !RECIPES[name]) return;
+      if (typeof navigator !== "undefined" && navigator.userActivation?.hasBeenActive === false) return;
+      const ac = getCtx(); if (!ac) return;
+      const recipe = RECIPES[name];
+      const go = () => {
+        const now = ac.currentTime;
+        const master = ac.createGain(); master.gain.value = recipe.masterGain; master.connect(ac.destination);
+        const sn = recipe.shimmer ? shimmer(ac, master, ac.destination, recipe.shimmer) : [];
+        const maxEnd = Math.max(...recipe.layers.map(l => (l.offset ?? 0) + l.attack + l.decay + PAD));
+        const tail = recipe.shimmer && recipe.shimmer.feedback > 0 && recipe.shimmer.feedback < 1
+          ? recipe.shimmer.delay * (1 + Math.ceil(Math.log(0.001) / Math.log(recipe.shimmer.feedback))) : 0;
+        for (const l of recipe.layers) { const t0 = now + (l.offset ?? 0); l.kind === "tone" ? tone(ac, master, l, t0) : noise(ac, master, l, t0); }
+        setTimeout(() => { master.disconnect(); sn.forEach(n => n.disconnect()); }, (maxEnd + tail + 0.05) * 1000);
+      };
+      if (ac.state === "running") { go(); }
+      else { try { ac.resume().then(() => { if (ac.state === "running") go(); }, () => {}); } catch {} }
+    }
+    return { play };
+  })();
+  // ── End Cuelume ─────────────────────────────────────────────────────────────
+
   let isSelectionModeActive = false;
   let currentHighlightedEl = null;
 
@@ -266,6 +337,7 @@
 
       /* Footer styling */
       .footer-section {
+        width: 100%;
         padding: 0 12px;
         height: 44px;
         display: flex;
@@ -279,6 +351,7 @@
       }
 
       .footer-credit {
+        position: relative;
         font-family: 'Inter', sans-serif;
         font-size: 12px;
         font-weight: 500;
@@ -288,6 +361,7 @@
         display: flex;
         align-items: center;
         gap: 4px;
+        cursor: default;
       }
 
       .info-icon {
@@ -296,6 +370,7 @@
       }
 
       .info-link {
+        position: relative;
         display: flex;
         flex-shrink: 0;
         line-height: 0;
@@ -306,6 +381,65 @@
 
       .info-link:hover {
         opacity: 1;
+      }
+
+      /* Shared tooltip pseudo-elements for footer elements */
+      .info-link[data-tooltip]::after,
+      .footer-credit[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: calc(100% + 7px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.92);
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.5;
+        white-space: nowrap;
+        padding: 5px 9px;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.18s ease, visibility 0.18s ease;
+        z-index: 2147483647;
+        text-align: center;
+      }
+      .info-link[data-tooltip]::before,
+      .footer-credit[data-tooltip]::before {
+        content: '';
+        position: absolute;
+        bottom: calc(100% + 1px);
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.92);
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.18s ease, visibility 0.18s ease;
+        z-index: 2147483647;
+      }
+      .info-link[data-tooltip]:hover::after,
+      .info-link[data-tooltip]:hover::before,
+      .footer-credit[data-tooltip]:hover::after,
+      .footer-credit[data-tooltip]:hover::before {
+        opacity: 1;
+        visibility: visible;
+      }
+      /* Right-edge elements: tooltip shifts left to stay within viewport */
+      .info-link--tip-left::after {
+        left: auto !important;
+        right: 0 !important;
+        transform: none !important;
+      }
+      .info-link--tip-left::before {
+        left: auto !important;
+        right: 4px !important;
+        transform: none !important;
       }
 
       /* Capsule Styles (Overlay/Toasts/Selection) */
@@ -400,6 +534,7 @@
         align-items: center;
         gap: 8px;
         box-sizing: border-box;
+        width: 100%;
       }
       .viewport-label {
         font-family: 'Inter', sans-serif;
@@ -407,10 +542,14 @@
         font-weight: 500;
         color: var(--token-color-text-muted);
         flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
       }
       .custom-select {
         position: relative;
         flex: 1;
+        min-width: 0;
       }
       .custom-select-trigger {
         display: flex;
@@ -488,7 +627,7 @@
       }
       .custom-select-item:hover {
         background: var(--token-color-bg-item-hover);
-        color: var(--token-color-text-bright);
+        color: #ffffff;
       }
       .custom-select-item.selected {
         background: var(--token-color-accent);
@@ -497,6 +636,63 @@
       .viewport-custom-fields {
         padding: 0 12px 10px 12px;
         box-sizing: border-box;
+      }
+      /* ── Custom Tooltip ───────────────────────────────────────────────────── */
+      .info-tip {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        cursor: help;
+        margin-left: 4px;
+        opacity: 0.55;
+        transition: opacity 0.15s ease;
+        flex-shrink: 0;
+      }
+      .info-tip:hover {
+        opacity: 1;
+      }
+      .info-tip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: calc(100% + 7px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.92);
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.5;
+        white-space: normal;
+        width: 180px;
+        padding: 7px 10px;
+        border-radius: 6px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.18s ease, visibility 0.18s ease;
+        z-index: 2147483647;
+        text-align: center;
+      }
+      .info-tip::before {
+        content: '';
+        position: absolute;
+        top: calc(100% + 1px);
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid transparent;
+        border-bottom-color: rgba(0, 0, 0, 0.92);
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.18s ease, visibility 0.18s ease;
+        z-index: 2147483647;
+      }
+      .info-tip:hover::after,
+      .info-tip:hover::before {
+        opacity: 1;
+        visibility: visible;
       }
       .input-group {
         display: flex;
@@ -635,6 +831,9 @@
         grid-template-rows: 1fr;
       }
       .advanced-wrapper:has(.custom-select-trigger.open) {
+        overflow: visible !important;
+      }
+      .advanced-wrapper:has(.info-tip:hover) {
         overflow: visible !important;
       }
       .advanced-content {
@@ -869,7 +1068,7 @@
             </svg>
           </div>
           <!-- close button (20:88) -->
-          <button class="close-btn" id="figmaBtnClose" type="button" title="${t('btnClose')}">
+          <button class="close-btn" id="figmaBtnClose" type="button">
             <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
               <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -936,7 +1135,12 @@
           <div class="advanced-content">
             <!-- Viewport Selection -->
             <div class="viewport-section">
-              <span class="viewport-label">${t('canvasSize')}</span>
+              <span class="viewport-label">
+                ${t('canvasSize')}
+                <span class="info-tip" data-tooltip="${t('canvasSizeTooltip')}">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </span>
+              </span>
               <div class="custom-select" id="figmaViewportSelectContainer">
                 <div class="custom-select-trigger" id="figmaViewportTrigger">
                   <span id="figmaViewportValue">${
@@ -990,19 +1194,19 @@
  
         <!-- Footer -->
         <footer class="footer-section">
-          <span class="footer-credit" title="AKA S.CX">
+          <span class="footer-credit" data-tooltip="AKA S.CX">
             ${t('byAuthor')}
           </span>
           <!-- Social icons group -->
           <div style="display: flex; align-items: center; gap: 10px;">
-            <!-- GitHub icon (97:7657) -->
-            <a class="info-link" href="https://github.com/amasun/web-to-design-plus" target="_blank" rel="noopener noreferrer" title="View on GitHub">
+            <!-- GitHub icon -->
+            <a class="info-link" href="https://github.com/amasun/web-to-design-plus" target="_blank" rel="noopener noreferrer" data-tooltip="View on GitHub">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9 0.5C4.30556 0.5 0.5 4.30556 0.5 9C0.5 12.7467 2.87889 15.9383 6.23111 17.0994C6.65611 17.1756 6.80889 16.9211 6.80889 16.7003C6.80889 16.5017 6.80111 15.9317 6.79778 15.1717C4.56444 15.6822 4.07 14.1544 4.07 14.1544C3.68222 13.1356 3.11556 12.8822 3.11556 12.8822C2.33222 12.3578 3.17333 12.3678 3.17333 12.3678C4.03556 12.4278 4.48889 13.2567 4.48889 13.2567C5.26 14.595 6.51111 14.2067 6.82667 13.9939C6.90333 13.4444 7.12444 13.0578 7.36778 12.8383C5.63556 12.6167 3.81556 11.9417 3.81556 8.97222C3.81556 8.00444 4.14778 7.21222 4.50667 6.59C4.41667 6.36556 4.12222 5.46556 4.57 4.25556C4.57 4.25556 5.29667 4.01667 6.78333 5.16111C7.40222 4.96222 8.07333 4.86444 8.74111 4.86111C9.40778 4.86444 10.0789 4.96222 10.6978 5.16111C12.1822 4.01667 12.9078 4.25556 12.9078 4.25556C13.3567 5.46556 13.0622 6.36556 12.9722 6.59C13.3322 7.21222 13.6633 8.00444 13.6633 8.97222C13.6633 11.9506 11.84 12.6133 10.1011 12.8306C10.4 13.0989 10.6633 13.6256 10.6633 14.4267C10.6633 15.5756 10.6522 16.5067 10.6522 16.7003C10.6522 16.9228 10.8011 17.1789 11.2322 17.0983C14.5822 15.935 16.9567 12.7444 16.9567 9C16.9567 4.30556 13.1511 0.5 8.45667 0.5H9Z" fill="rgba(255,255,255,0.9)"/>
               </svg>
             </a>
-            <!-- Xiaohongshu logo brand icon (20:102) -->
-            <a class="info-link" href="https://www.xiaohongshu.com/user/profile/5c094b50f7e8b948da476607" target="_blank" rel="noopener noreferrer" title="Follow on Xiaohongshu">
+            <!-- Xiaohongshu logo brand icon -->
+            <a class="info-link" href="https://www.xiaohongshu.com/user/profile/5c094b50f7e8b948da476607" target="_blank" rel="noopener noreferrer" data-tooltip="Follow on XHS">
               <svg class="info-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_20_102)">
                   <path d="M4 0H12C14.6667 0 16 1.33333 16 4V12C16 14.6667 14.6667 16 12 16H4C1.33333 16 0 14.6667 0 12V4C0 1.33333 1.33333 0 4 0Z" fill="#F24E1E"/>
@@ -1026,6 +1230,23 @@
     const btnGrabSvg = shadowRoot.querySelector("#btnGrabSvg");
     const btnClose = shadowRoot.querySelector("#figmaBtnClose");
 
+    // Hover sounds — fine pointer only, throttled (one per 150ms) per cuelume guidance
+    let _lastHoverTs = 0;
+    const _hoverSound = () => {
+      const now = Date.now();
+      if (now - _lastHoverTs < 150) return;
+      _lastHoverTs = now;
+      __cuelume.play("toggle");
+    };
+    const btnWhatsFontEl = shadowRoot.querySelector("#btnWhatsFont");
+    [btnEntire, btnElement, btnGrabSvg, btnWhatsFontEl].forEach(btn => {
+      if (!btn) return;
+      btn.addEventListener("pointerenter", (e) => {
+        if (e.pointerType !== "mouse") return;
+        _hoverSound();
+      });
+    });
+
     const customFields = shadowRoot.querySelector("#figmaCustomFields");
     const customWidthInput = shadowRoot.querySelector("#figmaCustomWidth");
     const customHeightInput = shadowRoot.querySelector("#figmaCustomHeight");
@@ -1043,6 +1264,7 @@
       } else {
         popover.style.display = "block";
         trigger.classList.add("open");
+        __cuelume.play("bloom");
       }
     });
 
@@ -1059,6 +1281,7 @@
         e.stopPropagation();
         const value = item.getAttribute("data-value");
         lastSelectedResolution = value;
+        __cuelume.play("tick");
 
         let displayName = item.textContent;
         if (value !== "auto" && value !== "custom" && value.includes("x")) {
@@ -1092,6 +1315,7 @@
 
     autoScrollToggle.addEventListener("change", () => {
       lastAutoScrollActive = autoScrollToggle.checked;
+      __cuelume.play("toggle");
     });
 
     const advancedTrigger = shadowRoot.querySelector("#figmaAdvancedTrigger");
@@ -1099,6 +1323,7 @@
 
     advancedTrigger.addEventListener("click", () => {
       lastAdvancedExpanded = !lastAdvancedExpanded;
+      __cuelume.play("toggle");
 
       if (lastAdvancedExpanded) {
         advancedWrapper.classList.add("expanded");
@@ -1111,6 +1336,7 @@
     });
 
     btnEntire.addEventListener("click", () => {
+      __cuelume.play("loading");
       showCapturingIndicator();
 
       let viewport = null;
@@ -1131,11 +1357,13 @@
     });
 
     btnElement.addEventListener("click", () => {
+      __cuelume.play("loading");
       showSelectionIndicator();
       activateElementSelection();
     });
 
     btnGrabSvg.addEventListener("click", () => {
+      __cuelume.play("loading");
       chrome.runtime.sendMessage({ type: "FIGMA_RUN_SVG_GRABBER" });
       removeExisting();
     });
@@ -1143,6 +1371,7 @@
     const btnWhatsFont = shadowRoot.querySelector("#btnWhatsFont");
     if (btnWhatsFont) {
       btnWhatsFont.addEventListener("click", () => {
+        __cuelume.play("loading");
         // Hide main toolbar wrapper completely
         const wrapperEl = shadowRoot.querySelector(".wrapper-outer");
         if (wrapperEl) {
@@ -1183,7 +1412,7 @@
           </svg>
           <span class="capsule-label">Click to select · <span class="capsule-label-dim">↑↓ Navigate · Enter Confirm</span></span>
         </div>
-        <button class="close-btn" id="figmaCancelBtn" type="button" title="Cancel">
+        <button class="close-btn" id="figmaCancelBtn" type="button">
           <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
             <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -1235,7 +1464,7 @@
             <path d="M16 5.07193C17.2067 5.76862 18.2104 6.76837 18.9119 7.9722C19.6134 9.17604 19.9884 10.5422 19.9996 11.9355C20.0109 13.3288 19.658 14.7008 18.9761 15.9158C18.2941 17.1308 17.3066 18.1467 16.1114 18.8628C14.9162 19.5788 13.5547 19.9704 12.1617 19.9986C10.7686 20.0268 9.39238 19.6906 8.16917 19.0235C6.94596 18.3563 5.9182 17.3813 5.18763 16.1949C4.45705 15.0085 4.04901 13.6518 4.00388 12.2592L3.99988 12L4.00388 11.7408C4.04868 10.3592 4.45072 9.01274 5.1708 7.83276C5.89089 6.65277 6.90444 5.6795 8.11264 5.00783C9.32085 4.33617 10.6825 3.98903 12.0648 4.00026C13.4471 4.0115 14.8029 4.38072 16 5.07193ZM14.9656 9.83439C14.8279 9.69664 14.6446 9.6139 14.4502 9.60167C14.2557 9.58945 14.0635 9.64858 13.9096 9.76799L13.8344 9.83439L11.2 12.468L10.1656 11.4344L10.0904 11.368C9.93642 11.2487 9.74425 11.1896 9.54987 11.2019C9.35549 11.2141 9.17227 11.2969 9.03455 11.4346C8.89683 11.5723 8.81408 11.7556 8.80182 11.9499C8.78956 12.1443 8.84862 12.3365 8.96794 12.4904L9.03434 12.5656L10.6344 14.1656L10.7096 14.232C10.8499 14.3409 11.0224 14.4 11.2 14.4C11.3775 14.4 11.5501 14.3409 11.6904 14.232L11.7656 14.1656L14.9656 10.9656L15.032 10.8904C15.1514 10.7365 15.2106 10.5443 15.1983 10.3498C15.1861 10.1554 15.1034 9.97214 14.9656 9.83439Z" fill="#D4FC5D"/>
           </svg>${labelHtml}
         </div>
-        <button class="close-btn" id="figmaSuccessClose" type="button" title="Close">
+        <button class="close-btn" id="figmaSuccessClose" type="button">
           <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
             <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -1270,7 +1499,7 @@
           </svg>
           <span class="capsule-label">Capture failed!</span>
         </div>
-        <button class="close-btn" id="figmaErrorClose" type="button" title="Close">
+        <button class="close-btn" id="figmaErrorClose" type="button">
             <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;">
               <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -1493,8 +1722,10 @@
       if (msg.state === "capturing") {
         showCapturingIndicator();
       } else if (msg.state === "success") {
+        __cuelume.play("success");
         showSuccessIndicator(msg.delivery === "download" ? "Saved as file" : t('copiedToClipboard'));
       } else if (msg.state === "error") {
+        __cuelume.play("error");
         showErrorIndicator();
       }
       return true;
