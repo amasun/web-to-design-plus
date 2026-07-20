@@ -9,7 +9,6 @@
     "scripting",
     "storage",
     "clipboardWrite",
-    "clipboardRead",
     "offscreen"
   ],
   "background": {
