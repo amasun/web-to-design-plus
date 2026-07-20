@@ -40,8 +40,5 @@
         "<all_urls>"
       ]
     }
-  ],
-  "host_permissions": [
-    "<all_urls>"
   ]
 }
