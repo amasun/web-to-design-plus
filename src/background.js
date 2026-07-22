@@ -683,6 +683,23 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   return true;
 });
 
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (!msg || msg.type !== "FIGMA_DOWNLOAD_FILE" || !msg.url) return;
+  chrome.downloads.download({
+    url: msg.url,
+    filename: msg.filename || "font.woff2",
+    saveAs: false
+  }, (downloadId) => {
+    if (chrome.runtime.lastError) {
+      console.error("Font download failed:", chrome.runtime.lastError.message);
+      sendResponse({ ok: false, error: chrome.runtime.lastError.message });
+    } else {
+      sendResponse({ ok: true, downloadId });
+    }
+  });
+  return true;
+});
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({
     enableAssetProxyFetch: true,
@@ -691,3 +708,4 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 loadConcurrencyConfig();
+

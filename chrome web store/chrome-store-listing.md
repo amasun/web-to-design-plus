@@ -58,6 +58,13 @@ https://github.com/amasun/web-to-design-plus
 Figma, Web to Figma, HTML to Figma, Font inspector, SVG grabber, UI design, 网页设计, 字体下载, 网页抓取, 开发者工具
 ```
 
+### 5. v1.1 更新说明 (Release Notes)
+```text
+【v1.1 更新内容】
+1. 字体跨域下载修复：新增后台代理下载机制，彻底解决 Google Fonts 等第三方字体无法下载及弹出重复窗口的问题。
+2. 全局 ESC 快捷退出：支持使用 ESC (Escape) 键随时随时一键退出字体探查面板与元素选择模式，快速恢复页面原状。
+```
+
 ---
 
 ## 英文版 (English - en)
@@ -110,6 +117,13 @@ https://github.com/amasun/web-to-design-plus
 Figma, Web to Figma, HTML to Figma, Font inspector, SVG grabber, UI design, typography, developer tools
 ```
 
+### 5. Release Notes (v1.1)
+```text
+[v1.1 What's New]
+1. Fixed Web Font Download: Added a background proxy downloader to solve cross-origin font downloads (e.g., Google Fonts) and fix duplicate save dialog issues.
+2. Global ESC Shortcut Exit: Press ESC (Escape) anytime to instantly quit the font inspector panel or element selection mode.
+```
+
 ---
 
 ## Chrome Web Store 隐私申报 (Privacy)
@@ -149,6 +163,11 @@ Required as a paired permission with clipboardWrite to ensure reliable clipboard
 **offscreen**
 ```text
 Used to create an offscreen document that runs the opentype.js library to parse font binary files (woff2, ttf) entirely within the browser, converting Icon Font glyphs into SVG path data. No data leaves the device.
+```
+
+**downloads**
+```text
+Required to allow users to save extracted web font files (e.g., woff2, ttf) directly to their local machine upon clicking the download button in the Font Inspector panel. Used solely for user-initiated asset downloads.
 ```
 
 **debugger**

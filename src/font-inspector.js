@@ -82,6 +82,17 @@
     document.body.appendChild(hostEl);
   }
 
+  function onKeyDown(e) {
+    if (!isActive && !hostEl) return;
+    if (e.key === "Escape" || e.key === "Esc") {
+      e.preventDefault();
+      e.stopPropagation();
+      restoreLockedColor();
+      toggle(false);
+      dispatchClose();
+    }
+  }
+
   function toggle(activate) {
     initHost();
     isActive = typeof activate === "boolean" ? activate : !isActive;
@@ -90,13 +101,18 @@
       currentMode = "inspect";
       window.addEventListener("mousemove", onMouseMove, true);
       window.addEventListener("click", onClick, true);
+      window.addEventListener("keydown", onKeyDown, true);
+      document.addEventListener("keydown", onKeyDown, true);
     } else {
       window.removeEventListener("mousemove", onMouseMove, true);
       window.removeEventListener("click", onClick, true);
+      window.removeEventListener("keydown", onKeyDown, true);
+      document.removeEventListener("keydown", onKeyDown, true);
       restoreLockedColor();
       
       const existing = document.getElementById(HOST_ID);
       if (existing) existing.remove();
+      if (hostEl) hostEl.remove();
       hostEl = null;
       hoverPill = null;
       panelEl = null;
@@ -370,11 +386,73 @@
     return results;
   }
 
+  let lastDownloadTime = 0;
+
   function downloadFont(url, name) {
-    const a = document.createElement("a");
-    a.href = url; a.download = name || url.split("/").pop().split("?")[0] || "font.woff2";
-    a.target = "_blank"; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    showToast("Downloading...");
+    if (!url) return;
+    const now = Date.now();
+    if (now - lastDownloadTime < 1000) return; // Prevent duplicate rapid trigger
+    lastDownloadTime = now;
+
+    const cleanName = (name || "font.woff2").replace(/[/\\?%*:|"<>]/g, "_");
+    showToast(isZh ? "正在下载..." : "Downloading...");
+
+    // 1. Try sending message to Background Service Worker to trigger chrome.downloads API
+    if (typeof chrome !== "undefined" && chrome.runtime?.sendMessage) {
+      try {
+        chrome.runtime.sendMessage({
+          type: "FIGMA_DOWNLOAD_FILE",
+          url: url,
+          filename: cleanName
+        }, (resp) => {
+          const errMsg = chrome.runtime?.lastError?.message || (resp && resp.error);
+          if (errMsg) {
+            // Do not fallback if the user intentionally canceled the file save dialog
+            const isCanceled = /cancel|user canceled|aborted/i.test(errMsg);
+            if (isCanceled) {
+              console.log("User canceled font download dialog.");
+              return;
+            }
+            console.warn("Background download failed, attempting blob fallback:", errMsg);
+            fallbackDownload(url, cleanName);
+          } else if (resp && resp.ok) {
+            showToast(isZh ? "已开始下载" : "Download started");
+          }
+        });
+        return;
+      } catch (err) {
+        console.warn("sendMessage error:", err);
+      }
+    }
+    fallbackDownload(url, cleanName);
+  }
+
+  function fallbackDownload(url, name) {
+    fetch(url)
+      .then(res => res.blob())
+      .then(blob => {
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = blobUrl;
+        a.download = name;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          a.remove();
+          URL.revokeObjectURL(blobUrl);
+        }, 1000);
+      })
+      .catch(err => {
+        console.error("Fallback font download failed:", err);
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
   }
 
   function isInFiPanel(composedPath) {
@@ -676,7 +754,14 @@
     panelEl.querySelector("#fiCopyLetterSp").onmousedown = () => copyText(letterSp);
     panelEl.querySelector("#fiCopyColor").onmousedown = () => copyText(color);
     const dlBtn = panelEl.querySelector("#fiBtnDl");
-    if (dlBtn && bestFile) dlBtn.onmousedown = () => downloadFont(bestFile.url, `${cleanFamily}.${bestFile.ext.toLowerCase()}`);
+    if (dlBtn && bestFile) {
+      const doDl = (e) => {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        downloadFont(bestFile.url, `${cleanFamily}.${bestFile.ext.toLowerCase()}`);
+      };
+      dlBtn.onmousedown = doDl;
+      dlBtn.onclick = doDl;
+    }
   }
 
   // ─── Render Audit List ──────────────────────────────────────────────────────
@@ -742,7 +827,12 @@
       b.onmousedown = () => copyText(b.dataset.family);
     });
     panelEl.querySelectorAll(".fi-audit-dl").forEach(b => {
-      b.onmousedown = () => downloadFont(b.dataset.url, b.dataset.name);
+      const doDl = (e) => {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        downloadFont(b.dataset.url, b.dataset.name);
+      };
+      b.onmousedown = doDl;
+      b.onclick = doDl;
     });
   }
 
@@ -816,30 +906,6 @@
     hoveredTarget = null;
     panelEl.style.display = "flex";
     renderInspectCard(lockedTarget);
-  }
-
-  // ─── Toggle ──────────────────────────────────────────────────────────────────
-
-  function toggle(activate) {
-    initHost();
-    isActive = typeof activate === "boolean" ? activate : !isActive;
-
-    if (isActive) {
-      currentMode = "inspect";
-      window.addEventListener("mousemove", onMouseMove, true);
-      window.addEventListener("click", onClick, true);
-    } else {
-      window.removeEventListener("mousemove", onMouseMove, true);
-      window.removeEventListener("click", onClick, true);
-      restoreLockedColor();
-      if (hostEl) {
-        hostEl.remove();
-        hostEl = null;
-      }
-      hoverPill = null;
-      panelEl = null;
-      hoveredTarget = null;
-    }
   }
 
   window.figmaFontInspector = {

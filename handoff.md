@@ -1,10 +1,11 @@
 # Web to Design Plus - 项目交接文档 (Handoff)
 
 ## 当前项目进度 (Current Status)
-- 已完成核心功能 `font-inspector.js` (字体检查面板) 的 UI 重构与交互修复。
-- 成功解决了由于宿主网页环境（如 Figma.com、React 等）引发的极端 DOM 事件劫持与“幽灵面板”问题。
-- 代码构建流程跑通，通过 `node build.js` 重新编译更新 `dist` 文件。
-- 已移除根目录下不需要的无用临时脚本文件。
+- **版本升至 v1.1**。
+- 修复了跨域 Web 字体（如 Google Fonts）无法激活下载及选择保存路径弹窗重复弹出（取消后误触发二次 fallback 弹窗）的问题。
+- 新增 `chrome.downloads` 后台代理下载机制，在 `manifest.json` 中加入了 `"downloads"` 权限。
+- 全局优化了按 **ESC** 键的交互逻辑：Font Inspector 面板及元素选择器（Select Element）在按 ESC 时统一直接完全退出整个插件，恢复页面状态。
+- 代码构建跑通，使用 `node build.js` 重新将 `src` 编译打包到了 `dist/`。
 
 ## 核心设计决策 (Key Design Decisions)
 - **UI 审美**: 面板遵循高级感极简设计，使用纯原生 CSS、支持明暗自适应。
